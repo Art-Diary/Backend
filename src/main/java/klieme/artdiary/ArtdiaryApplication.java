@@ -10,4 +10,6 @@ public class ArtdiaryApplication {
 		SpringApplication.run(ArtdiaryApplication.class, args);
 	}
 
+
+
 }
