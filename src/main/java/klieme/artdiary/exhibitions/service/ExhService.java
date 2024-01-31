@@ -1,14 +1,18 @@
 package klieme.artdiary.exhibitions.service;
 
+import com.fasterxml.classmate.AnnotationOverrides;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import jakarta.validation.constraints.Null;
+import klieme.artdiary.common.ArtDiaryException;
+import klieme.artdiary.common.MessageType;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +25,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
     @Autowired
     public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository) {
         this.exhRepository = exhRepository;
-		this.userExhRepository = userExhRepository;
-	}
+        this.userExhRepository = userExhRepository;
+    }
 
     @Override
     public String createDummy(ExhOperationUseCase.ExhDummyCreateCommand command) {
@@ -39,6 +43,28 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
                 .build();
         exhRepository.save(entity);
         return "complete";
+    }
+
+    @Override
+    public FindStoredDateResult addSoloExhCreateDummy(ExhOperationUseCase.AddSoloExhDummyCreateCommand command) {
+        // 전시회 아이디 검증
+       ExhEntity exhEntity=  exhRepository.findByExhId(command.getExhId()).orElseThrow(()->{
+           throw new ArtDiaryException(MessageType.NOT_FOUND);
+       });
+
+        // 관람날짜 검증
+        UserExhEntity userexhEntity=  userExhRepository.findByUserIdAndExhIdAndVisitDate(getUserId(),command.getExhId(),command.getVisitDate()).orElseThrow(()->{
+            throw new ArtDiaryException(MessageType.CONFLICT);
+        });
+
+        // DB에 데이터 생성
+        UserExhEntity entity = UserExhEntity.builder()
+                .visitDate(command.getVisitDate())
+                .userId(getUserId())
+                .exhId(command.getExhId())
+                .build();
+        userExhRepository.save(entity);
+        return FindStoredDateResult.findByStoredDate(command.getExhId(),command.getVisitDate(), null);
     }
 
     @Override

@@ -3,6 +3,7 @@ package klieme.artdiary.exhibitions.ui.controller;
 import jakarta.validation.Valid;
 import klieme.artdiary.exhibitions.service.ExhOperationUseCase;
 import klieme.artdiary.exhibitions.service.ExhReadUseCase;
+import klieme.artdiary.exhibitions.ui.request_body.AddSoloExhRequest;
 import klieme.artdiary.exhibitions.ui.request_body.ExhRequest;
 import klieme.artdiary.exhibitions.ui.view.StoredDateView;
 
@@ -47,6 +48,23 @@ public class ExhController {
 
         System.out.println(exhOperationUseCase.createDummy(command));
     }
+
+    @PostMapping("/{exhId}")
+    public ResponseEntity<StoredDateView> addSoloExhCreateDummyDate(@PathVariable Long exhId, @Valid @RequestBody AddSoloExhRequest addSoloExhRequest){
+
+        System.out.println("Test");
+
+        var command = ExhOperationUseCase.AddSoloExhDummyCreateCommand.builder()
+                .visitDate(addSoloExhRequest.getVisitDate())
+                .exhId(exhId)
+                .build();
+
+        ExhReadUseCase.FindStoredDateResult result=exhOperationUseCase.addSoloExhCreateDummy(command);
+
+        // System.out.println(exhOperationUseCase.addSoloExhCreateDummy(command));
+        return ResponseEntity.created(null).body(StoredDateView.builder().result(result).build());
+    }
+
 
     @GetMapping("/{exhId}/date") // ResponseEntity<>
     public ResponseEntity<StoredDateView> getStoredDateOfExhs(
