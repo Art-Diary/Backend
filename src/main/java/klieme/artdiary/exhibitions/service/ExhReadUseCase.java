@@ -1,6 +1,6 @@
 package klieme.artdiary.exhibitions.service;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import lombok.Builder;
@@ -25,10 +25,10 @@ public interface ExhReadUseCase {
 	@Builder
 	class FindStoredDateResult {
 		private final Long exhId;
-		private final Date visitDate; // 단일 데이터일 때 사용
-		private final List<Date> dates; // 리스트 데이터일 떄 사용
+		private final LocalDate visitDate; // 단일 데이터일 때 사용
+		private final List<LocalDate> dates; // 리스트 데이터일 떄 사용
 
-		public static FindStoredDateResult findByStoredDate(Long exhId, Date visitDate, List<Date> dates) {
+		public static FindStoredDateResult findByStoredDate(Long exhId, LocalDate visitDate, List<LocalDate> dates) {
 			return FindStoredDateResult.builder()
 				.exhId(exhId)
 				.visitDate(visitDate)

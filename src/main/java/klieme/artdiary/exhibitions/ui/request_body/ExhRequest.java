@@ -1,10 +1,11 @@
 package klieme.artdiary.exhibitions.ui.request_body;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 
 @Getter
 @NoArgsConstructor
@@ -17,10 +18,10 @@ public class ExhRequest {
     private String gallery;
 
     @NotNull
-    private Date exhPeriodStart;
+    private LocalDate exhPeriodStart;
 
     @NotNull
-    private Date exhPeriodEnd;
+    private LocalDate exhPeriodEnd;
 
     @NotNull
     private String painter;

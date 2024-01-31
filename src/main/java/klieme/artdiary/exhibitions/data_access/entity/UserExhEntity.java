@@ -1,6 +1,6 @@
 package klieme.artdiary.exhibitions.data_access.entity;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -28,14 +28,14 @@ public class UserExhEntity {
 	@Column(name = "user_exh_id", nullable = false)
 	private Long userExhId;
 	@Column(name = "visit_date")
-	private Date visitDate;
+	private LocalDate visitDate;
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
 	@Column(name = "exh_id")
 	private Long exhId;
 
 	@Builder
-	public UserExhEntity(Long userExhId, Date visitDate, Long userId, Long exhId) {
+	public UserExhEntity(Long userExhId, LocalDate visitDate, Long userId, Long exhId) {
 		this.userExhId = userExhId;
 		this.visitDate = visitDate;
 		this.userId = userId;

@@ -1,12 +1,10 @@
 package klieme.artdiary.exhibitions.service;
 
-import com.fasterxml.classmate.AnnotationOverrides;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.validation.constraints.Null;
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
@@ -48,15 +46,16 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
     @Override
     public FindStoredDateResult addSoloExhCreateDummy(ExhOperationUseCase.AddSoloExhDummyCreateCommand command) {
         // 전시회 아이디 검증
-       ExhEntity exhEntity=  exhRepository.findByExhId(command.getExhId()).orElseThrow(()->{
-           throw new ArtDiaryException(MessageType.NOT_FOUND);
-       });
+        ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
+            .orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
         // 관람날짜 검증
-        UserExhEntity userexhEntity=  userExhRepository.findByUserIdAndExhIdAndVisitDate(getUserId(),command.getExhId(),command.getVisitDate()).orElseThrow(()->{
-            throw new ArtDiaryException(MessageType.CONFLICT);
-        });
+        Optional<UserExhEntity> userexhEntity = userExhRepository.findByUserIdAndExhIdAndVisitDate(getUserId(),
+            command.getExhId(), command.getVisitDate());
 
+        if (userexhEntity.isPresent()) {
+            throw new ArtDiaryException(MessageType.CONFLICT);
+        }
         // DB에 데이터 생성
         UserExhEntity entity = UserExhEntity.builder()
                 .visitDate(command.getVisitDate())
@@ -72,7 +71,11 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
         // 캘린더에 개인이 저장한 전시회 관람 날짜
         // userId: getUserId(), exhId: query.getExhId()
         Long userId = getUserId();
-        List<Date> dates = new ArrayList<>();
+        List<LocalDate> dates = new ArrayList<>();
+
+        // 전시회 아이디 검증
+        ExhEntity exhEntity = exhRepository.findByExhId(query.getExhId())
+            .orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
         if (query.getGatherId() == null) {
             List<UserExhEntity> entities = userExhRepository.findByUserIdAndExhId(userId, query.getExhId());

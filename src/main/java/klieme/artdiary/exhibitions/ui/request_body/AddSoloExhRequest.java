@@ -1,14 +1,17 @@
 package klieme.artdiary.exhibitions.ui.request_body;
 
+import java.time.LocalDate;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @NoArgsConstructor
 public class AddSoloExhRequest {
 
-    public Date visitDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    public LocalDate visitDate;
 
 }
