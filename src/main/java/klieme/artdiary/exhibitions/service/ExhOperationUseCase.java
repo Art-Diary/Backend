@@ -21,8 +21,8 @@ public interface ExhOperationUseCase {
 	class ExhDummyCreateCommand {
 		private final String exhName;
 		private final String gallery;
-		private final Date exhPeriodStart;
-		private final Date exhPeriodEnd;
+		private final LocalDate exhPeriodStart;
+		private final LocalDate exhPeriodEnd;
 		private final String painter;
 		private final Integer fee;
 		private final String intro;
@@ -36,7 +36,7 @@ public interface ExhOperationUseCase {
 	@Getter
 	@ToString
 	class AddSoloExhDummyCreateCommand {
-		private final Date visitDate;
+		private final LocalDate visitDate;
 		private final Long exhId;
 
 	}
