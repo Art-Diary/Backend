@@ -47,8 +47,8 @@ public class UserEntity {
 	private String refreshToken;
 
 	@Builder
-	public UserEntity(Long userId, String email, String nickname, String profile, String providerType, String providerId,
-		String favoriteArt, Boolean alarm1, Boolean alarm2, Boolean alarm3, String refreshToken) {
+	public UserEntity(Long userId, String email, String nickname, String profile, String providerType,
+		String providerId, String favoriteArt, Boolean alarm1, Boolean alarm2, Boolean alarm3, String refreshToken) {
 		this.userId = userId;
 		this.email = email;
 		this.nickname = nickname;
