@@ -11,30 +11,30 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ExhRequest {
 
-    @NotNull
-    private String exhName;
+	@NotNull
+	private String exhName;
 
-    @NotNull
-    private String gallery;
+	@NotNull
+	private String gallery;
 
-    @NotNull
-    private LocalDate exhPeriodStart;
+	@NotNull
+	private LocalDate exhPeriodStart;
 
-    @NotNull
-    private LocalDate exhPeriodEnd;
+	@NotNull
+	private LocalDate exhPeriodEnd;
 
-    @NotNull
-    private String painter;
+	@NotNull
+	private String painter;
 
-    @NotNull
-    private Integer fee;
+	@NotNull
+	private Integer fee;
 
-    @NotNull
-    private String intro;
+	@NotNull
+	private String intro;
 
-    @NotNull
-    private String url;
+	@NotNull
+	private String url;
 
-    @NotNull
-    private String poster;
+	@NotNull
+	private String poster;
 }
