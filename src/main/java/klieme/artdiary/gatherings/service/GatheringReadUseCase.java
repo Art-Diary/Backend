@@ -2,11 +2,9 @@ package klieme.artdiary.gatherings.service;
 
 import java.util.List;
 
-import klieme.artdiary.exhibitions.service.ExhReadUseCase;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 

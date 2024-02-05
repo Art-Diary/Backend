@@ -10,12 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import klieme.artdiary.exhibitions.service.ExhReadUseCase;
-import klieme.artdiary.exhibitions.ui.view.StoredDateView;
 import klieme.artdiary.gatherings.service.GatheringOperationUseCase;
 import klieme.artdiary.gatherings.service.GatheringReadUseCase;
 import klieme.artdiary.gatherings.ui.request_body.AddExhDateRequest;
@@ -28,7 +25,6 @@ import klieme.artdiary.gatherings.ui.view.GatheringView;
 public class GatheringController {
 	private final GatheringOperationUseCase gatheringOperationUseCase;
 	private final GatheringReadUseCase gatheringReadUseCase;
-
 
 	@Autowired
 	public GatheringController(GatheringOperationUseCase gatheringOperationUseCase,

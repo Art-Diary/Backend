@@ -2,17 +2,11 @@ package klieme.artdiary.gatherings.service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import klieme.artdiary.common.ArtDiaryException;
-import klieme.artdiary.common.MessageType;
-import klieme.artdiary.exhibitions.service.ExhReadUseCase;
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
