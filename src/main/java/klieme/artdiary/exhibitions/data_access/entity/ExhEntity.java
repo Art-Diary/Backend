@@ -1,5 +1,7 @@
 package klieme.artdiary.exhibitions.data_access.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,8 +10,6 @@ import lombok.NoArgsConstructor;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import java.util.Date;
 
 @Entity
 @Table(name = "exhibition")
@@ -22,14 +22,13 @@ public class ExhEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "exh_id", nullable = false)
 	private Long exhId;
-
 	@Column(name = "exh_name", nullable = false)
 	private String exhName;
 	private String gallery;
 	@Column(name = "exh_period_start")
-	private Date exhPeriodStart;
+	private LocalDate exhPeriodStart;
 	@Column(name = "exh_period_end")
-	private Date exhPeriodEnd;
+	private LocalDate exhPeriodEnd;
 	private String painter;
 	private Integer fee;
 	private String intro;
@@ -38,8 +37,8 @@ public class ExhEntity {
 	private String poster;
 
 	@Builder
-	public ExhEntity(Long exhId, String exhName, String gallery, Date exhPeriodStart, Date exhPeriodEnd,
-		String providerType, String painter, Integer fee, String intro, String url, String poster) {
+	public ExhEntity(Long exhId, String exhName, String gallery, LocalDate exhPeriodStart, LocalDate exhPeriodEnd,
+		String painter, Integer fee, String intro, String url, String poster) {
 		this.exhId = exhId;
 		this.exhName = exhName;
 		this.gallery = gallery;
