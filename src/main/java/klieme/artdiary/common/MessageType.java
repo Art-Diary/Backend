@@ -11,6 +11,7 @@ public enum MessageType {
 	INTERNAL_SERVER_ERROR("An error occurred inside the server.", HttpStatus.INTERNAL_SERVER_ERROR),
 	CONFLICT("Already exists data.", HttpStatus.CONFLICT),
 	FORBIDDEN("Do not have an authorization.", HttpStatus.FORBIDDEN),
+	FORBIDDEN_DATE("It's not the day.", HttpStatus.FORBIDDEN),
 	ExpiredJwtException("Access Token is expired.", HttpStatus.UNAUTHORIZED),
 	UNAUTHORIZED("You can use it after login.", HttpStatus.UNAUTHORIZED),
 	UsernameOrPasswordNotFound("Not existed user.", HttpStatus.BAD_REQUEST),
