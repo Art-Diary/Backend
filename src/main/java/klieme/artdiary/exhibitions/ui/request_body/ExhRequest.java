@@ -10,30 +10,30 @@ import java.util.Date;
 @NoArgsConstructor
 public class ExhRequest {
 
-    @NotNull
-    private String exhName;
+	@NotNull
+	private String exhName;
 
-    @NotNull
-    private String gallery;
+	@NotNull
+	private String gallery;
 
-    @NotNull
-    private Date exhPeriodStart;
+	@NotNull
+	private Date exhPeriodStart;
 
-    @NotNull
-    private Date exhPeriodEnd;
+	@NotNull
+	private Date exhPeriodEnd;
 
-    @NotNull
-    private String painter;
+	@NotNull
+	private String painter;
 
-    @NotNull
-    private Integer fee;
+	@NotNull
+	private Integer fee;
 
-    @NotNull
-    private String intro;
+	@NotNull
+	private String intro;
 
-    @NotNull
-    private String url;
+	@NotNull
+	private String url;
 
-    @NotNull
-    private String poster;
+	@NotNull
+	private String poster;
 }

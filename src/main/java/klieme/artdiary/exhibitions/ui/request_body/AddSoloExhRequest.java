@@ -9,6 +9,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class AddSoloExhRequest {
 
-    public Date visitDate;
+	public Date visitDate;
 
 }

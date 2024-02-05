@@ -12,71 +12,71 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value="/exhibitions")
+@RequestMapping(value = "/exhibitions")
 public class ExhController {
 
-    private final ExhOperationUseCase exhOperationUseCase;
-    private final ExhReadUseCase exhReadUseCase;
+	private final ExhOperationUseCase exhOperationUseCase;
+	private final ExhReadUseCase exhReadUseCase;
 
-    @Autowired
-    public ExhController(ExhOperationUseCase exhOperationUseCase, ExhReadUseCase exhReadUseCase) {
-        this.exhOperationUseCase = exhOperationUseCase;
+	@Autowired
+	public ExhController(ExhOperationUseCase exhOperationUseCase, ExhReadUseCase exhReadUseCase) {
+		this.exhOperationUseCase = exhOperationUseCase;
 		this.exhReadUseCase = exhReadUseCase;
 	}
 
-    @GetMapping("/hello")
-    public void helloPrint() {
-        System.out.println("hello");
-    }
+	@GetMapping("/hello")
+	public void helloPrint() {
+		System.out.println("hello");
+	}
 
-    @PostMapping("")
-    public void createDummyDate(@Valid @RequestBody ExhRequest exhRequest){
+	@PostMapping("")
+	public void createDummyDate(@Valid @RequestBody ExhRequest exhRequest) {
 
-        System.out.println("Test");
+		System.out.println("Test");
 
-        var command = ExhOperationUseCase.ExhDummyCreateCommand.builder()
-                .exhName(exhRequest.getExhName())
-                .gallery(exhRequest.getGallery())
-                .exhPeriodStart(exhRequest.getExhPeriodStart())
-                .exhPeriodEnd(exhRequest.getExhPeriodEnd())
-                .painter(exhRequest.getPainter())
-                .fee(exhRequest.getFee())
-                .intro(exhRequest.getIntro())
-                .url(exhRequest.getUrl())
-                .poster(exhRequest.getPoster())
-                .build();
+		var command = ExhOperationUseCase.ExhDummyCreateCommand.builder()
+			.exhName(exhRequest.getExhName())
+			.gallery(exhRequest.getGallery())
+			.exhPeriodStart(exhRequest.getExhPeriodStart())
+			.exhPeriodEnd(exhRequest.getExhPeriodEnd())
+			.painter(exhRequest.getPainter())
+			.fee(exhRequest.getFee())
+			.intro(exhRequest.getIntro())
+			.url(exhRequest.getUrl())
+			.poster(exhRequest.getPoster())
+			.build();
 
-        System.out.println(exhOperationUseCase.createDummy(command));
-    }
+		System.out.println(exhOperationUseCase.createDummy(command));
+	}
 
-    @PostMapping("/{exhId}")
-    public ResponseEntity<StoredDateView> addSoloExhCreateDummyDate(@PathVariable Long exhId, @Valid @RequestBody AddSoloExhRequest addSoloExhRequest){
+	@PostMapping("/{exhId}")
+	public ResponseEntity<StoredDateView> addSoloExhCreateDummyDate(@PathVariable Long exhId,
+		@Valid @RequestBody AddSoloExhRequest addSoloExhRequest) {
 
-        System.out.println("Test");
+		System.out.println("Test");
 
-        var command = ExhOperationUseCase.AddSoloExhDummyCreateCommand.builder()
-                .visitDate(addSoloExhRequest.getVisitDate())
-                .exhId(exhId)
-                .build();
+		var command = ExhOperationUseCase.AddSoloExhDummyCreateCommand.builder()
+			.visitDate(addSoloExhRequest.getVisitDate())
+			.exhId(exhId)
+			.build();
 
-        ExhReadUseCase.FindStoredDateResult result=exhOperationUseCase.addSoloExhCreateDummy(command);
+		ExhReadUseCase.FindStoredDateResult result = exhOperationUseCase.addSoloExhCreateDummy(command);
 
-        // System.out.println(exhOperationUseCase.addSoloExhCreateDummy(command));
-        return ResponseEntity.created(null).body(StoredDateView.builder().result(result).build());
-    }
+		// System.out.println(exhOperationUseCase.addSoloExhCreateDummy(command));
+		return ResponseEntity.created(null).body(StoredDateView.builder().result(result).build());
+	}
 
+	@GetMapping("/{exhId}/date") // ResponseEntity<>
+	public ResponseEntity<StoredDateView> getStoredDateOfExhs(
+		@PathVariable(name = "exhId") Long exhId,
+		@RequestParam(name = "gatherId", required = false) Long gatherId
+	) {
+		var query = ExhReadUseCase.StoredDateFindQuery.builder()
+			.exhId(exhId)
+			.gatherId(gatherId)
+			.build();
+		ExhReadUseCase.FindStoredDateResult result = exhReadUseCase.getStoredDateOfExhs(query);
 
-    @GetMapping("/{exhId}/date") // ResponseEntity<>
-    public ResponseEntity<StoredDateView> getStoredDateOfExhs(
-        @PathVariable(name = "exhId") Long exhId,
-        @RequestParam(name = "gatherId", required = false) Long gatherId
-    ) {
-        var query = ExhReadUseCase.StoredDateFindQuery.builder()
-            .exhId(exhId)
-            .gatherId(gatherId)
-            .build();
-        ExhReadUseCase.FindStoredDateResult result = exhReadUseCase.getStoredDateOfExhs(query);
-
-        return ResponseEntity.ok(StoredDateView.builder().result(result).build());
-    }
+		return ResponseEntity.ok(StoredDateView.builder().result(result).build());
+	}
 }
