@@ -58,6 +58,12 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			throw new ArtDiaryException(MessageType.CONFLICT);
 		}
 
+		// 전시회 일정에 맞춰 갈 수 있는지 확인
+		if (exhEntity.getExhPeriodStart().isAfter(command.getVisitDate())
+			|| exhEntity.getExhPeriodEnd().isBefore(command.getVisitDate())) {
+			throw new ArtDiaryException(MessageType.FORBIDDEN_DATE);
+		}
+
 		// DB에 데이터 생성
 		UserExhEntity entity = UserExhEntity.builder()
 			.visitDate(command.getVisitDate())
@@ -87,6 +93,9 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				dates.add(entity.getVisitDate());
 			}
 		}
+		/* TODO
+		 * (목적) 한 전시회에 대한 캘린더에 저장된 모임의 일정 날짜 조회 로직 구현 필요
+		 */
 		return FindStoredDateResult.findByStoredDate(query.getExhId(), null, dates);
 	}
 
