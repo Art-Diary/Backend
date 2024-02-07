@@ -1,4 +1,4 @@
-package klieme.artdiary.mydiarys.data_access.entity;
+package klieme.artdiary.gatherings.data_access.entity;
 
 import java.time.LocalDate;
 
@@ -17,16 +17,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "solo_diary")
+@Table(name = "gathering_diary")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 @DynamicUpdate
-public class MydiaryEntity {
+public class GatheringDiaryEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "solo_diary_id", nullable = false)
-	private Long soloDiaryId;
+	@Column(name = "gather_diary_id", nullable = false)
+	private Long gatherDiaryId;
 	@Column(nullable = false)
 	private String title;
 	@Column(nullable = false)
@@ -39,13 +39,15 @@ public class MydiaryEntity {
 	@Column(name = "write_date", nullable = false)
 	private LocalDate writeDate;
 	private String saying;
-	@Column(name = "user_exh_id", nullable = false)
-	private Long userExhId;
+	@Column(name = "user_id", nullable = false)
+	private Long userId;
+	@Column(name = "gathering_exh_id", nullable = false)
+	private Long gatheringExhId;
 
 	@Builder
-	public MydiaryEntity(Long soloDiaryId, String title, Double rate, Boolean diaryPrivate, String contents,
-		String thumbnail, LocalDate writeDate, String saying, Long userExhId) {
-		this.soloDiaryId = soloDiaryId;
+	public GatheringDiaryEntity(Long gatherDiaryId, String title, Double rate, Boolean diaryPrivate, String contents,
+		String thumbnail, LocalDate writeDate, String saying, Long userId, Long gatheringExhId) {
+		this.gatherDiaryId = gatherDiaryId;
 		this.title = title;
 		this.rate = rate;
 		this.diaryPrivate = diaryPrivate;
@@ -53,7 +55,7 @@ public class MydiaryEntity {
 		this.thumbnail = thumbnail;
 		this.writeDate = writeDate;
 		this.saying = saying;
-		this.userExhId = userExhId;
+		this.userId = userId;
+		this.gatheringExhId = gatheringExhId;
 	}
-
 }
