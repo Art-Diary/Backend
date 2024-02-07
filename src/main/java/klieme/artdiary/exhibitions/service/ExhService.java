@@ -14,17 +14,26 @@ import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
+import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
+import klieme.artdiary.gatherings.data_access.entity.GatheringMateId;
+import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
+import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
 
 @Service
 public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 
 	private final ExhRepository exhRepository;
 	private final UserExhRepository userExhRepository;
+	private final GatheringMateRepository gatheringMateRepository;
+	private final GatheringExhRepository gatheringExhRepository;
 
 	@Autowired
-	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository) {
+	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository,
+		GatheringMateRepository gatheringMateRepository, GatheringExhRepository gatheringExhRepository) {
 		this.exhRepository = exhRepository;
 		this.userExhRepository = userExhRepository;
+		this.gatheringMateRepository = gatheringMateRepository;
+		this.gatheringExhRepository = gatheringExhRepository;
 	}
 
 	@Override
@@ -92,14 +101,28 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				}
 				dates.add(entity.getVisitDate());
 			}
+		} else {
+			// (목적) 한 전시회에 대한 캘린더에 저장된 특정 모임의 일정 날짜 조회 로직 구현
+			// gatherId와 userId로 유저가 모임에 포함되어있는지 확인 => gathering_mate 엔티티 필요
+			gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
+					.userId(userId)
+					.gatherId(query.getGatherId())
+					.build())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			// 확인됐으면 gatherId로 전시회 exhId에 대해 저장된 날짜 가져오기 => gatheringExh 엔티티 필요
+			List<GatheringExhEntity> entities = gatheringExhRepository.findByGatherIdAndExhId(query.getGatherId(),
+				query.getExhId());
+			for (GatheringExhEntity entity : entities) {
+				if (entity.getVisitDate() == null) { // 날짜 모름일 때는 건너뜀.
+					continue;
+				}
+				dates.add(entity.getVisitDate());
+			}
 		}
-		/* TODO
-		 * (목적) 한 전시회에 대한 캘린더에 저장된 모임의 일정 날짜 조회 로직 구현 필요
-		 */
 		return FindStoredDateResult.findByStoredDate(query.getExhId(), null, dates);
 	}
 
 	private Long getUserId() {
-		return 4L;
+		return 3L;
 	}
 }
