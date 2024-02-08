@@ -10,4 +10,6 @@ import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 @Repository
 public interface GatheringDiaryRepository extends JpaRepository<GatheringDiaryEntity, Long> {
 	List<GatheringDiaryEntity> findByGatheringExhId(Long gatheringExhId);
+
+	List<GatheringDiaryEntity> findByUserId(Long userId);
 }
