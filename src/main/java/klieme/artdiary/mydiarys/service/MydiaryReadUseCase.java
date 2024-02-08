@@ -1,6 +1,7 @@
 package klieme.artdiary.mydiarys.service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
@@ -10,10 +11,21 @@ import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 public interface MydiaryReadUseCase {
+	List<FindMyDiaryResult> getMyDiaries(MyDiariesFindQuery query);
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class MyDiariesFindQuery {
+		private final Long exhId;
+	}
+
 	@Getter
 	@ToString
 	@Builder

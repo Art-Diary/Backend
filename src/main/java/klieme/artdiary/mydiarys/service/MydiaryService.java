@@ -60,13 +60,13 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 	public List<FindMyDiaryResult> createMyDiary(MydiaryCreateCommand command) {
 		// user 데이터
 		UserEntity userEntity = getUser();
-		ExhEntity exhEntity;
+		// exh 데이터
+		ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 		// 개인 또는 모임의 일정에 유저와 exhId가 포함되어있는지 확인 => userExhId, gatherExhId로 확인
 		if (command.getUserExhId() != -1) { // 개인
 			// userExhId, exhId, userId 검증
 			UserExhEntity storedUserExhEntity = userExhRepository.findByUserExhId(command.getUserExhId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			exhEntity = exhRepository.findByExhId(command.getExhId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			if (!Objects.equals(storedUserExhEntity.getExhId(), command.getExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
@@ -90,8 +90,6 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			// gatherExhId, exhId, userId 검증
 			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatheringExhId(
 				command.getGatheringExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			exhEntity = exhRepository.findByExhId(command.getExhId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			if (!Objects.equals(storedGatherExhEntity.getExhId(), command.getExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
@@ -117,6 +115,16 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		return getMyDiaryList(userEntity, exhEntity);
 	}
 
+	@Override
+	public List<FindMyDiaryResult> getMyDiaries(MyDiariesFindQuery query) {
+		// user 데이터
+		UserEntity userEntity = getUser();
+		// exh 데이터
+		ExhEntity exhEntity = exhRepository.findByExhId(query.getExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		return getMyDiaryList(userEntity, exhEntity);
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
@@ -128,7 +136,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 	private List<FindMyDiaryResult> getMyDiaryList(UserEntity userEntity, ExhEntity exhEntity) {
 		List<FindMyDiaryResult> results = new ArrayList<>();
 		// (solo_diary) exhId 전시회에 대한 개인의 기록 리스트 조회
-		List<UserExhEntity> storedUserExhList = userExhRepository.findByExhId(exhEntity.getExhId());
+		List<UserExhEntity> storedUserExhList = userExhRepository.findByUserIdAndExhId(userEntity.getUserId(),
+			exhEntity.getExhId());
 		for (UserExhEntity storedUserExh : storedUserExhList) {
 			List<MydiaryEntity> savedEntityList = mydiaryRepository.findByUserExhId(storedUserExh.getUserExhId());
 			// 함수의 반환형에 맞도록 변환
