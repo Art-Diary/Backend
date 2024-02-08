@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
+import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
@@ -140,6 +141,6 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	}
 
 	private Long getUserId() {
-		return 4L;
+		return UserIdFilter.getUserId();
 	}
 }
