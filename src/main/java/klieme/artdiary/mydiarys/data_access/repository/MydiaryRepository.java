@@ -12,5 +12,6 @@ import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
 @Repository
 public interface MydiaryRepository extends JpaRepository<MydiaryEntity, Long> {
 	List<MydiaryEntity> findByUserExhId(Long userExhId);
+	Optional<MydiaryEntity> findBySoloDiaryId(Long soloDiaryId);
 
 }
