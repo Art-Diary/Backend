@@ -86,15 +86,11 @@ public class MydiaryController {
 
 	@DeleteMapping("/{diaryId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteDiary(@PathVariable(name = "exhId") Long exhId,@PathVariable(name="diaryId") Long diaryId, @RequestParam(name="solo",required=true)Boolean solo){
+	public void deleteDiary(@PathVariable(name = "exhId") Long exhId, @PathVariable(name = "diaryId") Long diaryId,
+		@RequestParam(name = "solo", required = true) Boolean solo) {
 
-		//MydiaryOperationUseCase.MydiaryCreateCommand diary =
-		mydiaryOperationUseCase.deleteMyDiary(exhId,solo,diaryId);
+		mydiaryOperationUseCase.deleteMyDiary(exhId, solo, diaryId);
 
-		//if(diary== null) {
-		//	throw new UserNotFoundException(String.format("ID[%s] not found",id));
-		//}
 	}
-
 
 }

@@ -126,25 +126,24 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 	}
 
 	@Override
-	public void deleteMyDiary(Long exhId,Boolean solo,Long diaryId){
+	public void deleteMyDiary(Long exhId, Boolean solo, Long diaryId) {
 		//solo= true인 경우
-
-		if(solo){
+		if (solo) {
 			//solo_diary에서 solodiaryId로 userexhId를 확인
-			MydiaryEntity soloDiaryEntity=mydiaryRepository.findBySoloDiaryId(diaryId).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			MydiaryEntity soloDiaryEntity = mydiaryRepository.findBySoloDiaryId(diaryId)
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
 			//userexhId로 user_exh에서 exhid가 가지고 있는 exhId와 맞는지 확인, userId가 userID와 맞는지 확인,마지막으로 solo_diary에서 solodiaryId 삭제
-			UserExhEntity userExhEntity=userExhRepository.findByUserExhId(soloDiaryEntity.getUserExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			if(Objects.equals(userExhEntity.getExhId(), exhId) && Objects.equals(userExhEntity.getUserId(),
-				getUserId())){
+			UserExhEntity userExhEntity = userExhRepository.findByUserExhId(soloDiaryEntity.getUserExhId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			if (Objects.equals(userExhEntity.getExhId(), exhId) && Objects.equals(userExhEntity.getUserId(),
+				getUserId())) {
 				mydiaryRepository.delete(soloDiaryEntity);
 
-			}
-			else {
+			} else {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
-		}
-		else {//solo=false인 경우
+		} else {//solo=false인 경우
 			//gatering_diary에서 gatherdiaryId와 userId가 가지고 있는 userId가 맞는지 확인
 
 			GatheringDiaryEntity gatheringDiaryEntity = gatheringDiaryRepository.findByGatherDiaryIdAndUserId(diaryId,
@@ -162,6 +161,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 
 		}
 	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
@@ -205,6 +205,5 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		results.sort(Comparator.comparing(FindMyDiaryResult::getWriteDate));
 		return results;
 	}
-
 
 }
