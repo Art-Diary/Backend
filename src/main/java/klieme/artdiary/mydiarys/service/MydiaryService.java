@@ -136,10 +136,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			// userExhId, exhId, userId 검증
 			UserExhEntity storedUserExhEntity = userExhRepository.findByUserExhId(command.getUserExhId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			if (!Objects.equals(storedUserExhEntity.getExhId(), command.getExhId())) {
-				throw new ArtDiaryException(MessageType.NOT_FOUND);
-			}
-			if (!Objects.equals(storedUserExhEntity.getUserId(), userEntity.getUserId())) {
+			if (!Objects.equals(storedUserExhEntity.getExhId(), command.getExhId())
+				|| !Objects.equals(storedUserExhEntity.getUserId(), userEntity.getUserId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// 저장된 데이터 조회
@@ -160,20 +158,19 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				Objects.equals(saved.getSaying(), command.getSaying()) ? saved.getSaying() : command.getSaying());
 			mydiaryRepository.save(saved);
 		} else { // 모임
-			// gatherExhId, exhId, userId 검증
+			// 저장된 데이터 조회
+			GatheringDiaryEntity saved = gatheringDiaryRepository.findByGatherDiaryIdAndUserId(command.getDiaryId(),
+				userEntity.getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			// gatherExhId, userId 검증
+			if (!Objects.equals(saved.getGatheringExhId(), command.getGatheringExhId())) {
+				throw new ArtDiaryException(MessageType.NOT_FOUND);
+			}
+			// exhId 검증
 			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatheringExhId(
 				command.getGatheringExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			if (!Objects.equals(storedGatherExhEntity.getExhId(), command.getExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
-			// 유저가 모임에 속해 있는지 확인
-			gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
-				.gatherId(storedGatherExhEntity.getGatherId())
-				.userId(userEntity.getUserId())
-				.build()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			// 저장된 데이터 조회
-			GatheringDiaryEntity saved = gatheringDiaryRepository.findByGatherDiaryId(command.getDiaryId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			// 디비에 데이터 수정
 			saved.updateDiary(
 				Objects.equals(saved.getTitle(), command.getTitle()) ? saved.getTitle() : command.getTitle(),
@@ -188,7 +185,6 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 					? saved.getWriteDate() : command.getWriteDate(),
 				Objects.equals(saved.getSaying(), command.getSaying()) ? saved.getSaying() : command.getSaying());
 			gatheringDiaryRepository.save(saved);
-
 		}
 		return getMyDiaryList(userEntity, exhEntity);
 	}

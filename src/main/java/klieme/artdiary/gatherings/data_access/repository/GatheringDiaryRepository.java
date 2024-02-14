@@ -14,5 +14,5 @@ public interface GatheringDiaryRepository extends JpaRepository<GatheringDiaryEn
 
 	List<GatheringDiaryEntity> findByUserId(Long userId);
 
-	Optional<GatheringDiaryEntity> findByGatherDiaryId(Long gatherDiaryId);
+	Optional<GatheringDiaryEntity> findByGatherDiaryIdAndUserId(Long gatherDiaryId, Long userId);
 }
