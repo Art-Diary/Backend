@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
+import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
@@ -17,7 +19,6 @@ import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
 import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
-import klieme.artdiary.gatherings.data_access.entity.GatheringMateEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringMateId;
 import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
@@ -117,7 +118,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 	}
 
 	private Long getUserId() {
-		return 3L;
+		return UserIdFilter.getUserId();
 	}
 
 	private UserEntity getUser() {
@@ -126,7 +127,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 
 	private List<FindMyDiaryResult> getMyDiaryList(UserEntity userEntity, ExhEntity exhEntity) {
 		List<FindMyDiaryResult> results = new ArrayList<>();
-		// exhId 전시회에 대한 개인의 기록 리스트 조회
+		// (solo_diary) exhId 전시회에 대한 개인의 기록 리스트 조회
 		List<UserExhEntity> storedUserExhList = userExhRepository.findByExhId(exhEntity.getExhId());
 		for (UserExhEntity storedUserExh : storedUserExhList) {
 			List<MydiaryEntity> savedEntityList = mydiaryRepository.findByUserExhId(storedUserExh.getUserExhId());
@@ -135,32 +136,24 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				results.add(FindMyDiaryResult.findByMyDiary(mydiaryEntity, userEntity, storedUserExh, exhEntity));
 			}
 		}
-		// exhId 전시회에 대한 모임의 내 기록 리스트 반환
-		// 내가 속한 모임 리스트
-		List<GatheringMateEntity> storedGatheringMateList = gatheringMateRepository.findByGatheringMateIdUserId(
+		// (gathering_diary) exhId 전시회에 대한 모임의 내 기록 리스트 반환
+		// gathering_diary에서 userId에 해당하는 데이터 목록 조회
+		List<GatheringDiaryEntity> gatheringDiaryEntityList = gatheringDiaryRepository.findByUserId(
 			userEntity.getUserId());
-		for (GatheringMateEntity entity : storedGatheringMateList) {
-			// 모임의 전시회 일정
-			List<GatheringExhEntity> storedGatherExhList = gatheringExhRepository.findByGatherIdAndExhId(
-				entity.getGatheringMateId().getGatherId(), exhEntity.getExhId());
-			if (storedGatherExhList.isEmpty()) {
+		for (GatheringDiaryEntity gatheringDiaryEntity : gatheringDiaryEntityList) {
+			// gathering_exh에서 exhId 걸러내고
+			Optional<GatheringExhEntity> gatheringExhEntity = gatheringExhRepository.findByGatheringExhId(
+				gatheringDiaryEntity.getGatheringExhId());
+			if (gatheringExhEntity.isEmpty()
+				|| !Objects.equals(gatheringExhEntity.get().getExhId(), exhEntity.getExhId())) {
 				continue;
 			}
-			// 모임 조회
-			GatheringEntity storedGatheringList = gatheringRepository.findByGatherId(
-					entity.getGatheringMateId().getGatherId())
+			// gatherId로 gathering 데이터 가져오기.
+			GatheringEntity gatheringEntity = gatheringRepository.findByGatherId(gatheringExhEntity.get().getGatherId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			for (GatheringExhEntity storedGatherExh : storedGatherExhList) {
-				// 일정의 기록 리스트
-				List<GatheringDiaryEntity> savedEntityList = gatheringDiaryRepository.findByGatheringExhId(
-					storedGatherExh.getGatheringExhId());
-				// 함수의 반환형에 맞도록 변환
-				for (GatheringDiaryEntity gatheringDiaryEntity : savedEntityList) {
-					results.add(
-						FindMyDiaryResult.findByGatheringDiary(gatheringDiaryEntity, userEntity, storedGatheringList,
-							storedGatherExh, exhEntity));
-				}
-			}
+			// 함수의 반환형에 맞도록 변환
+			results.add(FindMyDiaryResult.findByGatheringDiary(gatheringDiaryEntity, userEntity, gatheringEntity,
+				gatheringExhEntity.get(), exhEntity));
 		}
 		// 작성순
 		results.sort(Comparator.comparing(FindMyDiaryResult::getWriteDate));
