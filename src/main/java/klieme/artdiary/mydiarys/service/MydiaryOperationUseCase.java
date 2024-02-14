@@ -11,6 +11,8 @@ import lombok.ToString;
 public interface MydiaryOperationUseCase {
 	List<MydiaryReadUseCase.FindMyDiaryResult> createMyDiary(MydiaryCreateCommand command);
 
+	void deleteMyDiary(Long exhId, Boolean solo, Long diaryId);
+
 	List<MydiaryReadUseCase.FindMyDiaryResult> updateMyDiary(MyDiaryUpdateCommand command);
 
 	@EqualsAndHashCode
@@ -28,6 +30,7 @@ public interface MydiaryOperationUseCase {
 		private final String thumbnail;
 		private final LocalDate writeDate;
 		private final String saying;
+
 	}
 
 	@EqualsAndHashCode
