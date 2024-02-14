@@ -125,6 +125,74 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		return getMyDiaryList(userEntity, exhEntity);
 	}
 
+	@Override
+	public List<FindMyDiaryResult> updateMyDiary(MyDiaryUpdateCommand command) {
+		// user 데이터
+		UserEntity userEntity = getUser();
+		// exh 데이터
+		ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		if (command.getUserExhId() != -1) { // 개인
+			// userExhId, exhId, userId 검증
+			UserExhEntity storedUserExhEntity = userExhRepository.findByUserExhId(command.getUserExhId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			if (!Objects.equals(storedUserExhEntity.getExhId(), command.getExhId())) {
+				throw new ArtDiaryException(MessageType.NOT_FOUND);
+			}
+			if (!Objects.equals(storedUserExhEntity.getUserId(), userEntity.getUserId())) {
+				throw new ArtDiaryException(MessageType.NOT_FOUND);
+			}
+			// 저장된 데이터 조회
+			MydiaryEntity saved = mydiaryRepository.findBySoloDiaryId(command.getDiaryId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			// 데이터 수정
+			saved.updateDiary(
+				Objects.equals(saved.getTitle(), command.getTitle()) ? saved.getTitle() : command.getTitle(),
+				Objects.equals(saved.getRate(), command.getRate()) ? saved.getRate() : command.getRate(),
+				Objects.equals(saved.getDiaryPrivate(), command.getDiaryPrivate())
+					? saved.getDiaryPrivate() : command.getDiaryPrivate(),
+				Objects.equals(saved.getContents(), command.getContents())
+					? saved.getContents() : command.getContents(),
+				Objects.equals(saved.getThumbnail(), command.getThumbnail())
+					? saved.getThumbnail() : command.getThumbnail(),
+				Objects.equals(saved.getWriteDate(), command.getWriteDate())
+					? saved.getWriteDate() : command.getWriteDate(),
+				Objects.equals(saved.getSaying(), command.getSaying()) ? saved.getSaying() : command.getSaying());
+			mydiaryRepository.save(saved);
+		} else { // 모임
+			// gatherExhId, exhId, userId 검증
+			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatheringExhId(
+				command.getGatheringExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			if (!Objects.equals(storedGatherExhEntity.getExhId(), command.getExhId())) {
+				throw new ArtDiaryException(MessageType.NOT_FOUND);
+			}
+			// 유저가 모임에 속해 있는지 확인
+			gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
+				.gatherId(storedGatherExhEntity.getGatherId())
+				.userId(userEntity.getUserId())
+				.build()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			// 저장된 데이터 조회
+			GatheringDiaryEntity saved = gatheringDiaryRepository.findByGatherDiaryId(command.getDiaryId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			// 디비에 데이터 수정
+			saved.updateDiary(
+				Objects.equals(saved.getTitle(), command.getTitle()) ? saved.getTitle() : command.getTitle(),
+				Objects.equals(saved.getRate(), command.getRate()) ? saved.getRate() : command.getRate(),
+				Objects.equals(saved.getDiaryPrivate(), command.getDiaryPrivate())
+					? saved.getDiaryPrivate() : command.getDiaryPrivate(),
+				Objects.equals(saved.getContents(), command.getContents())
+					? saved.getContents() : command.getContents(),
+				Objects.equals(saved.getThumbnail(), command.getThumbnail())
+					? saved.getThumbnail() : command.getThumbnail(),
+				Objects.equals(saved.getWriteDate(), command.getWriteDate())
+					? saved.getWriteDate() : command.getWriteDate(),
+				Objects.equals(saved.getSaying(), command.getSaying()) ? saved.getSaying() : command.getSaying());
+			gatheringDiaryRepository.save(saved);
+
+		}
+		return getMyDiaryList(userEntity, exhEntity);
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
@@ -164,8 +232,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			results.add(FindMyDiaryResult.findByGatheringDiary(gatheringDiaryEntity, userEntity, gatheringEntity,
 				gatheringExhEntity.get(), exhEntity));
 		}
-		// 작성순
-		results.sort(Comparator.comparing(FindMyDiaryResult::getWriteDate));
+		// 방문날짜순
+		results.sort(Comparator.comparing(FindMyDiaryResult::getVisitDate));
 		return results;
 	}
 }
