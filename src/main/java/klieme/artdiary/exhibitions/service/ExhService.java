@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
+import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
@@ -123,6 +124,6 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	private Long getUserId() {
-		return 3L;
+		return UserIdFilter.getUserId();
 	}
 }
