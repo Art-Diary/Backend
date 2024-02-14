@@ -2,19 +2,19 @@ package klieme.artdiary.exhibitions.ui.request_body;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 
 @Getter
 @NoArgsConstructor
 public class ExhRequest {
 
-	@NotNull
+	@NotBlank
 	private String exhName;
 
-	@NotNull
+	@NotBlank
 	private String gallery;
 
 	@NotNull
@@ -23,18 +23,18 @@ public class ExhRequest {
 	@NotNull
 	private LocalDate exhPeriodEnd;
 
-	@NotNull
+	@NotBlank
 	private String painter;
 
 	@NotNull
 	private Integer fee;
 
-	@NotNull
+	@NotBlank
 	private String intro;
 
-	@NotNull
+	@NotBlank
 	private String url;
 
-	@NotNull
+	@NotBlank
 	private String poster;
 }
