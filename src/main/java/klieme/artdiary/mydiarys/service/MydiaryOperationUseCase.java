@@ -13,6 +13,8 @@ public interface MydiaryOperationUseCase {
 
 	void deleteMyDiary(Long exhId, Boolean solo, Long diaryId);
 
+	List<MydiaryReadUseCase.FindMyDiaryResult> updateMyDiary(MyDiaryUpdateCommand command);
+
 	@EqualsAndHashCode
 	@Builder
 	@Getter
@@ -29,5 +31,23 @@ public interface MydiaryOperationUseCase {
 		private final LocalDate writeDate;
 		private final String saying;
 
+	}
+
+	@EqualsAndHashCode
+	@Builder
+	@Getter
+	@ToString
+	class MyDiaryUpdateCommand {
+		private final Long exhId;
+		private final Long diaryId;
+		private final Long userExhId; // 개인 일정이 아닌 경우 -1
+		private final Long gatheringExhId; // 모임이 아닐 경우 -1
+		private final String title;
+		private final Double rate;
+		private final Boolean diaryPrivate;
+		private final String contents;
+		private final String thumbnail;
+		private final LocalDate writeDate;
+		private final String saying;
 	}
 }

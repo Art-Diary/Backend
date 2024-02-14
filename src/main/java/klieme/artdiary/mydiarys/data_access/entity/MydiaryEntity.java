@@ -56,4 +56,15 @@ public class MydiaryEntity {
 		this.userExhId = userExhId;
 	}
 
+	public void updateDiary(String title, Double rate, Boolean diaryPrivate, String contents,
+		String thumbnail, LocalDate writeDate, String saying) {
+		this.title = title;
+		this.rate = rate;
+		this.diaryPrivate = diaryPrivate;
+		this.contents = contents;
+		this.thumbnail = thumbnail;
+		this.writeDate = writeDate;
+		this.saying = saying;
+	}
+
 }

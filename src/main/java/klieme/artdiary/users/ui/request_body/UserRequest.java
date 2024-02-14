@@ -1,5 +1,7 @@
 package klieme.artdiary.users.ui.request_body;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,17 +11,18 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class UserRequest {
-	@NotNull
+	@NotBlank
+	@Email
 	private String email;
-	@NotNull
+	@NotBlank
 	private String nickname;
-	@NotNull
+	@NotBlank
 	private String profile;
-	@NotNull
+	@NotBlank
 	private String providerType;
-	@NotNull
+	@NotBlank
 	private String providerId;
-	@NotNull
+	@NotBlank
 	private String favoriteArt;
 	@NotNull
 	private Boolean alarm1;
