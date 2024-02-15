@@ -68,10 +68,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			// userExhId, exhId, userId 검증
 			UserExhEntity storedUserExhEntity = userExhRepository.findByUserExhId(command.getUserExhId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			if (!Objects.equals(storedUserExhEntity.getExhId(), command.getExhId())) {
-				throw new ArtDiaryException(MessageType.NOT_FOUND);
-			}
-			if (!Objects.equals(storedUserExhEntity.getUserId(), userEntity.getUserId())) {
+			if (!storedUserExhEntity.getExhId().equals(command.getExhId())
+				|| !storedUserExhEntity.getUserId().equals(userEntity.getUserId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// 디비에 데이터 저장
@@ -90,7 +88,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			// gatherExhId, exhId, userId 검증
 			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatheringExhId(
 				command.getGatheringExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			if (!Objects.equals(storedGatherExhEntity.getExhId(), command.getExhId())) {
+			if (!storedGatherExhEntity.getExhId().equals(command.getExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// 유저가 모임에 속해 있는지 확인
@@ -136,31 +134,28 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			//userexhId로 user_exh에서 exhid가 가지고 있는 exhId와 맞는지 확인, userId가 userID와 맞는지 확인,마지막으로 solo_diary에서 solodiaryId 삭제
 			UserExhEntity userExhEntity = userExhRepository.findByUserExhId(soloDiaryEntity.getUserExhId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			if (Objects.equals(userExhEntity.getExhId(), exhId) && Objects.equals(userExhEntity.getUserId(),
-				getUserId())) {
+			if (userExhEntity.getExhId().equals(exhId) && userExhEntity.getUserId().equals(getUserId())) {
 				mydiaryRepository.delete(soloDiaryEntity);
-
 			} else {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 		} else {//solo=false인 경우
 			//gatering_diary에서 gatherdiaryId와 userId가 가지고 있는 userId가 맞는지 확인
-
 			GatheringDiaryEntity gatheringDiaryEntity = gatheringDiaryRepository.findByGatherDiaryIdAndUserId(diaryId,
 				getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			//gatherexhId로 gather_exh에서 exhId가 가지고 있는 exhId가 맞는지 확인, gathering_diary에서 gatehrdiarId 삭제
 			GatheringExhEntity gatheringExhEntity = gatheringExhRepository.findByGatheringExhId(
 					gatheringDiaryEntity.getGatheringExhId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			if (Objects.equals(gatheringExhEntity.getExhId(), exhId)) {
+			if (gatheringExhEntity.getExhId().equals(exhId)) {
 				gatheringDiaryRepository.delete(gatheringDiaryEntity);
 			} else {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
-
 			}
-
 		}
+	}
 
+	@Override
 	public List<FindMyDiaryResult> updateMyDiary(MyDiaryUpdateCommand command) {
 		// user 데이터
 		UserEntity userEntity = getUser();
@@ -171,8 +166,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			// userExhId, exhId, userId 검증
 			UserExhEntity storedUserExhEntity = userExhRepository.findByUserExhId(command.getUserExhId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			if (!Objects.equals(storedUserExhEntity.getExhId(), command.getExhId())
-				|| !Objects.equals(storedUserExhEntity.getUserId(), userEntity.getUserId())) {
+			if (!storedUserExhEntity.getExhId().equals(command.getExhId())
+				|| !storedUserExhEntity.getUserId().equals(userEntity.getUserId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// 저장된 데이터 조회
@@ -197,13 +192,13 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			GatheringDiaryEntity saved = gatheringDiaryRepository.findByGatherDiaryIdAndUserId(command.getDiaryId(),
 				userEntity.getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			// gatherExhId, userId 검증
-			if (!Objects.equals(saved.getGatheringExhId(), command.getGatheringExhId())) {
+			if (!saved.getGatheringExhId().equals(command.getGatheringExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// exhId 검증
 			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatheringExhId(
 				command.getGatheringExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			if (!Objects.equals(storedGatherExhEntity.getExhId(), command.getExhId())) {
+			if (!storedGatherExhEntity.getExhId().equals(command.getExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// 디비에 데이터 수정
@@ -252,8 +247,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			// gathering_exh에서 exhId 걸러내고
 			Optional<GatheringExhEntity> gatheringExhEntity = gatheringExhRepository.findByGatheringExhId(
 				gatheringDiaryEntity.getGatheringExhId());
-			if (gatheringExhEntity.isEmpty()
-				|| !Objects.equals(gatheringExhEntity.get().getExhId(), exhEntity.getExhId())) {
+			if (gatheringExhEntity.isEmpty() || !gatheringExhEntity.get().getExhId().equals(exhEntity.getExhId())) {
 				continue;
 			}
 			// gatherId로 gathering 데이터 가져오기.
@@ -267,5 +261,4 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		results.sort(Comparator.comparing(FindMyDiaryResult::getVisitDate));
 		return results;
 	}
-
 }
