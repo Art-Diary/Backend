@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
@@ -55,6 +56,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		this.gatheringMateRepository = gatheringMateRepository;
 	}
 
+
+	@Transactional
 	@Override
 	public List<FindMyDiaryResult> createMyDiary(MydiaryCreateCommand command) {
 		// user 데이터
@@ -122,6 +125,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		return getMyDiaryList(userEntity, exhEntity);
 	}
 
+
+	@Transactional
 	@Override
 	public void deleteMyDiary(Long exhId, Boolean solo, Long diaryId) {
 		//solo= true인 경우
@@ -154,6 +159,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		}
 	}
 
+
+	@Transactional
 	@Override
 	public List<FindMyDiaryResult> updateMyDiary(MyDiaryUpdateCommand command) {
 		// user 데이터

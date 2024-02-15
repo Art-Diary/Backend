@@ -2,6 +2,7 @@ package klieme.artdiary.users.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import klieme.artdiary.users.data_access.repository.UserRepository;
@@ -16,6 +17,8 @@ public class UserService implements UserOperationUseCase {
 		this.userRepository = userRepository;
 	}
 
+
+	@Transactional
 	@Override
 	public String createDummy(UserDummyCreateCommand command) {
 		UserEntity entity = UserEntity.builder()
