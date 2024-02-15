@@ -3,7 +3,6 @@ package klieme.artdiary.mydiarys.service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -174,8 +173,15 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			MydiaryEntity saved = mydiaryRepository.findBySoloDiaryId(command.getDiaryId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			// 데이터 수정
-			saved.updateDiary(command.getTitle(), command.getRate(), command.getDiaryPrivate(), command.getContents(),
-				command.getThumbnail(), command.getWriteDate(), command.getSaying());
+			saved.updateDiary(MydiaryEntity.builder()
+				.title(command.getTitle())
+				.rate(command.getRate())
+				.diaryPrivate(command.getDiaryPrivate())
+				.contents(command.getContents())
+				.thumbnail(command.getThumbnail())
+				.writeDate(command.getWriteDate())
+				.saying(command.getSaying())
+				.build());
 			mydiaryRepository.save(saved);
 		} else { // 모임
 			// 저장된 데이터 조회
@@ -192,8 +198,15 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// 디비에 데이터 수정
-			saved.updateDiary(command.getTitle(), command.getRate(), command.getDiaryPrivate(), command.getContents(),
-				command.getThumbnail(), command.getWriteDate(), command.getSaying());
+			saved.updateDiary(GatheringDiaryEntity.builder()
+				.title(command.getTitle())
+				.rate(command.getRate())
+				.diaryPrivate(command.getDiaryPrivate())
+				.contents(command.getContents())
+				.thumbnail(command.getThumbnail())
+				.writeDate(command.getWriteDate())
+				.saying(command.getSaying())
+				.build());
 			gatheringDiaryRepository.save(saved);
 		}
 		return getMyDiaryList(userEntity, exhEntity);
