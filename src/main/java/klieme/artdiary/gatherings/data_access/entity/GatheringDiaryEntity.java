@@ -61,12 +61,12 @@ public class GatheringDiaryEntity {
 
 	public void updateDiary(String title, Double rate, Boolean diaryPrivate, String contents, String thumbnail,
 		LocalDate writeDate, String saying) {
-		this.title = title;
-		this.rate = rate;
-		this.diaryPrivate = diaryPrivate;
-		this.contents = contents;
-		this.thumbnail = thumbnail;
-		this.writeDate = writeDate;
-		this.saying = saying;
+		this.title = title.equals(this.title) ? this.title : title;
+		this.rate = rate.equals(this.rate) ? this.rate : rate;
+		this.diaryPrivate = diaryPrivate.equals(this.diaryPrivate) ? this.diaryPrivate : diaryPrivate;
+		this.contents = contents.equals(this.contents) ? this.contents : contents;
+		this.thumbnail = thumbnail.equals(this.thumbnail) ? this.thumbnail : thumbnail;
+		this.writeDate = writeDate.equals(this.writeDate) ? this.writeDate : writeDate;
+		this.saying = saying.equals(this.saying) ? this.saying : saying;
 	}
 }

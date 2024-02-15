@@ -174,18 +174,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			MydiaryEntity saved = mydiaryRepository.findBySoloDiaryId(command.getDiaryId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			// 데이터 수정
-			saved.updateDiary(
-				Objects.equals(saved.getTitle(), command.getTitle()) ? saved.getTitle() : command.getTitle(),
-				Objects.equals(saved.getRate(), command.getRate()) ? saved.getRate() : command.getRate(),
-				Objects.equals(saved.getDiaryPrivate(), command.getDiaryPrivate())
-					? saved.getDiaryPrivate() : command.getDiaryPrivate(),
-				Objects.equals(saved.getContents(), command.getContents())
-					? saved.getContents() : command.getContents(),
-				Objects.equals(saved.getThumbnail(), command.getThumbnail())
-					? saved.getThumbnail() : command.getThumbnail(),
-				Objects.equals(saved.getWriteDate(), command.getWriteDate())
-					? saved.getWriteDate() : command.getWriteDate(),
-				Objects.equals(saved.getSaying(), command.getSaying()) ? saved.getSaying() : command.getSaying());
+			saved.updateDiary(command.getTitle(), command.getRate(), command.getDiaryPrivate(), command.getContents(),
+				command.getThumbnail(), command.getWriteDate(), command.getSaying());
 			mydiaryRepository.save(saved);
 		} else { // 모임
 			// 저장된 데이터 조회
@@ -202,18 +192,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// 디비에 데이터 수정
-			saved.updateDiary(
-				Objects.equals(saved.getTitle(), command.getTitle()) ? saved.getTitle() : command.getTitle(),
-				Objects.equals(saved.getRate(), command.getRate()) ? saved.getRate() : command.getRate(),
-				Objects.equals(saved.getDiaryPrivate(), command.getDiaryPrivate())
-					? saved.getDiaryPrivate() : command.getDiaryPrivate(),
-				Objects.equals(saved.getContents(), command.getContents())
-					? saved.getContents() : command.getContents(),
-				Objects.equals(saved.getThumbnail(), command.getThumbnail())
-					? saved.getThumbnail() : command.getThumbnail(),
-				Objects.equals(saved.getWriteDate(), command.getWriteDate())
-					? saved.getWriteDate() : command.getWriteDate(),
-				Objects.equals(saved.getSaying(), command.getSaying()) ? saved.getSaying() : command.getSaying());
+			saved.updateDiary(command.getTitle(), command.getRate(), command.getDiaryPrivate(), command.getContents(),
+				command.getThumbnail(), command.getWriteDate(), command.getSaying());
 			gatheringDiaryRepository.save(saved);
 		}
 		return getMyDiaryList(userEntity, exhEntity);
