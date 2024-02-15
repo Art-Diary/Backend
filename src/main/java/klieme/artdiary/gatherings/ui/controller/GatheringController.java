@@ -59,6 +59,12 @@ public class GatheringController {
 
 	}
 
+	/**
+	 * 모임의 일정에 전시회 관람 날짜 추가
+	 * @param gatherId
+	 * @param request
+	 * @return
+	 */
 	@PostMapping("/{gatherId}/exhibitions")
 	public ResponseEntity<List<GatheringExhView>> addExhAboutGathering(
 		@PathVariable(name = "gatherId") Long gatherId,
