@@ -8,6 +8,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import klieme.artdiary.common.ArtDiaryException;
+import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
@@ -17,6 +19,7 @@ import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
+import klieme.artdiary.mate.data_access.repository.MateRepository;
 import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
 import klieme.artdiary.mydiarys.data_access.repository.MydiaryRepository;
 
@@ -27,22 +30,25 @@ public class MateExhsService implements MateExhsReadUseCase {
 	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final GatheringExhRepository gatheringExhRepository;
 	private final ExhRepository exhRepository;
+	private final MateRepository mateRepository;
 
 	@Autowired
 	public MateExhsService(UserExhRepository userExhRepository, MydiaryRepository mydiaryRepository,
 		GatheringDiaryRepository gatheringDiaryRepository, GatheringExhRepository gatheringExhRepository,
-		ExhRepository exhRepository) {
+		ExhRepository exhRepository, MateRepository mateRepository) {
 		this.userExhRepository = userExhRepository;
 		this.mydiaryRepository = mydiaryRepository;
 		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
 		this.exhRepository = exhRepository;
+		this.mateRepository = mateRepository;
 	}
 
 	@Override
 	public List<FindMateExhsResult> getMateExhsList(MateExhsFindQuery query) {
 		// 내 친구가 맞는지 확인 - exh_mate 확인
-		// TODO exh_mate 생성 후 구현
+		mateRepository.findByFromUserIdAndToUserId(getUserId(), query.getMateId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 		// 친구의 기록이 있는 전시회 조회
 		List<Long> checkExhs = new ArrayList<>(); // 같은 전시회지만 방문 날짜가 다른 경우의 중복을 없애기 위해 사용
 		HashMap<Long, Integer> countDiary = new HashMap<>(); // 전시회에 대한 기록 개수
