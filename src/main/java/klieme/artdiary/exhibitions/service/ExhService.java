@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
@@ -37,6 +38,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		this.gatheringExhRepository = gatheringExhRepository;
 	}
 
+
+	@Transactional
 	@Override
 	public String createDummy(ExhOperationUseCase.ExhDummyCreateCommand command) {
 		ExhEntity entity = ExhEntity.builder()
@@ -54,6 +57,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		return "complete";
 	}
 
+
+	@Transactional
 	@Override
 	public FindStoredDateResult addSoloExhCreateDummy(ExhOperationUseCase.AddSoloExhDummyCreateCommand command) {
 		// 전시회 아이디 검증
