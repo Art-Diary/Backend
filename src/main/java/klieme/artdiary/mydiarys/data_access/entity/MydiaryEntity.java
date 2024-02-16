@@ -56,15 +56,14 @@ public class MydiaryEntity {
 		this.userExhId = userExhId;
 	}
 
-	public void updateDiary(String title, Double rate, Boolean diaryPrivate, String contents,
-		String thumbnail, LocalDate writeDate, String saying) {
-		this.title = title;
-		this.rate = rate;
-		this.diaryPrivate = diaryPrivate;
-		this.contents = contents;
-		this.thumbnail = thumbnail;
-		this.writeDate = writeDate;
-		this.saying = saying;
+	public void updateDiary(MydiaryEntity entity) {
+		this.title = entity.getTitle().equals(this.title) ? this.title : entity.getTitle();
+		this.rate = entity.getRate().equals(this.rate) ? this.rate : entity.getRate();
+		this.diaryPrivate =
+			entity.getDiaryPrivate().equals(this.diaryPrivate) ? this.diaryPrivate : entity.getDiaryPrivate();
+		this.contents = entity.getContents().equals(this.contents) ? this.contents : entity.getContents();
+		this.thumbnail = entity.getThumbnail().equals(this.thumbnail) ? this.thumbnail : entity.getThumbnail();
+		this.writeDate = entity.getWriteDate().equals(this.writeDate) ? this.writeDate : entity.getWriteDate();
+		this.saying = entity.getSaying().equals(this.saying) ? this.saying : entity.getSaying();
 	}
-
 }
