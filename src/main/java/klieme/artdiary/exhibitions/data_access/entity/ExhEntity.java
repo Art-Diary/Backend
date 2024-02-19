@@ -2,14 +2,19 @@ package klieme.artdiary.exhibitions.data_access.entity;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Table(name = "exhibition")
@@ -36,9 +41,11 @@ public class ExhEntity {
 	@Column(nullable = false)
 	private String poster;
 
+	private String art;
+
 	@Builder
 	public ExhEntity(Long exhId, String exhName, String gallery, LocalDate exhPeriodStart, LocalDate exhPeriodEnd,
-		String painter, Integer fee, String intro, String url, String poster) {
+		String painter, Integer fee, String intro, String url, String poster, String art) {
 		this.exhId = exhId;
 		this.exhName = exhName;
 		this.gallery = gallery;
@@ -49,5 +56,6 @@ public class ExhEntity {
 		this.intro = intro;
 		this.url = url;
 		this.poster = poster;
+		this.art = art;
 	}
 }

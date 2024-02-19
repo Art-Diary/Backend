@@ -1,12 +1,11 @@
 package klieme.artdiary.exhibitions.data_access.repository;
 
-import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
-import klieme.artdiary.users.data_access.entity.UserEntity;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 
 @Repository
 public interface ExhRepository extends JpaRepository<ExhEntity, Long> {

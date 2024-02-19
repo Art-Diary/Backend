@@ -3,7 +3,6 @@ package klieme.artdiary.exhibitions.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,9 @@ import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
+import klieme.artdiary.exhibitions.enums.ExhField;
+import klieme.artdiary.exhibitions.enums.ExhPrice;
+import klieme.artdiary.exhibitions.enums.ExhState;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringMateId;
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
@@ -127,7 +129,130 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		return FindStoredDateResult.findByStoredDate(query.getExhId(), null, dates);
 	}
 
+	@Override
+	public List<FindExhResult> getExhList(ExhListFindQuery query) {
+		List<FindExhResult> results = new ArrayList<>();
+		List<ExhEntity> exhEntityList = exhRepository.findAll();
+
+		if (query.getSearchName() != null) {
+			// searchName으로 exh 테이블에 검색 조회 (exhName, gallery)
+			for (ExhEntity exh : exhEntityList) {
+				if (exh.getExhName().contains(query.getSearchName())
+					|| exh.getGallery().contains(query.getSearchName())) {
+					results.add(getFindExhResult(exh));
+				}
+			}
+		} else if (query.getDate() != null) {
+			// date 날짜에 진행 중인 전시회 검색 (periodStart <= date and date <= periodEnd)
+			for (ExhEntity exh : exhEntityList) {
+				if (isProceedExh(exh, query.getDate())) {
+					results.add(getFindExhResult(exh));
+				}
+			}
+		} else if (query.getExhCategory() != null) {
+			// field or price or state로 전시회 검색 (field= and price = and state)
+			for (ExhEntity exh : exhEntityList) {
+				boolean field = checkField(query.getExhCategory().getField(), exh);
+				boolean price = checkPrice(query.getExhCategory().getPrice(), exh);
+				boolean state = checkState(query.getExhCategory().getState(), exh);
+				if (field && price && state) {
+					results.add(getFindExhResult(exh));
+				}
+			}
+		} else {
+			// all
+			for (ExhEntity exh : exhEntityList) {
+				results.add(getFindExhResult(exh));
+			}
+		}
+		return results;
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
+	}
+
+	private Boolean checkField(ExhField field, ExhEntity exh) {
+		if (field == null) {
+			return true;
+		}
+		if (field == ExhField.OTHER) {
+			if (exh.getArt() == null) { // other && art == null
+				return true;
+			} else { // other && art != null
+				return !exh.getArt().contains(ExhField.PHOTO.label())
+					&& !exh.getArt().contains(ExhField.PAINTING.label())
+					&& !exh.getArt().contains(ExhField.PIECE.label())
+					&& !exh.getArt().contains(ExhField.CRAFTS.label())
+					&& !exh.getArt().contains(ExhField.MEDIA_ART.label());
+			}
+		} else {
+			if (exh.getArt() == null) { // !other && art == null
+				return false;
+			} else { // !other && art != null
+				return exh.getArt().contains(field.label());
+			}
+		}
+	}
+
+	private Boolean checkPrice(ExhPrice price, ExhEntity exh) {
+		if (price == null) {
+			return true;
+		}
+		switch (price) {
+			case ExhPrice.FREE:
+				if (exh.getFee() == 0) {
+					return true;
+				}
+				break;
+			case ExhPrice.PAY:
+				if (exh.getFee() != 0) {
+					return true;
+				}
+				break;
+			default:
+				if (exh.getFee() <= 20000) {
+					return true;
+				}
+		}
+		return false;
+	}
+
+	private Boolean checkState(ExhState state, ExhEntity exh) {
+		if (state == null) {
+			return true;
+		}
+		LocalDate now = LocalDate.now();
+		switch (state) {
+			case ExhState.BEFORE_START:
+				if (exh.getExhPeriodStart().isAfter(now)) {
+					return true;
+				}
+				break;
+			case ExhState.END:
+				if (exh.getExhPeriodEnd().isBefore(now)) {
+					return true;
+				}
+				break;
+			default:
+				if (isProceedExh(exh, now)) {
+					return true;
+				}
+		}
+		return false;
+	}
+
+	private Boolean isProceedExh(ExhEntity exh, LocalDate targetDate) {
+		return exh.getExhPeriodStart().isEqual(targetDate) || exh.getExhPeriodEnd().isEqual(targetDate)
+			|| (exh.getExhPeriodStart().isBefore(targetDate) && exh.getExhPeriodEnd().isAfter(targetDate));
+	}
+
+	private FindExhResult getFindExhResult(ExhEntity exh) {
+		/* TODO
+		 * 저장된 포스터 사진 있으면 구현
+		 * 전시회 좋아요 여부 구현
+		 * 아래 코드의 null 수정 필요
+		 */
+		return FindExhResult.findByExhForList(exh, null, null);
 	}
 }
