@@ -55,23 +55,24 @@ public class ExhController {
 		System.out.println(exhOperationUseCase.createDummy(command));
 	}
 
-	@PostMapping("/{exhId}")
-	public ResponseEntity<StoredDateView> addSoloExhCreateDummyDate(@PathVariable(name = "exhId") Long exhId,
-		@Valid @RequestBody AddSoloExhRequest addSoloExhRequest) {
+	/*
+		@PostMapping("/{exhId}") //캘린더저장
+		public ResponseEntity<StoredDateView> addSoloExhCreateDummyDate(@PathVariable(name = "exhId") Long exhId,
+			@Valid @RequestBody AddSoloExhRequest addSoloExhRequest) {
 
-		System.out.println("Test");
+			System.out.println("Test");
 
-		var command = ExhOperationUseCase.AddSoloExhDummyCreateCommand.builder()
-			.visitDate(addSoloExhRequest.getVisitDate())
-			.exhId(exhId)
-			.build();
+			var command = ExhOperationUseCase.AddSoloExhDummyCreateCommand.builder()
+				.visitDate(addSoloExhRequest.getVisitDate())
+				.exhId(exhId)
+				.build();
 
-		ExhReadUseCase.FindStoredDateResult result = exhOperationUseCase.addSoloExhCreateDummy(command);
+			ExhReadUseCase.FindStoredDateResult result = exhOperationUseCase.addSoloExhCreateDummy(command);
 
-		// System.out.println(exhOperationUseCase.addSoloExhCreateDummy(command));
-		return ResponseEntity.created(null).body(StoredDateView.builder().result(result).build());
-	}
-
+			// System.out.println(exhOperationUseCase.addSoloExhCreateDummy(command));
+			return ResponseEntity.created(null).body(StoredDateView.builder().result(result).build());
+		}
+	*/
 	@GetMapping("/{exhId}/date") // ResponseEntity<>
 	public ResponseEntity<StoredDateView> getStoredDateOfExhs(
 		@PathVariable(name = "exhId") Long exhId,

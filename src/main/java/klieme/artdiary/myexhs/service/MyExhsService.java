@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
@@ -16,6 +18,8 @@ import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
+import klieme.artdiary.exhibitions.service.ExhOperationUseCase;
+import klieme.artdiary.exhibitions.service.ExhReadUseCase;
 import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
@@ -186,6 +190,46 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 			}
 		}
 		return results;
+	}
+
+	@Transactional
+	@Override
+	public List<FindMyStoredDateResult> addMyExhVisitDateDummy(
+		klieme.artdiary.myexhs.service.MyExhsOperationUseCase.AddMyExhVisitDateDummyCommand command) {
+		// 전시회 아이디 검증
+		ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+
+		// 관람날짜 검증
+		Optional<UserExhEntity> userExhEntity = userExhRepository.findByUserIdAndExhIdAndVisitDate(getUserId(),
+			command.getExhId(), command.getVisitDate());
+
+		if (userExhEntity.isPresent()) {
+			throw new ArtDiaryException(MessageType.CONFLICT);
+		}
+
+		// 전시회 일정에 맞춰 갈 수 있는지 확인
+		if (exhEntity.getExhPeriodStart().isAfter(command.getVisitDate())
+			|| exhEntity.getExhPeriodEnd().isBefore(command.getVisitDate())) {
+			throw new ArtDiaryException(MessageType.FORBIDDEN_DATE);
+		}
+
+		// DB에 데이터 생성
+		UserExhEntity entity = UserExhEntity.builder()
+			.visitDate(command.getVisitDate())
+			.userId(getUserId())
+			.exhId(command.getExhId())
+			.build();
+		userExhRepository.save(entity);
+
+		List<UserExhEntity> entities = userExhRepository.findByUserIdAndExhId(getUserId(), command.getExhId());
+		List<FindMyStoredDateResult> results = new ArrayList<>();
+		;
+		for (UserExhEntity tmp : entities) {
+			results.add(MyExhsReadUseCase.FindMyStoredDateResult.findByMyAllDatesSolo(tmp));
+		}
+		return results;
+		//	return MyExhsReadUseCase.FindMyStoredDateResult.findByMyStoredDateSolo(entity, null);
 	}
 
 	private Long getUserId() {

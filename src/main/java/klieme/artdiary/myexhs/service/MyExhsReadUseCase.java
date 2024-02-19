@@ -5,6 +5,7 @@ import java.util.List;
 
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
+import klieme.artdiary.exhibitions.service.ExhReadUseCase;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import lombok.Builder;
@@ -86,6 +87,7 @@ public interface MyExhsReadUseCase {
 		private final String gatherName; // 개인일 경우엔 null
 		private final Long userExhId; // 모임일 경우엔 null
 		private final List<LocalDate> dates;
+		private final LocalDate date;// 혜원 추가
 
 		public static FindMyStoredDateResult findByMyStoredDateSolo(UserExhEntity userExh, List<LocalDate> dates) {
 			return FindMyStoredDateResult.builder()
@@ -105,5 +107,14 @@ public interface MyExhsReadUseCase {
 				.dates(dates)
 				.build();
 		}
+
+		public static FindMyStoredDateResult findByMyAllDatesSolo(UserExhEntity userExh) {
+			return FindMyStoredDateResult.builder()
+				.exhId(userExh.getExhId())
+				.userExhId(userExh.getUserExhId())
+				.date(userExh.getVisitDate())
+				.build();
+		}
+
 	}
 }
