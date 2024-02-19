@@ -17,6 +17,7 @@ import klieme.artdiary.gatherings.service.GatheringOperationUseCase;
 import klieme.artdiary.gatherings.service.GatheringReadUseCase;
 import klieme.artdiary.gatherings.ui.request_body.AddExhDateRequest;
 import klieme.artdiary.gatherings.ui.request_body.AddGatheringRequest;
+import klieme.artdiary.gatherings.ui.view.GatheringDiaryView;
 import klieme.artdiary.gatherings.ui.view.GatheringExhView;
 import klieme.artdiary.gatherings.ui.view.GatheringView;
 
@@ -61,9 +62,6 @@ public class GatheringController {
 
 	/**
 	 * 모임의 일정에 전시회 관람 날짜 추가
-	 * @param gatherId
-	 * @param request
-	 * @return
 	 */
 	@PostMapping("/{gatherId}/exhibitions")
 	public ResponseEntity<List<GatheringExhView>> addExhAboutGathering(
@@ -84,6 +82,30 @@ public class GatheringController {
 
 		for (GatheringReadUseCase.FindGatheringExhsResult result : results) {
 			viewResult.add(GatheringExhView.builder().result(result).build());
+		}
+		return ResponseEntity.ok(viewResult);
+	}
+
+	/**
+	 * 한 전시회에 대한 모임 기록 목록 조회
+	 */
+	@GetMapping("/{gatherId}/exhibitions/{exhId}")
+	public ResponseEntity<List<GatheringDiaryView>> getDiariesAboutGatheringExh(
+		@PathVariable(name = "gatherId") Long gatherId,
+		@PathVariable(name = "exhId") Long exhId
+	) {
+		var query = GatheringReadUseCase.GatheringDiariesFindQuery.builder()
+			.exhId(exhId)
+			.gatherId(gatherId)
+			.build();
+		// 비즈니스 로직 호출
+		List<GatheringReadUseCase.FindGatheringDiaryResult> results = gatheringReadUseCase.getDiariesAboutGatheringExh(
+			query);
+		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
+		List<GatheringDiaryView> viewResult = new ArrayList<>();
+
+		for (GatheringReadUseCase.FindGatheringDiaryResult result : results) {
+			viewResult.add(GatheringDiaryView.builder().result(result).build());
 		}
 		return ResponseEntity.ok(viewResult);
 	}
