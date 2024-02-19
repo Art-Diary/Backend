@@ -99,4 +99,23 @@ public interface GatheringReadUseCase {
 				.build();
 		}
 	}
+
+	@Getter
+	@ToString
+	@Builder
+	class FindGatheringMatesResult {
+		private final Long userId;
+		private final String nickname;
+		private final String profile;
+		private final String favoriteArt;
+
+		public static FindGatheringMatesResult findByGatheringMates(UserEntity user, String profile) {
+			return FindGatheringMatesResult.builder()
+				.userId(user.getUserId())
+				.nickname(user.getNickname())
+				.profile(profile)
+				.favoriteArt(user.getFavoriteArt())
+				.build();
+		}
+	}
 }

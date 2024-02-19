@@ -164,7 +164,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 
 	@Override
 	public List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query) {
-		UserEntity user = getUser();
+		UserEntity user = getUser(getUserId());
 		// 모임에 포함되어 있는지 확인
 		gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
 			.userId(getUserId())
@@ -198,11 +198,66 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		return results;
 	}
 
+	@Override
+	public List<FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command) {
+		// 유저가 존재하는지 확인
+		UserEntity requestGatheringMate = getUser(command.getUserId());
+		// gatherId 확인
+		GatheringEntity savedGathering = gatheringRepository.findByGatherId(command.getGatherId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		// 모임에 속해 있는 메이트 리스트 조회
+		List<GatheringMateEntity> gatheringMateEntities = gatheringMateRepository.findByGatheringMateIdGatherId(
+			savedGathering.getGatherId());
+		boolean checkImInGathering = false;
+		boolean checkRequestUserInGathering = false;
+		for (GatheringMateEntity gatheringMate : gatheringMateEntities) {
+			if (gatheringMate.getGatheringMateId().getUserId().equals(getUserId())) {
+				checkImInGathering = true;
+			}
+			if (gatheringMate.getGatheringMateId().getUserId().equals(requestGatheringMate.getUserId())) {
+				checkRequestUserInGathering = true;
+			}
+		}
+
+		// 내가 모임에 속해 있는지 확인 || 요청한 유저가 이미 모임에 있는지 확인
+		if (!checkImInGathering) {
+			throw new ArtDiaryException(MessageType.NOT_FOUND);
+		}
+		if (checkRequestUserInGathering) {
+			throw new ArtDiaryException(MessageType.CONFLICT);
+		}
+
+		// 모임에 추가
+		GatheringMateEntity gatheringMate = GatheringMateEntity.builder()
+			.gatheringMateId(GatheringMateId.builder()
+				.userId(requestGatheringMate.getUserId())
+				.gatherId(savedGathering.getGatherId())
+				.build())
+			.build();
+		try {
+			gatheringMateRepository.save(gatheringMate);
+		} catch (Exception e) {
+			throw new ArtDiaryException(MessageType.CONFLICT);
+		}
+
+		// 기존 모임 메이트 리스트에 새로운 메이트 추가하여 gatheringMateEntities 재활용
+		gatheringMateEntities.add(gatheringMate);
+
+		List<FindGatheringMatesResult> results = new ArrayList<>();
+
+		for (GatheringMateEntity gatheringMateEntity : gatheringMateEntities) {
+			UserEntity mate = getUser(gatheringMateEntity.getGatheringMateId().getUserId());
+			// TODO profile 구현 필요
+			results.add(FindGatheringMatesResult.findByGatheringMates(mate, null));
+		}
+		return results;
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
 
-	private UserEntity getUser() {
-		return userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+	private UserEntity getUser(Long userId) {
+		return userRepository.findByUserId(userId).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 	}
 }

@@ -16,9 +16,11 @@ import jakarta.validation.Valid;
 import klieme.artdiary.gatherings.service.GatheringOperationUseCase;
 import klieme.artdiary.gatherings.service.GatheringReadUseCase;
 import klieme.artdiary.gatherings.ui.request_body.AddExhDateRequest;
+import klieme.artdiary.gatherings.ui.request_body.AddGatheringMateRequest;
 import klieme.artdiary.gatherings.ui.request_body.AddGatheringRequest;
 import klieme.artdiary.gatherings.ui.view.GatheringDiaryView;
 import klieme.artdiary.gatherings.ui.view.GatheringExhView;
+import klieme.artdiary.gatherings.ui.view.GatheringMateView;
 import klieme.artdiary.gatherings.ui.view.GatheringView;
 
 @RestController
@@ -108,5 +110,26 @@ public class GatheringController {
 			viewResult.add(GatheringDiaryView.builder().result(result).build());
 		}
 		return ResponseEntity.ok(viewResult);
+	}
+
+	@PostMapping("/{gatherId}")
+	public ResponseEntity<List<GatheringMateView>> addGatheringMate(
+		@PathVariable(name = "gatherId") Long gatherId,
+		@Valid @RequestBody AddGatheringMateRequest request
+	) {
+		var command = GatheringOperationUseCase.GatheringMateCreateCommand.builder()
+			.gatherId(gatherId)
+			.userId(request.getUserId())
+			.build();
+		// 비즈니스 로직 호출
+		List<GatheringReadUseCase.FindGatheringMatesResult> results = gatheringOperationUseCase.addGatheringMate(
+			command);
+		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
+		List<GatheringMateView> viewList = new ArrayList<>();
+
+		for (GatheringReadUseCase.FindGatheringMatesResult result : results) {
+			viewList.add(GatheringMateView.builder().result(result).build());
+		}
+		return ResponseEntity.created(null).body(viewList);
 	}
 }
