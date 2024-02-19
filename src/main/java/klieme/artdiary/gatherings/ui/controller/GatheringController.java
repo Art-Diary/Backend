@@ -18,6 +18,7 @@ import klieme.artdiary.gatherings.service.GatheringReadUseCase;
 import klieme.artdiary.gatherings.ui.request_body.AddExhDateRequest;
 import klieme.artdiary.gatherings.ui.request_body.AddGatheringMateRequest;
 import klieme.artdiary.gatherings.ui.request_body.AddGatheringRequest;
+import klieme.artdiary.gatherings.ui.view.GatheringDetailInfoView;
 import klieme.artdiary.gatherings.ui.view.GatheringDiaryView;
 import klieme.artdiary.gatherings.ui.view.GatheringExhView;
 import klieme.artdiary.gatherings.ui.view.GatheringMateView;
@@ -131,5 +132,22 @@ public class GatheringController {
 			viewList.add(GatheringMateView.builder().result(result).build());
 		}
 		return ResponseEntity.created(null).body(viewList);
+	}
+
+	/**
+	 * 모임 상세 정보 조회(모임 멤버 + 갔다온 전시회 목록)
+	 */
+	@GetMapping("/{gatherId}")
+	public ResponseEntity<GatheringDetailInfoView> getGatheringDetailInfo(
+		@PathVariable(name = "gatherId") Long gatherId
+	) {
+		var query = GatheringReadUseCase.GatheringDetailInfoFindQuery.builder()
+			.gatherId(gatherId)
+			.build();
+		// 비즈니스 로직 호출
+		GatheringReadUseCase.FindGatheringDetailInfoResult detailInfoResult = gatheringReadUseCase.getGatheringDetailInfo(
+			query);
+		// 반환
+		return ResponseEntity.ok(GatheringDetailInfoView.builder().result(detailInfoResult).build());
 	}
 }

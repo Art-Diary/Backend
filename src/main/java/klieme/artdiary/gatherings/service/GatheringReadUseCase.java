@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
+import klieme.artdiary.gatherings.Info.ExhibitionInfo;
+import klieme.artdiary.gatherings.Info.MateInfo;
 import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
@@ -19,12 +21,22 @@ public interface GatheringReadUseCase {
 
 	List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query);
 
+	FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query);
+
 	@EqualsAndHashCode
 	@Getter
 	@ToString
 	@Builder
 	class GatheringDiariesFindQuery {
 		private final Long exhId;
+		private final Long gatherId;
+	}
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class GatheringDetailInfoFindQuery {
 		private final Long gatherId;
 	}
 
@@ -115,6 +127,22 @@ public interface GatheringReadUseCase {
 				.nickname(user.getNickname())
 				.profile(profile)
 				.favoriteArt(user.getFavoriteArt())
+				.build();
+		}
+	}
+
+	@Getter
+	@ToString
+	@Builder
+	class FindGatheringDetailInfoResult {
+		private final List<MateInfo> mates;
+		private final List<ExhibitionInfo> exhibitions;
+
+		public static FindGatheringDetailInfoResult findByGatheringDetailInfo(List<MateInfo> mates,
+			List<ExhibitionInfo> exhibitions) {
+			return FindGatheringDetailInfoResult.builder()
+				.mates(mates)
+				.exhibitions(exhibitions)
 				.build();
 		}
 	}
