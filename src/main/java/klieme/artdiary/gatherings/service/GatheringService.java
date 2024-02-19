@@ -23,6 +23,8 @@ import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepositor
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
+import klieme.artdiary.users.data_access.entity.UserEntity;
+import klieme.artdiary.users.data_access.repository.UserRepository;
 
 @Service
 public class GatheringService implements GatheringOperationUseCase, GatheringReadUseCase {
@@ -31,16 +33,18 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	private final ExhRepository exhRepository;
 	private final GatheringExhRepository gatheringExhRepository;
 	private final GatheringDiaryRepository gatheringDiaryRepository;
+	private final UserRepository userRepository;
 
 	@Autowired
 	public GatheringService(GatheringRepository gatheringRepository, GatheringMateRepository gatheringMateRepository,
 		ExhRepository exhRepository, GatheringExhRepository gatheringExhRepository,
-		GatheringDiaryRepository gatheringDiaryRepository) {
+		GatheringDiaryRepository gatheringDiaryRepository, UserRepository userRepository) {
 		this.gatheringRepository = gatheringRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.exhRepository = exhRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
 		this.gatheringDiaryRepository = gatheringDiaryRepository;
+		this.userRepository = userRepository;
 	}
 
 	@Transactional
@@ -158,7 +162,47 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		return result;
 	}
 
+	@Override
+	public List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query) {
+		UserEntity user = getUser();
+		// 모임에 포함되어 있는지 확인
+		gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
+			.userId(getUserId())
+			.gatherId(query.getGatherId())
+			.build()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		// gather 데이터
+		GatheringEntity gathering = gatheringRepository.findByGatherId(query.getGatherId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		// exh 전시회 존재 여부 확인
+		ExhEntity exh = exhRepository.findByExhId(query.getExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		// gatherExh 테이블에서 gatherId & exhId 리스트 조회
+		List<GatheringExhEntity> gatheringExhEntities = gatheringExhRepository.findByGatherIdAndExhId(
+			query.getGatherId(),
+			query.getExhId());
+
+		if (gatheringExhEntities.isEmpty()) {
+			throw new ArtDiaryException(MessageType.NOT_FOUND);
+		}
+		// 반환 리스트
+		List<FindGatheringDiaryResult> results = new ArrayList<>();
+		// gatherDiary 테이블에서 gatherExhId로 다이어리 리스트 조회
+		for (GatheringExhEntity gatheringExh : gatheringExhEntities) {
+			List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByGatheringExhId(
+				gatheringExh.getGatheringExhId());
+			for (GatheringDiaryEntity gatheringDiary : gatheringDiaryEntities) {
+				results.add(
+					FindGatheringDiaryResult.findByGatheringDiary(gatheringDiary, gatheringExh, gathering, user, exh));
+			}
+		}
+		return results;
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
+	}
+
+	private UserEntity getUser() {
+		return userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 	}
 }
