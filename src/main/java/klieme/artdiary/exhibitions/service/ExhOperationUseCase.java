@@ -11,9 +11,9 @@ public interface ExhOperationUseCase {
 
 	String createDummy(klieme.artdiary.exhibitions.service.ExhOperationUseCase.ExhDummyCreateCommand command);
 
-	ExhReadUseCase.FindStoredDateResult addSoloExhCreateDummy(
+	/*ExhReadUseCase.FindStoredDateResult addSoloExhCreateDummy(
 		klieme.artdiary.exhibitions.service.ExhOperationUseCase.AddSoloExhDummyCreateCommand command);
-
+*/
 	@EqualsAndHashCode
 	@Builder
 	@Getter

@@ -38,7 +38,6 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		this.gatheringExhRepository = gatheringExhRepository;
 	}
 
-
 	@Transactional
 	@Override
 	public String createDummy(ExhOperationUseCase.ExhDummyCreateCommand command) {
@@ -57,38 +56,38 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		return "complete";
 	}
 
+	/*
+		@Transactional
+		@Override
+		public FindStoredDateResult addSoloExhCreateDummy(ExhOperationUseCase.AddSoloExhDummyCreateCommand command) {
+			// 전시회 아이디 검증
+			ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
-	@Transactional
-	@Override
-	public FindStoredDateResult addSoloExhCreateDummy(ExhOperationUseCase.AddSoloExhDummyCreateCommand command) {
-		// 전시회 아이디 검증
-		ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
-			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			// 관람날짜 검증
+			Optional<UserExhEntity> userExhEntity = userExhRepository.findByUserIdAndExhIdAndVisitDate(getUserId(),
+				command.getExhId(), command.getVisitDate());
 
-		// 관람날짜 검증
-		Optional<UserExhEntity> userExhEntity = userExhRepository.findByUserIdAndExhIdAndVisitDate(getUserId(),
-			command.getExhId(), command.getVisitDate());
+			if (userExhEntity.isPresent()) {
+				throw new ArtDiaryException(MessageType.CONFLICT);
+			}
 
-		if (userExhEntity.isPresent()) {
-			throw new ArtDiaryException(MessageType.CONFLICT);
+			// 전시회 일정에 맞춰 갈 수 있는지 확인
+			if (exhEntity.getExhPeriodStart().isAfter(command.getVisitDate())
+				|| exhEntity.getExhPeriodEnd().isBefore(command.getVisitDate())) {
+				throw new ArtDiaryException(MessageType.FORBIDDEN_DATE);
+			}
+
+			// DB에 데이터 생성
+			UserExhEntity entity = UserExhEntity.builder()
+				.visitDate(command.getVisitDate())
+				.userId(getUserId())
+				.exhId(command.getExhId())
+				.build();
+			userExhRepository.save(entity);
+			return FindStoredDateResult.findByStoredDate(command.getExhId(), command.getVisitDate(), null);
 		}
-
-		// 전시회 일정에 맞춰 갈 수 있는지 확인
-		if (exhEntity.getExhPeriodStart().isAfter(command.getVisitDate())
-			|| exhEntity.getExhPeriodEnd().isBefore(command.getVisitDate())) {
-			throw new ArtDiaryException(MessageType.FORBIDDEN_DATE);
-		}
-
-		// DB에 데이터 생성
-		UserExhEntity entity = UserExhEntity.builder()
-			.visitDate(command.getVisitDate())
-			.userId(getUserId())
-			.exhId(command.getExhId())
-			.build();
-		userExhRepository.save(entity);
-		return FindStoredDateResult.findByStoredDate(command.getExhId(), command.getVisitDate(), null);
-	}
-
+	*/
 	@Override
 	public FindStoredDateResult getStoredDateOfExhs(StoredDateFindQuery query) {
 		// userId: getUserId(), exhId: query.getExhId(), gatherId: query.getGatherId()
