@@ -16,32 +16,49 @@ import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
 import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
+import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
+import klieme.artdiary.gatherings.data_access.entity.GatheringMateEntity;
 import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
+import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
+import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
 import klieme.artdiary.mate.data_access.repository.MateRepository;
 import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
 import klieme.artdiary.mydiarys.data_access.repository.MydiaryRepository;
+import klieme.artdiary.users.data_access.entity.UserEntity;
+import klieme.artdiary.users.data_access.repository.UserRepository;
 
 @Service
 public class MateExhsService implements MateExhsReadUseCase {
+
+	private final UserRepository userRepository;
 	private final UserExhRepository userExhRepository;
 	private final MydiaryRepository mydiaryRepository;
+
+	private final GatheringRepository gatheringRepository;
 	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final GatheringExhRepository gatheringExhRepository;
 	private final ExhRepository exhRepository;
 	private final MateRepository mateRepository;
 
+	private final GatheringMateRepository gatheringMateRepository;
+
 	@Autowired
-	public MateExhsService(UserExhRepository userExhRepository, MydiaryRepository mydiaryRepository,
+	public MateExhsService(UserRepository userRepository, UserExhRepository userExhRepository,
+		MydiaryRepository mydiaryRepository,
+		GatheringRepository gatheringRepository,
 		GatheringDiaryRepository gatheringDiaryRepository, GatheringExhRepository gatheringExhRepository,
-		ExhRepository exhRepository, MateRepository mateRepository) {
+		ExhRepository exhRepository, MateRepository mateRepository, GatheringMateRepository gatheringMateRepository) {
+		this.userRepository = userRepository;
 		this.userExhRepository = userExhRepository;
 		this.mydiaryRepository = mydiaryRepository;
+		this.gatheringRepository = gatheringRepository;
 		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
 		this.exhRepository = exhRepository;
 		this.mateRepository = mateRepository;
+		this.gatheringMateRepository = gatheringMateRepository;
 	}
 
 	@Override
@@ -103,6 +120,55 @@ public class MateExhsService implements MateExhsReadUseCase {
 			exh.ifPresent(exhEntity -> result.add(FindMateExhsResult.findMateExhs(exhEntity, null, averageRate)));
 		}
 		return result;
+	}
+
+	@Override
+	public List<FindMateDiaryResult> getMateDiaryList(MateDiaryFindQuery query) {
+
+		// 내 친구가 맞는지 확인 - exh_mate 확인
+		mateRepository.findByFromUserIdAndToUserId(getUserId(), query.getMateId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+
+		UserEntity mateEntity = userRepository.findByUserId(query.getMateId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		ExhEntity mateExhEntity = exhRepository.findByExhId(query.getExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+
+		//친구의 개인 기록 - user_exh에서 확인
+		List<UserExhEntity> uEntities = userExhRepository.findByUserIdAndExhId(mateEntity.getUserId(),
+			mateExhEntity.getExhId());
+		List<MateExhsReadUseCase.FindMateDiaryResult> diaries = new ArrayList<>();
+		for (UserExhEntity uEntity : uEntities) {
+			List<MydiaryEntity> diaryList = mydiaryRepository.findByUserExhId(uEntity.getUserExhId());
+			for (MydiaryEntity diary : diaryList) {
+				diaries.add(MateExhsReadUseCase.FindMateDiaryResult.findMateSoloDiary(diary, mateEntity, uEntity,
+					mateExhEntity));
+			}
+		}
+
+		//친구의 모임 기록 - gather_exh에서 확인
+		//모임있는지 확인
+		List<GatheringMateEntity> gEntities = gatheringMateRepository.findByGatheringMateIdUserId(query.getMateId());
+
+		//모임있을시, userId도 확인하고(내기록만 가져와야하니까), 한 모임의 한 전시를
+		for (GatheringMateEntity gEntity : gEntities) {
+			GatheringEntity gatheringEntity = gatheringRepository.findByGatherId(gEntity.getGatheringMateId()
+				.getGatherId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			List<GatheringExhEntity> gatheringExhEntities = gatheringExhRepository.findByGatherIdAndExhId(
+				gEntity.getGatheringMateId().getGatherId(), mateExhEntity.getExhId());
+			for (GatheringExhEntity gatheringExhEntity : gatheringExhEntities) {
+				List<GatheringDiaryEntity> gatheringDiaryList = gatheringDiaryRepository.findByGatheringExhId(
+					gatheringExhEntity.getGatheringExhId());
+				for (GatheringDiaryEntity gatheringDiary : gatheringDiaryList) {
+					diaries.add(
+						MateExhsReadUseCase.FindMateDiaryResult.findMateGatheringDiary(gatheringDiary, mateEntity,
+							gatheringEntity, gatheringExhEntity, mateExhEntity));
+				}
+			}
+
+		}
+		return diaries;
+
 	}
 
 	private Long getUserId() {

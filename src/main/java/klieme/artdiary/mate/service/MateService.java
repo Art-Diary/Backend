@@ -56,7 +56,7 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
 		//나인지 확인
-		if (checkEntity.getUserId().equals(dummy.getToUserId())) {
+		if (getUserId().equals(dummy.getToUserId())) {
 			throw new ArtDiaryException(MessageType.FORBIDDEN);
 		}
 		//exh_mate에서 이미 저장한 친구인지 확인
