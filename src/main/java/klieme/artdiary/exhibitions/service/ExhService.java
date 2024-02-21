@@ -3,6 +3,7 @@ package klieme.artdiary.exhibitions.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,9 @@ import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
 import klieme.artdiary.exhibitions.enums.ExhField;
 import klieme.artdiary.exhibitions.enums.ExhPrice;
 import klieme.artdiary.exhibitions.enums.ExhState;
+import klieme.artdiary.favoriteexhs.data_access.entity.FavoriteExhEntity;
+import klieme.artdiary.favoriteexhs.data_access.entity.FavoriteExhId;
+import klieme.artdiary.favoriteexhs.data_access.repository.FavoriteExhRepository;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringMateId;
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
@@ -30,14 +34,17 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	private final UserExhRepository userExhRepository;
 	private final GatheringMateRepository gatheringMateRepository;
 	private final GatheringExhRepository gatheringExhRepository;
+	private final FavoriteExhRepository favoriteExhRepository;
 
 	@Autowired
 	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository,
-		GatheringMateRepository gatheringMateRepository, GatheringExhRepository gatheringExhRepository) {
+		GatheringMateRepository gatheringMateRepository, GatheringExhRepository gatheringExhRepository,
+		FavoriteExhRepository favoriteExhRepository) {
 		this.exhRepository = exhRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
+		this.favoriteExhRepository = favoriteExhRepository;
 	}
 
 	@Transactional
@@ -250,9 +257,14 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	private FindExhResult getFindExhResult(ExhEntity exh) {
 		/* TODO
 		 * 저장된 포스터 사진 있으면 구현
-		 * 전시회 좋아요 여부 구현
 		 * 아래 코드의 null 수정 필요
 		 */
-		return FindExhResult.findByExhForList(exh, null, null);
+		// 전시회 좋아요 여부 구현
+		Optional<FavoriteExhEntity> favoriteExh = favoriteExhRepository.findByFavoriteExhId(FavoriteExhId.builder()
+			.userId(getUserId())
+			.exhId(exh.getExhId())
+			.build());
+		boolean isFavoriteExh = favoriteExh.isPresent();
+		return FindExhResult.findByExhForList(exh, isFavoriteExh, null);
 	}
 }
