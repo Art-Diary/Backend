@@ -93,7 +93,7 @@ public interface ExhReadUseCase {
 				.build();
 		}
 
-		public static FindExhResult findByExhForList(ExhEntity exh, Boolean favoriteExh, String poster) {
+		public static FindExhResult findByExhForList(ExhEntity exh, Boolean isFavoriteExh, String poster) {
 			return FindExhResult.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
@@ -101,7 +101,7 @@ public interface ExhReadUseCase {
 				.exhPeriodStart(exh.getExhPeriodStart())
 				.exhPeriodEnd(exh.getExhPeriodEnd())
 				.poster(poster)
-				.favoriteExh(favoriteExh)
+				.favoriteExh(isFavoriteExh)
 				.build();
 		}
 	}
