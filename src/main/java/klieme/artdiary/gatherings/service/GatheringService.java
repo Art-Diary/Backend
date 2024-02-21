@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,8 @@ import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
+import klieme.artdiary.gatherings.Info.ExhibitionInfo;
+import klieme.artdiary.gatherings.Info.MateInfo;
 import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
@@ -121,43 +124,20 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		gatheringExhRepository.save(addGatheringExhEntity);
 
 		/* 반환 - 모임의 전시회 리스트 */
-		List<Long> checkExhs = new ArrayList<>(); // 같은 전시회지만 방문 날짜가 다른 경우의 중복을 없애기 위해 사용
-		HashMap<Long, Integer> countDiary = new HashMap<>(); // 전시회에 대한 기록 개수
-		HashMap<Long, Double> sumDiaryRate = new HashMap<>(); // 전시회에 대한 기록 별점 합
-		// 모임이 저장한 전시회 리스트 조회
-		List<GatheringExhEntity> gatheringExhEntityList = gatheringExhRepository.findByGatherId(command.getGatherId());
-		// 각 전시회의 기록들을 조회하여 별점 합 얻기
-		for (GatheringExhEntity gatheringExh : gatheringExhEntityList) {
-			// gatheringDiary에서 기록 조회
-			List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByGatheringExhId(
-				gatheringExh.getGatheringExhId());
-
-			countDiary.putIfAbsent(gatheringExh.getExhId(), 0);
-			sumDiaryRate.putIfAbsent(gatheringExh.getExhId(), 0.0);
-			// 기록들의 별점 합과 개수 구하기
-			for (GatheringDiaryEntity gatheringDiary : gatheringDiaryEntities) {
-				Integer countExh = countDiary.get(gatheringExh.getExhId());
-				Double sumExhRate = sumDiaryRate.get(gatheringExh.getExhId());
-				countDiary.put(gatheringExh.getExhId(), countExh + 1);
-				sumDiaryRate.put(gatheringExh.getExhId(), sumExhRate + gatheringDiary.getRate());
-			}
-			// 전시회 중복 제거
-			if (!checkExhs.contains(gatheringExh.getExhId())) {
-				checkExhs.add(gatheringExh.getExhId());
-			}
-		}
 		// 반환
 		List<GatheringReadUseCase.FindGatheringExhsResult> result = new ArrayList<>();
-		for (Long exhId : checkExhs) {
-			Optional<ExhEntity> exh = exhRepository.findByExhId(exhId);
+		// 모임이 갔다 온 각 전시회의 평점 구하기
+		List<Pair<Long, Double>> averages = getExhAverageRate(command.getGatherId());
+
+		for (Pair<Long, Double> average : averages) {
+			Optional<ExhEntity> exh = exhRepository.findByExhId(average.getFirst());
 			/* TODO
 			 * 모임에서 작성한 글들의 평점?으로 구현함.
 			 * 저장된 포스터 사진 있으면 구현
 			 * 아래 코드의 null 수정 필요
 			 */
-			Double averageRate = countDiary.get(exhId) == 0 ? 0.0 : sumDiaryRate.get(exhId) / countDiary.get(exhId);
-			exh.ifPresent(exhEntity -> result.add(FindGatheringExhsResult.findByGatheringExhs(exhEntity, null,
-				averageRate)));
+			exh.ifPresent(exhEntity -> result.add(
+				FindGatheringExhsResult.findByGatheringExhs(exhEntity, null, average.getSecond())));
 		}
 		return result;
 	}
@@ -253,11 +233,83 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		return results;
 	}
 
+	@Override
+	public FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query) {
+		List<MateInfo> mateInfoList = new ArrayList<>();
+		List<ExhibitionInfo> exhibitionInfoList = new ArrayList<>();
+		// 1. gathering에 포함되어 있는 유저 리스트
+		// gatheringMate에서 gatherId로 조회
+		List<GatheringMateEntity> gatheringMateList = gatheringMateRepository.findByGatheringMateIdGatherId(
+			query.getGatherId());
+		// user에서 조회
+		for (GatheringMateEntity gatheringMate : gatheringMateList) {
+			UserEntity user = userRepository.findByUserId(gatheringMate.getGatheringMateId().getUserId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			mateInfoList.add(MateInfo.builder()
+				.userId(user.getUserId())
+				.nickname(user.getNickname())
+				.build());
+		}
+		// 2. gathering이 저장한 전시회 리스트(중복 제외)
+		// 모임이 갔다 온 각 전시회의 평점 구하기
+		List<Pair<Long, Double>> averages = getExhAverageRate(query.getGatherId());
+		for (Pair<Long, Double> average : averages) {
+			Optional<ExhEntity> exh = exhRepository.findByExhId(average.getFirst());
+			/* TODO
+			 * 모임에서 작성한 글들의 평점?으로 구현함.
+			 * 저장된 포스터 사진 있으면 구현
+			 * 아래 코드의 null 수정 필요
+			 */
+			exh.ifPresent(exhEntity -> exhibitionInfoList.add(ExhibitionInfo.builder()
+				.exhId(exhEntity.getExhId())
+				.exhName(exhEntity.getExhName())
+				.poster(null) // TODO 전시회 사진
+				.rate(average.getSecond())
+				.build()));
+		}
+		return FindGatheringDetailInfoResult.findByGatheringDetailInfo(mateInfoList, exhibitionInfoList);
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
 
 	private UserEntity getUser(Long userId) {
 		return userRepository.findByUserId(userId).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+	}
+
+	// 모임이 갔다 온 각 전시회의 평점 구하기
+	private List<Pair<Long, Double>> getExhAverageRate(Long gatheringId) {
+		List<Pair<Long, Double>> results = new ArrayList<>(); // 반환
+		List<Long> checkExhs = new ArrayList<>(); // 같은 전시회지만 방문 날짜가 다른 경우의 중복을 없애기 위해 사용
+		HashMap<Long, Integer> countDiary = new HashMap<>(); // 전시회에 대한 기록 개수
+		HashMap<Long, Double> sumDiaryRate = new HashMap<>(); // 전시회에 대한 기록 별점 합
+		// 모임이 저장한 전시회 리스트 조회
+		List<GatheringExhEntity> gatheringExhEntityList = gatheringExhRepository.findByGatherId(gatheringId);
+		// 각 전시회의 기록들을 조회하여 별점 합 얻기
+		for (GatheringExhEntity gatheringExh : gatheringExhEntityList) {
+			// gatheringDiary에서 기록 조회
+			List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByGatheringExhId(
+				gatheringExh.getGatheringExhId());
+
+			countDiary.putIfAbsent(gatheringExh.getExhId(), 0);
+			sumDiaryRate.putIfAbsent(gatheringExh.getExhId(), 0.0);
+			// 기록들의 별점 합과 개수 구하기
+			for (GatheringDiaryEntity gatheringDiary : gatheringDiaryEntities) {
+				Integer countExh = countDiary.get(gatheringExh.getExhId());
+				Double sumExhRate = sumDiaryRate.get(gatheringExh.getExhId());
+				countDiary.put(gatheringExh.getExhId(), countExh + 1);
+				sumDiaryRate.put(gatheringExh.getExhId(), sumExhRate + gatheringDiary.getRate());
+			}
+			// 전시회 중복 제거
+			if (!checkExhs.contains(gatheringExh.getExhId())) {
+				checkExhs.add(gatheringExh.getExhId());
+			}
+		}
+		for (Long exhId : checkExhs) {
+			Double averageRate = countDiary.get(exhId) == 0 ? 0.0 : sumDiaryRate.get(exhId) / countDiary.get(exhId);
+			results.add(Pair.of(exhId, averageRate));
+		}
+		return results;
 	}
 }
