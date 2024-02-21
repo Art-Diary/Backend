@@ -1,0 +1,39 @@
+package klieme.artdiary.favoriteexhs.ui.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+import klieme.artdiary.favoriteexhs.service.FavoriteExhOperationUseCase;
+import klieme.artdiary.favoriteexhs.service.FavoriteExhReadUseCase;
+import klieme.artdiary.favoriteexhs.ui.request_body.FavoriteExhRequest;
+import klieme.artdiary.favoriteexhs.ui.view.FavoriteExhView;
+
+@RestController
+@RequestMapping(value = "/favorites")
+public class FavoriteExhController {
+	private final FavoriteExhOperationUseCase favoriteExhOperationUseCase;
+	private final FavoriteExhReadUseCase favoriteExhReadUseCase;
+
+	@Autowired
+	public FavoriteExhController(FavoriteExhOperationUseCase favoriteExhOperationUseCase,
+		FavoriteExhReadUseCase favoriteExhReadUseCase) {
+		this.favoriteExhOperationUseCase = favoriteExhOperationUseCase;
+		this.favoriteExhReadUseCase = favoriteExhReadUseCase;
+	}
+
+	@PostMapping("/like")
+	public ResponseEntity<FavoriteExhView> createFavoriteExh(@Valid @RequestBody FavoriteExhRequest request) {
+		// request data 저장
+		var command = FavoriteExhOperationUseCase.FavoriteExhCreateCommand.builder()
+			.exhId(request.getExhId())
+			.build();
+		// 비즈니스 로직 호출
+		FavoriteExhReadUseCase.FindFavoriteExhResult result = favoriteExhOperationUseCase.createFavoriteExh(command);
+		return ResponseEntity.created(null).body(FavoriteExhView.builder().result(result).build());
+	}
+}
