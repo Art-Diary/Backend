@@ -15,4 +15,6 @@ public interface GatheringMateRepository extends JpaRepository<GatheringMateEnti
 	List<GatheringMateEntity> findByGatheringMateIdUserId(Long userId);
 
 	Optional<GatheringMateEntity> findByGatheringMateId(GatheringMateId gatheringMateId);
+
+	List<GatheringMateEntity> findByGatheringMateIdGatherId(Long gatherId);
 }

@@ -14,6 +14,8 @@ public interface GatheringOperationUseCase {
 
 	List<GatheringReadUseCase.FindGatheringExhsResult> addExhAboutGathering(ExhGatheringCreateCommand command);
 
+	List<GatheringReadUseCase.FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command);
+
 	@EqualsAndHashCode
 	@Builder
 	@Getter
@@ -30,5 +32,14 @@ public interface GatheringOperationUseCase {
 		private final Long gatherId;
 		private final Long exhId;
 		private final LocalDate visitDate;
+	}
+
+	@EqualsAndHashCode
+	@Builder
+	@Getter
+	@ToString
+	class GatheringMateCreateCommand {
+		private final Long gatherId;
+		private final Long userId;
 	}
 }
