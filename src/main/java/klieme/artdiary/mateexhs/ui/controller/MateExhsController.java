@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import klieme.artdiary.mateexhs.service.MateExhsReadUseCase;
+import klieme.artdiary.mateexhs.ui.view.MateDiaryView;
 import klieme.artdiary.mateexhs.ui.view.MateExhsView;
 
 @RestController
@@ -33,6 +34,22 @@ public class MateExhsController {
 
 		for (MateExhsReadUseCase.FindMateExhsResult result : results) {
 			viewResult.add(MateExhsView.builder().result(result).build());
+		}
+		return ResponseEntity.ok(viewResult);
+	}
+
+	@GetMapping("/{exhId}/diaries")
+	public ResponseEntity<List<MateDiaryView>> getMateDiaries(@PathVariable(name = "mateId") Long mateId,
+		@PathVariable(name = "exhId") Long exhId) {
+		var query = MateExhsReadUseCase.MateDiaryFindQuery.builder().mateId(mateId).exhId(exhId).build();
+
+		//비즈니스 로직
+		List<MateExhsReadUseCase.FindMateDiaryResult> results = mateExhsReadUseCase.getMateDiaryList(query);
+
+		List<MateDiaryView> viewResult = new ArrayList<>();
+
+		for (MateExhsReadUseCase.FindMateDiaryResult result : results) {
+			viewResult.add(MateDiaryView.builder().result(result).build());
 		}
 		return ResponseEntity.ok(viewResult);
 	}
