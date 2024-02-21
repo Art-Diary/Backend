@@ -1,7 +1,11 @@
 package klieme.artdiary.favoriteexhs.ui.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +28,20 @@ public class FavoriteExhController {
 		FavoriteExhReadUseCase favoriteExhReadUseCase) {
 		this.favoriteExhOperationUseCase = favoriteExhOperationUseCase;
 		this.favoriteExhReadUseCase = favoriteExhReadUseCase;
+	}
+
+	@GetMapping("")
+	public ResponseEntity<List<FavoriteExhView>> getFavoriteExhList() {
+
+		List<FavoriteExhReadUseCase.FindFavoriteExhResult> results = favoriteExhReadUseCase.getFavoriteExhs();
+
+		List<FavoriteExhView> viewResult = new ArrayList<>();
+
+		for (FavoriteExhReadUseCase.FindFavoriteExhResult result : results) {
+			viewResult.add(FavoriteExhView.builder().result(result).build());
+		}
+
+		return ResponseEntity.ok(viewResult);
 	}
 
 	@PostMapping("/like")
