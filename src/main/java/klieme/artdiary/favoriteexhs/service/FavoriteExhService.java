@@ -1,5 +1,7 @@
 package klieme.artdiary.favoriteexhs.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +52,20 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 			.build();
 		favoriteExhRepository.save(favoriteExh);
 		return FindFavoriteExhResult.findByFavoriteExh(favoriteExh);
+	}
+
+	@Override
+	public List<FindFavoriteExhResult> getFavoriteExhs() {
+
+		List<FindFavoriteExhResult> favorites = new ArrayList<>();
+		//favoriteExh에서 userId에 해당하는 exhId 알아내기
+		List<FavoriteExhEntity> fEntities = favoriteExhRepository.findByFavoriteExhIdUserId(getUserId());
+		for (FavoriteExhEntity fEntity : fEntities) { //알아낸 exhId에 대한 필요한 정보들 가져오기.
+			ExhEntity exh = exhRepository.findByExhId(fEntity.getFavoriteExhId().getExhId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			favorites.add(FavoriteExhReadUseCase.FindFavoriteExhResult.findByFavoriteExhDetail(exh));
+		}
+		return favorites;
 	}
 
 	private Long getUserId() {
