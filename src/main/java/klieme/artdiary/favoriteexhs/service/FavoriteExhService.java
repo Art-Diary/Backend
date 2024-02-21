@@ -69,6 +69,7 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 	}
 
 	@Override
+	@Transactional
 	public void deleteFavoriteExh(List<FavoriteExhCreateCommand> commands) {
 
 		for (FavoriteExhCreateCommand command : commands) {
