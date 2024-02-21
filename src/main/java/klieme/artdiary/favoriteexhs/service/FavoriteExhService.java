@@ -68,6 +68,22 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 		return favorites;
 	}
 
+	@Override
+	@Transactional
+	public void deleteFavoriteExh(List<FavoriteExhCreateCommand> commands) {
+
+		for (FavoriteExhCreateCommand command : commands) {
+
+			FavoriteExhId favoriteExhId = FavoriteExhId.builder()
+				.userId(getUserId())
+				.exhId(command.getExhId())
+				.build();
+			FavoriteExhEntity fEntity = favoriteExhRepository.findByFavoriteExhId(favoriteExhId)
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			favoriteExhRepository.delete(fEntity);
+		}
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}

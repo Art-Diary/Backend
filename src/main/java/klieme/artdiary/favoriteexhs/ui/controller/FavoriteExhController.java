@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import klieme.artdiary.favoriteexhs.service.FavoriteExhOperationUseCase;
 import klieme.artdiary.favoriteexhs.service.FavoriteExhReadUseCase;
+import klieme.artdiary.favoriteexhs.ui.request_body.DeleteFavoriteExhsRequest;
 import klieme.artdiary.favoriteexhs.ui.request_body.FavoriteExhRequest;
 import klieme.artdiary.favoriteexhs.ui.view.FavoriteExhView;
 
@@ -53,5 +54,22 @@ public class FavoriteExhController {
 		// 비즈니스 로직 호출
 		FavoriteExhReadUseCase.FindFavoriteExhResult result = favoriteExhOperationUseCase.createFavoriteExh(command);
 		return ResponseEntity.created(null).body(FavoriteExhView.builder().result(result).build());
+	}
+
+	@PostMapping("/unlike")
+	public void deleteFavoriteExh(@Valid @RequestBody DeleteFavoriteExhsRequest deleterequests) {
+
+		List<FavoriteExhOperationUseCase.FavoriteExhCreateCommand> commands = new ArrayList<>();
+		List<Long> requests = deleterequests.getFavoriteExhsList();
+
+		//List<FavoriteExhRequest> requests=deleterequests.getFavoriteExhsList();
+		for (Long request : requests) {
+			var command = FavoriteExhOperationUseCase.FavoriteExhCreateCommand.builder()
+				.exhId(request)
+				.build();
+			commands.add(command);
+		}
+
+		favoriteExhOperationUseCase.deleteFavoriteExh(commands);
 	}
 }
