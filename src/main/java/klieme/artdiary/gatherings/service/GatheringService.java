@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -311,5 +312,17 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			results.add(Pair.of(exhId, averageRate));
 		}
 		return results;
+	}
+
+	@Override
+	public void deleteMyGathering(Long gatherId) {
+
+		GatheringMateId deleteGatheringMateId = GatheringMateId.builder()
+			.gatherId(gatherId)
+			.userId(getUserId())
+			.build();
+		GatheringMateEntity deleteEntity = gatheringMateRepository.findByGatheringMateId(deleteGatheringMateId)
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		gatheringMateRepository.delete(deleteEntity);
 	}
 }

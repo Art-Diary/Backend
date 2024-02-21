@@ -16,6 +16,8 @@ public interface GatheringOperationUseCase {
 
 	List<GatheringReadUseCase.FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command);
 
+	void deleteMyGathering(Long gatherId);
+
 	@EqualsAndHashCode
 	@Builder
 	@Getter
