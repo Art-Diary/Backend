@@ -14,4 +14,5 @@ public interface FavoriteExhRepository extends JpaRepository<FavoriteExhEntity, 
 	Optional<FavoriteExhEntity> findByFavoriteExhId(FavoriteExhId favoriteExhId);
 
 	List<FavoriteExhEntity> findByFavoriteExhIdUserId(Long userId);
+
 }
