@@ -175,6 +175,22 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		return results;
 	}
 
+	@Override
+	public ExhReadUseCase.FindExhResult getExhDetailInfo(Long exhId) {
+
+		ExhEntity entity = exhRepository.findByExhId(exhId)
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+
+		Optional<FavoriteExhEntity> favoriteExh = favoriteExhRepository.findByFavoriteExhId(FavoriteExhId.builder()
+			.userId(getUserId())
+			.exhId(exhId)
+			.build());
+		boolean isFavoriteExh = favoriteExh.isPresent();
+		ExhReadUseCase.FindExhResult result = ExhReadUseCase.FindExhResult.findByExh(entity, isFavoriteExh);
+		return result;
+
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
