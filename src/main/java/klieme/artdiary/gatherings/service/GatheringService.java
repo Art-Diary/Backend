@@ -27,6 +27,8 @@ import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository
 import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
 import klieme.artdiary.gatherings.info.ExhibitionInfo;
 import klieme.artdiary.gatherings.info.MateInfo;
+import klieme.artdiary.mate.data_access.entity.MateEntity;
+import klieme.artdiary.mate.data_access.repository.MateRepository;
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import klieme.artdiary.users.data_access.repository.UserRepository;
 
@@ -38,17 +40,20 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	private final GatheringExhRepository gatheringExhRepository;
 	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final UserRepository userRepository;
+	private final MateRepository mateRepository;
 
 	@Autowired
 	public GatheringService(GatheringRepository gatheringRepository, GatheringMateRepository gatheringMateRepository,
 		ExhRepository exhRepository, GatheringExhRepository gatheringExhRepository,
-		GatheringDiaryRepository gatheringDiaryRepository, UserRepository userRepository) {
+		GatheringDiaryRepository gatheringDiaryRepository, UserRepository userRepository,
+		MateRepository mateRepository) {
 		this.gatheringRepository = gatheringRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.exhRepository = exhRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
 		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.userRepository = userRepository;
+		this.mateRepository = mateRepository;
 	}
 
 	@Transactional
@@ -285,16 +290,22 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			throw new ArtDiaryException(MessageType.NOT_FOUND);
 		}
 		// 요청 nickname에 해당하면서 모임에 속해 있지 않은 유저 필터링
-		List<UserEntity> userEntities = userRepository.findByNicknameContainingIgnoreCase(query.getNickname());
+		// 내 전시 메이트 중에서 확인
+		List<MateEntity> mateEntities = mateRepository.findByFromUserId(getUserId());
 		List<FindGatheringMatesResult> results = new ArrayList<>();
 
-		for (UserEntity user : userEntities) {
-			Optional<GatheringMateEntity> filterUser = gatheringMateEntities.stream()
-				.filter(gm -> gm.getGatheringMateId().getUserId().equals(user.getUserId()))
-				.findAny();
+		for (MateEntity mate : mateEntities) {
+			Optional<UserEntity> user = userRepository.findByUserIdAndNicknameContainingIgnoreCase(mate.getToUserId(),
+				query.getNickname());
 
-			if (filterUser.isEmpty()) {
-				results.add(FindGatheringMatesResult.findByGatheringMates(user, null)); // TODO
+			if (user.isPresent()) {
+				Optional<GatheringMateEntity> filterUser = gatheringMateEntities.stream()
+					.filter(gm -> gm.getGatheringMateId().getUserId().equals(user.get().getUserId()))
+					.findAny();
+
+				if (filterUser.isEmpty()) {
+					results.add(FindGatheringMatesResult.findByGatheringMates(user.get(), null)); // TODO
+				}
 			}
 		}
 		// 이름 순으로 정렬
