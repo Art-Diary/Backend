@@ -100,6 +100,10 @@ public class ExhController {
 
 	}
 
+/*
+	@GetMapping("/{exhId}/diaries")
+	public ResponseEntity<//  아마 새로 view파일 만들어야함.*/
+
 	@GetMapping("")
 	public ResponseEntity<List<ExhView>> getExhList(
 		@RequestParam(name = "searchName", required = false) String searchName,

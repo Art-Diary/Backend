@@ -176,7 +176,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	@Override
-	public ExhReadUseCase.FindExhResult getExhDetailInfo(Long exhId) {
+	public ExhReadUseCase.FindExhResult getExhDetailInfo(Long exhId) { //나중에 getfindexhresult함수 사용으로 바꿔보기
 
 		ExhEntity entity = exhRepository.findByExhId(exhId)
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
