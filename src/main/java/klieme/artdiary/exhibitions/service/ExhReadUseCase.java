@@ -4,9 +4,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
+import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.enums.ExhField;
 import klieme.artdiary.exhibitions.enums.ExhPrice;
 import klieme.artdiary.exhibitions.enums.ExhState;
+import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
+import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
+import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
+import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
+import klieme.artdiary.users.data_access.entity.UserEntity;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,6 +24,8 @@ public interface ExhReadUseCase {
 	List<FindExhResult> getExhList(ExhListFindQuery query);
 
 	FindExhResult getExhDetailInfo(Long exhId);
+
+	List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId);
 
 	@EqualsAndHashCode
 	@Getter
@@ -123,6 +131,63 @@ public interface ExhReadUseCase {
 				.exhPeriodEnd(exh.getExhPeriodEnd())
 				.poster(poster)
 				.favoriteExh(isFavoriteExh)
+				.build();
+		}
+	}
+
+	@Getter
+	@ToString
+	@Builder
+	class FindDiaryResult {
+		private final Long diaryId;
+		private final String title;
+		private final Double rate;
+		private final Boolean diaryPrivate;
+		private final String contents;
+		private final String thumbnail;
+		private final LocalDate writeDate;
+		private final String saying;
+		private final String nickname; // 작성자
+		private final String gatherName; //일단 개인일정인 경우 null로, findSoloDiary에서 없음.
+		private final LocalDate visitDate;
+		private final String exhName;
+		private final Long userExhId; // 개인 일정이 아닌 경우 null
+		private final Long gatheringExhId; // 모임이 아닐 경우 null
+
+		public static FindDiaryResult findSoloDiary(MydiaryEntity diary, UserExhEntity userexh, UserEntity user,
+			ExhEntity exh) {
+			return FindDiaryResult.builder()
+				.diaryId(diary.getSoloDiaryId())
+				.title(diary.getTitle())
+				.rate(diary.getRate())
+				.diaryPrivate(diary.getDiaryPrivate())
+				.contents(diary.getContents())
+				.thumbnail(diary.getThumbnail())
+				.writeDate(diary.getWriteDate())
+				.saying(diary.getSaying())
+				.nickname(user.getNickname())
+				.visitDate(userexh.getVisitDate())
+				.exhName(exh.getExhName())
+				.userExhId(userexh.getUserExhId())
+				.build();
+		}
+
+		public static FindDiaryResult findGatheringDiary(GatheringDiaryEntity diary, GatheringExhEntity gatherexh,
+			GatheringEntity gather, UserEntity user, ExhEntity exh) {
+			return FindDiaryResult.builder()
+				.diaryId(diary.getGatherDiaryId())
+				.title(diary.getTitle())
+				.rate(diary.getRate())
+				.diaryPrivate(diary.getDiaryPrivate())
+				.contents(diary.getContents())
+				.thumbnail(diary.getThumbnail())
+				.writeDate(diary.getWriteDate())
+				.saying(diary.getSaying())
+				.nickname(user.getNickname())
+				.gatherName(gather.getGatherName())
+				.visitDate(gatherexh.getVisitDate())
+				.exhName(exh.getExhName())
+				.gatheringExhId(gatherexh.getGatheringExhId())
 				.build();
 		}
 	}

@@ -16,6 +16,8 @@ public interface UserExhRepository extends JpaRepository<UserExhEntity, Long> {
 	//혜원 필요해서 추가
 	List<UserExhEntity> findByUserId(Long userId);
 
+	List<UserExhEntity> findByExhId(Long exhId);
+
 	Optional<UserExhEntity> findByUserIdAndExhIdAndVisitDate(Long userId, Long exhId, LocalDate visitDate);
 
 	Optional<UserExhEntity> findByUserExhId(Long userExhId);

@@ -15,6 +15,8 @@ public interface GatheringExhRepository extends JpaRepository<GatheringExhEntity
 
 	List<GatheringExhEntity> findByGatherId(Long gatherId);
 
+	List<GatheringExhEntity> findByExhId(Long exhId);
+
 	List<GatheringExhEntity> findByGatherIdAndExhId(Long gatherId, Long exhId);
 
 	Optional<GatheringExhEntity> findByGatheringExhId(Long gatheringExhId);

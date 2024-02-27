@@ -23,6 +23,7 @@ import klieme.artdiary.exhibitions.enums.ExhState;
 import klieme.artdiary.exhibitions.service.ExhOperationUseCase;
 import klieme.artdiary.exhibitions.service.ExhReadUseCase;
 import klieme.artdiary.exhibitions.ui.request_body.ExhRequest;
+import klieme.artdiary.exhibitions.ui.view.AllDiaryOfExhIdView;
 import klieme.artdiary.exhibitions.ui.view.ExhView;
 import klieme.artdiary.exhibitions.ui.view.StoredDateView;
 
@@ -100,9 +101,19 @@ public class ExhController {
 
 	}
 
-/*
 	@GetMapping("/{exhId}/diaries")
-	public ResponseEntity<//  아마 새로 view파일 만들어야함.*/
+	public ResponseEntity<List<AllDiaryOfExhIdView>> getAllOfExhIdDiaries(@PathVariable(name = "exhId") Long exhId) {
+
+		List<ExhReadUseCase.FindDiaryResult> diaryResults = exhReadUseCase.getAllOfExhIdDiaries(exhId);
+
+		List<AllDiaryOfExhIdView> result = new ArrayList<>();
+
+		for (ExhReadUseCase.FindDiaryResult diaryResult : diaryResults) {
+			result.add(AllDiaryOfExhIdView.builder().result(diaryResult).build());
+		}
+		return ResponseEntity.ok(result);
+
+	}
 
 	@GetMapping("")
 	public ResponseEntity<List<ExhView>> getExhList(
