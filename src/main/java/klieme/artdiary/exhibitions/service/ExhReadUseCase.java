@@ -78,6 +78,7 @@ public interface ExhReadUseCase {
 		private final Integer fee;
 		private final String intro;
 		private final String url;
+		private final String art;
 
 		/* poster 왜 따로 빼는지 궁금
 			public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh, String poster) {
@@ -109,6 +110,7 @@ public interface ExhReadUseCase {
 				.fee(exh.getFee())
 				.intro(exh.getIntro())
 				.url(exh.getUrl())
+				.art(exh.getArt())
 				.build();
 		}
 
