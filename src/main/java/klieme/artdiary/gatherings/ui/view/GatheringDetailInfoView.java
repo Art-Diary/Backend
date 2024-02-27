@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import klieme.artdiary.gatherings.Info.ExhibitionInfo;
-import klieme.artdiary.gatherings.Info.MateInfo;
+import klieme.artdiary.gatherings.info.ExhibitionInfo;
+import klieme.artdiary.gatherings.info.MateInfo;
 import klieme.artdiary.gatherings.service.GatheringReadUseCase;
 import lombok.Builder;
 import lombok.Getter;

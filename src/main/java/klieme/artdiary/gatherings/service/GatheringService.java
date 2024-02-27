@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -16,8 +15,6 @@ import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
-import klieme.artdiary.gatherings.Info.ExhibitionInfo;
-import klieme.artdiary.gatherings.Info.MateInfo;
 import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
@@ -27,6 +24,8 @@ import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepositor
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
+import klieme.artdiary.gatherings.info.ExhibitionInfo;
+import klieme.artdiary.gatherings.info.MateInfo;
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import klieme.artdiary.users.data_access.repository.UserRepository;
 
