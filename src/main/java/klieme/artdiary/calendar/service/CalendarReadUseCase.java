@@ -1,11 +1,9 @@
 package klieme.artdiary.calendar.service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.calendar.enums.CalendarKind;
-import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
-import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
+import klieme.artdiary.calendar.info.ScheduleInfo;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,34 +19,21 @@ public interface CalendarReadUseCase {
 	class CalendarFindQuery {
 		private final CalendarKind kind;
 		private final Long gatherId;
-		private final LocalDate date;
+		private final Integer year;
+		private final Integer month;
 	}
 
 	@Getter
 	@ToString
 	@Builder
 	class FindCalendarResult {
-		private final Long exhId;
-		private final String exhName;
-		private final String gallery;
-		private final LocalDate exhPeriodStart;
-		private final LocalDate exhPeriodEnd;
-		private final String poster;
-		private final LocalDate visitDate;
-		private final Long gatherId; // 개인일 경우 null
-		private final String gatherName; // 개인일 경우 null
+		private final Integer day;
+		private final List<ScheduleInfo> scheduleInfoList;
 
-		public static FindCalendarResult findByCalendar(ExhEntity exh, LocalDate visitDate, String poster,
-			GatheringEntity gathering) {
+		public static FindCalendarResult findByCalendar(Integer day, List<ScheduleInfo> scheduleInfoList) {
 			return FindCalendarResult.builder()
-				.exhId(exh.getExhId())
-				.exhName(exh.getExhName())
-				.exhPeriodStart(exh.getExhPeriodStart())
-				.exhPeriodEnd(exh.getExhPeriodEnd())
-				.poster(poster)
-				.visitDate(visitDate)
-				.gatherId(gathering.getGatherId())
-				.gatherName(gathering.getGatherName())
+				.day(day)
+				.scheduleInfoList(scheduleInfoList)
 				.build();
 		}
 	}
