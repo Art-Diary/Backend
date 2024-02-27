@@ -1,4 +1,4 @@
-package klieme.artdiary.gatherings.Info;
+package klieme.artdiary.gatherings.info;
 
 import lombok.Builder;
 import lombok.Getter;

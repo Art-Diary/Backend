@@ -18,4 +18,6 @@ public interface GatheringExhRepository extends JpaRepository<GatheringExhEntity
 	List<GatheringExhEntity> findByGatherIdAndExhId(Long gatherId, Long exhId);
 
 	Optional<GatheringExhEntity> findByGatheringExhId(Long gatheringExhId);
+
+	List<GatheringExhEntity> findByGatherIdAndVisitDate(Long gatherId, LocalDate visitDate);
 }
