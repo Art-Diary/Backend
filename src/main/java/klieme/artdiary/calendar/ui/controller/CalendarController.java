@@ -29,24 +29,32 @@ public class CalendarController {
 
 	/**
 	 * 모임과 날짜 별 저장된 전시회 조회
-	 * "/calendars?kind=[all, alone, gather]&date=[]&gatherId=[]"
+	 * "/calendars?kind=[all, alone, gather]&year=[]&month=[]&gatherId=[]"
 	 */
 	@GetMapping("")
 	public ResponseEntity<List<CalendarView>> getExhSchedule(
 		@RequestParam(name = "kind") String kind,
 		@RequestParam(name = "gatherId", required = false) Long gatherId,
-		@RequestParam(name = "date") LocalDate date
+		@RequestParam(name = "year") Integer year,
+		@RequestParam(name = "month") Integer month
 	) {
 		// 요청 파라미터 검증
 		if ((gatherId == null && CalendarKind.valueOfLabel(kind) == CalendarKind.GATHER)
 			|| (gatherId != null && CalendarKind.valueOfLabel(kind) != CalendarKind.GATHER)) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
+		// year와 month가 적절한 값이 들어왔는지 확인
+		try {
+			LocalDate targetDate = LocalDate.of(year, month, 1);
+		} catch (Exception e) {
+			throw new ArtDiaryException(MessageType.BAD_REQUEST);
+		}
 		// 파라미터로 받은 데이터 service로 전달하기 위함.
 		var query = CalendarReadUseCase.CalendarFindQuery.builder()
 			.kind(CalendarKind.valueOfLabel(kind))
 			.gatherId(gatherId)
-			.date(date)
+			.year(year)
+			.month(month)
 			.build();
 		// 비즈니스 로직 호출
 		List<CalendarReadUseCase.FindCalendarResult> results = calendarReadUseCase.getExhSchedule(query);
