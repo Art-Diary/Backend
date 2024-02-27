@@ -22,10 +22,18 @@ import klieme.artdiary.exhibitions.enums.ExhState;
 import klieme.artdiary.favoriteexhs.data_access.entity.FavoriteExhEntity;
 import klieme.artdiary.favoriteexhs.data_access.entity.FavoriteExhId;
 import klieme.artdiary.favoriteexhs.data_access.repository.FavoriteExhRepository;
+import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
+import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringMateId;
+import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
+import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
+import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
+import klieme.artdiary.mydiarys.data_access.repository.MydiaryRepository;
+import klieme.artdiary.users.data_access.entity.UserEntity;
+import klieme.artdiary.users.data_access.repository.UserRepository;
 
 @Service
 public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
@@ -34,17 +42,27 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	private final UserExhRepository userExhRepository;
 	private final GatheringMateRepository gatheringMateRepository;
 	private final GatheringExhRepository gatheringExhRepository;
+	private final GatheringDiaryRepository gatheringDiaryRepository;
+	private final GatheringRepository gatheringRepository;
 	private final FavoriteExhRepository favoriteExhRepository;
+	private final MydiaryRepository mydiaryRepository;
+	private final UserRepository userRepository;
 
 	@Autowired
 	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository,
 		GatheringMateRepository gatheringMateRepository, GatheringExhRepository gatheringExhRepository,
-		FavoriteExhRepository favoriteExhRepository) {
+		GatheringDiaryRepository gatheringDiaryRepository, GatheringRepository gatheringRepository,
+		FavoriteExhRepository favoriteExhRepository, MydiaryRepository mydiaryRepository,
+		UserRepository userRepository) {
 		this.exhRepository = exhRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
+		this.gatheringDiaryRepository = gatheringDiaryRepository;
+		this.gatheringRepository = gatheringRepository;
 		this.favoriteExhRepository = favoriteExhRepository;
+		this.mydiaryRepository = mydiaryRepository;
+		this.userRepository = userRepository;
 	}
 
 	@Transactional
@@ -189,6 +207,43 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		ExhReadUseCase.FindExhResult result = ExhReadUseCase.FindExhResult.findByExh(entity, isFavoriteExh);
 		return result;
 
+	}
+
+	@Override
+	public List<ExhReadUseCase.FindDiaryResult> getAllOfExhIdDiaries(Long exhId) {
+		List<ExhReadUseCase.FindDiaryResult> results = new ArrayList<>();
+		//해당 exhId의 user_Exh에서 확인 후, solo_Diary에서 가져오기
+		List<UserExhEntity> userEntities = userExhRepository.findByExhId(exhId);
+		ExhEntity exh = exhRepository.findByExhId(exhId)
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		for (UserExhEntity userEntity : userEntities) {
+			List<MydiaryEntity> diaries = mydiaryRepository.findByUserExhId(userEntity.getUserExhId());
+			UserEntity user = userRepository.findByUserId(userEntity.getUserId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			for (MydiaryEntity diary : diaries) {
+				FindDiaryResult tmp = ExhReadUseCase.FindDiaryResult.findSoloDiary(diary, userEntity, user, exh);
+				results.add(tmp);
+			}
+		}
+
+		//해당 exhId의 gather_Exh에서 확인 후, gather_Diary에서 가져오기
+		List<GatheringExhEntity> gatherEntities = gatheringExhRepository.findByExhId(exhId);
+		for (GatheringExhEntity gatherEntity : gatherEntities) {
+			List<GatheringDiaryEntity> gDiaries = gatheringDiaryRepository.findByGatheringExhId(
+				gatherEntity.getGatheringExhId());
+			GatheringEntity gatherName = gatheringRepository.findByGatherId(gatherEntity.getGatherId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			//	UserEntity user=userRepository.findByUserId(userEntity.getUserId()).orElseThrow(()->new ArtDiaryException(MessageType.NOT_FOUND));
+
+			for (GatheringDiaryEntity gDiary : gDiaries) {
+				UserEntity user = userRepository.findByUserId(gDiary.getUserId())
+					.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+				FindDiaryResult tmp = ExhReadUseCase.FindDiaryResult.findGatheringDiary(gDiary, gatherEntity,
+					gatherName, user, exh);
+				results.add(tmp);
+			}
+		}
+		return results;
 	}
 
 	private Long getUserId() {
