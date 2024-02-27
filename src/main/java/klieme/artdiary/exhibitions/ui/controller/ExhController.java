@@ -91,6 +91,15 @@ public class ExhController {
 		return ResponseEntity.ok(StoredDateView.builder().result(result).build());
 	}
 
+	@GetMapping("/{exhId}")
+	public ResponseEntity<ExhView> getExhDetailInfo(@PathVariable(name = "exhId") Long exhId) {
+
+		ExhReadUseCase.FindExhResult result = exhReadUseCase.getExhDetailInfo(exhId);
+
+		return ResponseEntity.ok(ExhView.builder().result(result).build());
+
+	}
+
 	@GetMapping("")
 	public ResponseEntity<List<ExhView>> getExhList(
 		@RequestParam(name = "searchName", required = false) String searchName,

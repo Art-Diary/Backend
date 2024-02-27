@@ -17,6 +17,8 @@ public interface ExhReadUseCase {
 
 	List<FindExhResult> getExhList(ExhListFindQuery query);
 
+	FindExhResult getExhDetailInfo(Long exhId);
+
 	@EqualsAndHashCode
 	@Getter
 	@ToString
@@ -77,14 +79,31 @@ public interface ExhReadUseCase {
 		private final String intro;
 		private final String url;
 
-		public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh, String poster) {
+		/* poster 왜 따로 빼는지 궁금
+			public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh, String poster) {
+				return FindExhResult.builder()
+					.exhId(exh.getExhId())
+					.exhName(exh.getExhName())
+					.gallery(exh.getGallery())
+					.exhPeriodStart(exh.getExhPeriodStart())
+					.exhPeriodEnd(exh.getExhPeriodEnd())
+					.poster(poster)
+					.favoriteExh(favoriteExh)
+					.painter(exh.getPainter())
+					.fee(exh.getFee())
+					.intro(exh.getIntro())
+					.url(exh.getUrl())
+					.build();
+			}
+	*/
+		public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh) {
 			return FindExhResult.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
 				.exhPeriodStart(exh.getExhPeriodStart())
 				.exhPeriodEnd(exh.getExhPeriodEnd())
-				.poster(poster)
+				.poster(exh.getPoster())
 				.favoriteExh(favoriteExh)
 				.painter(exh.getPainter())
 				.fee(exh.getFee())
