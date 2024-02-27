@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import klieme.artdiary.gatherings.service.GatheringOperationUseCase;
 import klieme.artdiary.gatherings.service.GatheringReadUseCase;
 import klieme.artdiary.gatherings.ui.request_body.AddExhDateRequest;
@@ -158,5 +160,29 @@ public class GatheringController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteGathering(@PathVariable(name = "gatherId") Long gatherId) {
 		gatheringOperationUseCase.deleteMyGathering(gatherId);
+	}
+
+	/**
+	 * /gatherings/:gatherId/search?nickname=[]
+	 */
+	@GetMapping("/{gatherId}/search")
+	public ResponseEntity<List<GatheringMateView>> searchUserForGathering(
+		@PathVariable(name = "gatherId") Long gatherId,
+		@NotBlank @RequestParam(name = "nickname") String nickname
+	) {
+		var query = GatheringReadUseCase.GatheringNicknameFindQuery.builder()
+			.gatherId(gatherId)
+			.nickname(nickname)
+			.build();
+		// 비즈니스 로직 호출
+		List<GatheringReadUseCase.FindGatheringMatesResult> results = gatheringReadUseCase.searchNicknameNotInGathering(
+			query);
+		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
+		List<GatheringMateView> viewList = new ArrayList<>();
+
+		for (GatheringReadUseCase.FindGatheringMatesResult result : results) {
+			viewList.add(GatheringMateView.builder().result(result).build());
+		}
+		return ResponseEntity.ok(viewList);
 	}
 }

@@ -1,6 +1,7 @@
 package klieme.artdiary.gatherings.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -268,6 +269,37 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 				.build()));
 		}
 		return FindGatheringDetailInfoResult.findByGatheringDetailInfo(mateInfoList, exhibitionInfoList);
+	}
+
+	@Override
+	public List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query) {
+		// 모임 멤버 리스트 조회
+		List<GatheringMateEntity> gatheringMateEntities = gatheringMateRepository.findByGatheringMateIdGatherId(
+			query.getGatherId());
+		// 모임에 속해 있는지 확인
+		Optional<GatheringMateEntity> isMember = gatheringMateEntities.stream()
+			.filter(gm -> gm.getGatheringMateId().getUserId().equals(getUserId()))
+			.findAny();
+
+		if (isMember.isEmpty()) {
+			throw new ArtDiaryException(MessageType.NOT_FOUND);
+		}
+		// 요청 nickname에 해당하면서 모임에 속해 있지 않은 유저 필터링
+		List<UserEntity> userEntities = userRepository.findByNicknameContainingIgnoreCase(query.getNickname());
+		List<FindGatheringMatesResult> results = new ArrayList<>();
+
+		for (UserEntity user : userEntities) {
+			Optional<GatheringMateEntity> filterUser = gatheringMateEntities.stream()
+				.filter(gm -> gm.getGatheringMateId().getUserId().equals(user.getUserId()))
+				.findAny();
+
+			if (filterUser.isEmpty()) {
+				results.add(FindGatheringMatesResult.findByGatheringMates(user, null)); // TODO
+			}
+		}
+		// 이름 순으로 정렬
+		results.sort(Comparator.comparing(FindGatheringMatesResult::getNickname));
+		return results;
 	}
 
 	private Long getUserId() {
