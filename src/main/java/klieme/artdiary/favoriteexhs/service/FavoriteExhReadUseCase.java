@@ -1,5 +1,6 @@
 package klieme.artdiary.favoriteexhs.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import lombok.ToString;
 
 public interface FavoriteExhReadUseCase {
 
-	List<FindFavoriteExhResult> getFavoriteExhs();
+	List<FindFavoriteExhResult> getFavoriteExhs() throws IOException;
 
 	@Getter
 	@ToString

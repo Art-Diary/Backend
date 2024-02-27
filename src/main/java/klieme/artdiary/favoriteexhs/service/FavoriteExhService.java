@@ -1,5 +1,6 @@
 package klieme.artdiary.favoriteexhs.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.ArtDiaryException;
+import klieme.artdiary.common.ImageTransfer;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
@@ -21,11 +23,14 @@ import klieme.artdiary.favoriteexhs.data_access.repository.FavoriteExhRepository
 public class FavoriteExhService implements FavoriteExhOperationUseCase, FavoriteExhReadUseCase {
 	private final ExhRepository exhRepository;
 	private final FavoriteExhRepository favoriteExhRepository;
+	private final ImageTransfer imageTransfer;
 
 	@Autowired
-	public FavoriteExhService(ExhRepository exhRepository, FavoriteExhRepository favoriteExhRepository) {
+	public FavoriteExhService(ExhRepository exhRepository, FavoriteExhRepository favoriteExhRepository,
+		ImageTransfer imageTransfer) {
 		this.exhRepository = exhRepository;
 		this.favoriteExhRepository = favoriteExhRepository;
+		this.imageTransfer = imageTransfer;
 	}
 
 	@Override
@@ -55,7 +60,7 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 	}
 
 	@Override
-	public List<FindFavoriteExhResult> getFavoriteExhs() {
+	public List<FindFavoriteExhResult> getFavoriteExhs() throws IOException {
 
 		List<FindFavoriteExhResult> favorites = new ArrayList<>();
 		//favoriteExh에서 userId에 해당하는 exhId 알아내기
@@ -63,6 +68,7 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 		for (FavoriteExhEntity fEntity : fEntities) { //알아낸 exhId에 대한 필요한 정보들 가져오기.
 			ExhEntity exh = exhRepository.findByExhId(fEntity.getFavoriteExhId().getExhId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			exh.imageToString(imageTransfer.downloadImage(exh.getPoster()));
 			favorites.add(FavoriteExhReadUseCase.FindFavoriteExhResult.findByFavoriteExhDetail(exh));
 		}
 		return favorites;

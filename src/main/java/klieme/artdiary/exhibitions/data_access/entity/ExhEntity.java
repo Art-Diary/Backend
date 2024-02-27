@@ -40,7 +40,6 @@ public class ExhEntity {
 	private String url;
 	@Column(nullable = false)
 	private String poster;
-
 	private String art;
 
 	@Builder
@@ -57,5 +56,9 @@ public class ExhEntity {
 		this.url = url;
 		this.poster = poster;
 		this.art = art;
+	}
+
+	public void imageToString(String imageString) {
+		this.poster = imageString;
 	}
 }

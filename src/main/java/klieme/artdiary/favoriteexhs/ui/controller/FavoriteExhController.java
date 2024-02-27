@@ -1,5 +1,6 @@
 package klieme.artdiary.favoriteexhs.ui.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class FavoriteExhController {
 	}
 
 	@GetMapping("")
-	public ResponseEntity<List<FavoriteExhView>> getFavoriteExhList() {
+	public ResponseEntity<List<FavoriteExhView>> getFavoriteExhList() throws IOException {
 
 		List<FavoriteExhReadUseCase.FindFavoriteExhResult> results = favoriteExhReadUseCase.getFavoriteExhs();
 
