@@ -1,20 +1,26 @@
 package klieme.artdiary.common;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import lombok.Builder;
+import lombok.Getter;
 
 @Component
 public class ImageTransfer {
 	// @Value("${local.default.record.path}")
-	// String RECORD_LOCAL_PATH;
+	String RECORD_LOCAL_PATH = "C:/Users/Chaerin/Desktop/PROJECTS/artdiary/images";
 	// @Value("${server.default.record.path}")
-	// String RECORD_SERVER_PATH;
+	String RECORD_SERVER_PATH;
 	// @Value("${local.default.loading.image}")
-	String RECORD_LOCAL_DEFAULT_IMG = "";
+	String RECORD_LOCAL_DEFAULT_IMG = "C:/Users/Chaerin/Desktop/PROJECTS/artdiary/images/default.png";
 	// @Value("${server.default.loading.image}")
 	String RECORD_SERVER_DEFAULT_IMG = "";
 
@@ -26,87 +32,110 @@ public class ImageTransfer {
 		String imageToString;// image -> bytes -> string
 
 		try {
-			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(
-				Paths.get(storagePath)));
+			// image 정보를 string 형으로 전환
+			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(storagePath)));
 		} catch (Exception e) {
-			String dir = os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG;
-			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(dir)));
+			String defaultDir = os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG;
+			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
 		}
 		return imageToString;
 	}
 
 	/**
 	 * upload image to storage
- 	 */
+	 * userId/thumbnail/solo/{soloDiaryId}.png
+	 * userId/thumbnail/gathering/{gatherId}/{gatherDiaryId}.png
+	 * userId/profile/{userId}.png
+	 */
+	@Getter
+	@Builder
+	public static class UploadQuery {
+		private final ImageType type;
+		private final MultipartFile image;
+		private final Long soloDiaryId;
+		private final Long gatherId;
+		private final Long gatherDiaryId;
+	}
 
+	@Getter
+	@Builder
+	public static class FindUploadResult {
+		private final String imageToString;
+		private final String storedPath;
+	}
 
+	public FindUploadResult uploadImage(UploadQuery query) throws IOException {
+		String os = System.getProperty("os.name").toLowerCase();
+		String defaultDir = os.contains("win") ? RECORD_LOCAL_PATH : RECORD_SERVER_PATH;
+		String imageToString;
+		MultipartFile imageFile = query.getImage();
 
-	// private String storePhoto() {
-	// 	String os = System.getProperty("os.name").toLowerCase();
-	// 	String defaultDir = os.contains("win") ? RECORD_LOCAL_PATH : RECORD_SERVER_PATH;
-	// 	String bytes;
-	//
-	// 	try {
-	// 		String fileName;
-	// 		if (photo != null) {
-	// 			String photoDir = defaultDir + "/" + detailPlanRecord.getDetailPlanId().getDetailPlanId();
-	// 			String extension = Objects.requireNonNull(photo.getOriginalFilename())
-	// 				.substring(photo.getOriginalFilename().lastIndexOf(".") + 1);
-	//
-	// 			fileName = photoDir + "/" + detailPlanRecord.getRecordId() + "." + extension;
-	// 			bytes = Base64.getEncoder().encodeToString(IOUtils.toByteArray(photo.getInputStream()));
-	// 			// 저장소에 사진 저장
-	// 			deleteImages(photoDir, detailPlanRecord.getRecordId(), false);
-	// 			photo.transferTo(new File(fileName));
-	// 		} else {
-	// 			if (Objects.equals(detailPlanRecord.getRecordPhoto(), "to be continued")) {
-	// 				fileName = os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG;
-	// 				bytes = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(fileName)));
-	// 				fileName = RECORD_SERVER_DEFAULT_IMG;
-	// 			} else {
-	// 				fileName = os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG;
-	// 				bytes = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(fileName)));
-	// 				fileName = detailPlanRecord.getRecordPhoto();
-	// 			}
-	// 		}
-	// 		// 경로 수정
-	// 		String updateRecordTitle = recordTitle == null ? detailPlanRecord.getRecordTitle() : recordTitle;
-	// 		String updateRecordBody = recordTitle == null ? detailPlanRecord.getRecordBody() : recordBody;
-	// 		detailPlanRecord.updateRecord(updateRecordTitle, updateRecordBody, fileName);
-	// 		detailPlanRecordRepository.save(detailPlanRecord);
-	// 	} catch (Exception e) {
-	// 		throw new GotBetterException(MessageType.BAD_REQUEST);
-	// 	}
-	// 	return bytes;
-	// }
-	//
-	// private void deleteImages(String photoDir, Long recordId, Boolean forDelete) {
-	// 	// 저장소에 사진 저장
-	// 	File storeDir = new File(photoDir);
-	//
-	// 	if (!forDelete && !storeDir.exists()) {
-	// 		try {
-	// 			storeDir.mkdirs();
-	// 		} catch (Exception e) {
-	// 			e.getStackTrace();
-	// 		}
-	// 	} else {
-	// 		String[] files = storeDir.list();
-	//
-	// 		if (files == null) {
-	// 			return;
-	// 		}
-	// 		for (String file : files) {
-	// 			if (file.startsWith(recordId + ".")) {
-	// 				File image = new File(photoDir + "/" + file);
-	// 				image.delete();
-	// 				if (forDelete && files.length == 1) {
-	// 					File dir = new File(photoDir);
-	// 					dir.delete();
-	// 				}
-	// 			}
-	// 		}
-	//
-	// 	}
-	// }
+		if (imageFile != null && imageFile.isEmpty()) {
+			imageFile = null;
+		}
+		// 타입 별 저장할 위치 결정
+		if (query.getType() == ImageType.PROFILE) {
+			defaultDir += ("/profile/" + getUserId());
+		} else if (query.getType() == ImageType.THUMBNAIL_SOLO) {
+			defaultDir += ("/thumbnail/solo/" + query.getSoloDiaryId());
+		} else if (query.getType() == ImageType.THUMBNAIL_GATHER) {
+			defaultDir += ("/thumbnail/gathering/" + query.getGatherId() + "/" + query.getGatherDiaryId());
+		}
+		// 이미지 저장 및 string 형으로 전환
+		try {
+			// 확장자
+			assert imageFile != null;
+			String extension = Objects.requireNonNull(imageFile.getOriginalFilename())
+				.substring(imageFile.getOriginalFilename().lastIndexOf(".") + 1);
+			defaultDir += ("." + extension);
+			// 새 폴더 생성 및 기존 파일 삭제
+			newDir(defaultDir);
+			// 저장소에 저장
+			imageFile.transferTo(new File(defaultDir));
+			// image 정보를 string 형으로 전환
+			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
+		} catch (Exception e) {
+			defaultDir = os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG;
+			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
+			// throw new ArtDiaryException(MessageType.BAD_REQUEST);
+		}
+		return FindUploadResult.builder()
+			.imageToString(imageToString)
+			.storedPath(defaultDir)
+			.build();
+	}
+
+	private void newDir(String imageDir) {
+		String dir = imageDir.substring(0, imageDir.lastIndexOf("/"));
+		String imageName = imageDir.substring(imageDir.lastIndexOf("/") + 1, imageDir.lastIndexOf("."));
+		File storeDir = new File(dir);
+
+		if (!storeDir.exists()) {
+			try {
+				storeDir.mkdirs();
+			} catch (Exception e) {
+				e.getStackTrace();
+			}
+		} else {
+			String[] images = storeDir.list();
+
+			if (images == null) {
+				return;
+			}
+			try {
+				for (String image : images) {
+					if (image.startsWith(imageName + ".")) {
+						File oldFile = new File(dir + "/" + image);
+						oldFile.delete();
+					}
+				}
+			} catch (Exception e) {
+				e.getStackTrace();
+			}
+		}
+	}
+
+	private Long getUserId() {
+		return UserIdFilter.getUserId();
+	}
 }
