@@ -61,4 +61,13 @@ public class UserEntity {
 		this.alarm3 = alarm3;
 		this.refreshToken = refreshToken;
 	}
+
+	public void updateUser(UserEntity user) {
+		this.nickname = user.getNickname();
+		this.profile = user.getProfile();
+		this.favoriteArt = user.getFavoriteArt();
+		this.alarm1 = user.getAlarm1();
+		this.alarm2 = user.getAlarm2();
+		this.alarm3 = user.getAlarm3();
+	}
 }
