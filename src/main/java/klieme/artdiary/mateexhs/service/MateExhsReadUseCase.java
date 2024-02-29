@@ -1,5 +1,6 @@
 package klieme.artdiary.mateexhs.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
-import klieme.artdiary.mydiarys.service.MydiaryReadUseCase;
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -17,9 +17,9 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface MateExhsReadUseCase {
-	List<FindMateExhsResult> getMateExhsList(MateExhsFindQuery query);
+	List<FindMateExhsResult> getMateExhsList(MateExhsFindQuery query) throws IOException;
 
-	List<FindMateDiaryResult> getMateDiaryList(MateDiaryFindQuery query);
+	List<FindMateDiaryResult> getMateDiaryList(MateDiaryFindQuery query) throws IOException;
 
 	@EqualsAndHashCode
 	@Getter
@@ -81,15 +81,14 @@ public interface MateExhsReadUseCase {
 
 		@Builder
 		public static MateExhsReadUseCase.FindMateDiaryResult findMateSoloDiary(MydiaryEntity diary, UserEntity user,
-			UserExhEntity userExh,
-			ExhEntity exh) {
+			UserExhEntity userExh, ExhEntity exh, String thumbnail) {
 			return MateExhsReadUseCase.FindMateDiaryResult.builder()
 				.diaryId(diary.getSoloDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(diary.getThumbnail())
+				.thumbnail(thumbnail)
 				.writeDate(diary.getWriteDate())
 				.saying(diary.getSaying())
 				.nickname(user.getNickname())
@@ -101,15 +100,15 @@ public interface MateExhsReadUseCase {
 
 		@Builder
 		public static MateExhsReadUseCase.FindMateDiaryResult findMateGatheringDiary(GatheringDiaryEntity diary,
-			UserEntity user,
-			GatheringEntity gathering, GatheringExhEntity gatheringExh, ExhEntity exh) {
+			UserEntity user, GatheringEntity gathering, GatheringExhEntity gatheringExh, ExhEntity exh,
+			String thumbnail) {
 			return MateExhsReadUseCase.FindMateDiaryResult.builder()
 				.diaryId(diary.getGatherDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(diary.getThumbnail())
+				.thumbnail(thumbnail)
 				.writeDate(diary.getWriteDate())
 				.saying(diary.getSaying())
 				.nickname(user.getNickname())

@@ -1,5 +1,6 @@
 package klieme.artdiary.mate.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import klieme.artdiary.users.data_access.entity.UserEntity;
@@ -8,9 +9,9 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface MateReadUseCase {
-	List<FindMateResult> getMateList();
+	List<FindMateResult> getMateList() throws IOException;
 
-	List<FindMateResult> searchNewMate(String nickname);
+	List<FindMateResult> searchNewMate(String nickname) throws IOException;
 
 	@Getter
 	@ToString
