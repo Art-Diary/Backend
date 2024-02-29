@@ -23,6 +23,8 @@ public interface GatheringReadUseCase {
 
 	FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query);
 
+	List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query);
+
 	@EqualsAndHashCode
 	@Getter
 	@ToString
@@ -38,6 +40,15 @@ public interface GatheringReadUseCase {
 	@Builder
 	class GatheringDetailInfoFindQuery {
 		private final Long gatherId;
+	}
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class GatheringNicknameFindQuery {
+		private final Long gatherId;
+		private final String nickname;
 	}
 
 	@Getter

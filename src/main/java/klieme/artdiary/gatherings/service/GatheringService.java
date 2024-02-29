@@ -1,6 +1,7 @@
 package klieme.artdiary.gatherings.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,8 @@ import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository
 import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
 import klieme.artdiary.gatherings.info.ExhibitionInfo;
 import klieme.artdiary.gatherings.info.MateInfo;
+import klieme.artdiary.mate.data_access.entity.MateEntity;
+import klieme.artdiary.mate.data_access.repository.MateRepository;
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import klieme.artdiary.users.data_access.repository.UserRepository;
 
@@ -37,17 +40,20 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	private final GatheringExhRepository gatheringExhRepository;
 	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final UserRepository userRepository;
+	private final MateRepository mateRepository;
 
 	@Autowired
 	public GatheringService(GatheringRepository gatheringRepository, GatheringMateRepository gatheringMateRepository,
 		ExhRepository exhRepository, GatheringExhRepository gatheringExhRepository,
-		GatheringDiaryRepository gatheringDiaryRepository, UserRepository userRepository) {
+		GatheringDiaryRepository gatheringDiaryRepository, UserRepository userRepository,
+		MateRepository mateRepository) {
 		this.gatheringRepository = gatheringRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.exhRepository = exhRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
 		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.userRepository = userRepository;
+		this.mateRepository = mateRepository;
 	}
 
 	@Transactional
@@ -268,6 +274,43 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 				.build()));
 		}
 		return FindGatheringDetailInfoResult.findByGatheringDetailInfo(mateInfoList, exhibitionInfoList);
+	}
+
+	@Override
+	public List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query) {
+		// 모임 멤버 리스트 조회
+		List<GatheringMateEntity> gatheringMateEntities = gatheringMateRepository.findByGatheringMateIdGatherId(
+			query.getGatherId());
+		// 모임에 속해 있는지 확인
+		Optional<GatheringMateEntity> isMember = gatheringMateEntities.stream()
+			.filter(gm -> gm.getGatheringMateId().getUserId().equals(getUserId()))
+			.findAny();
+
+		if (isMember.isEmpty()) {
+			throw new ArtDiaryException(MessageType.NOT_FOUND);
+		}
+		// 요청 nickname에 해당하면서 모임에 속해 있지 않은 유저 필터링
+		// 내 전시 메이트 중에서 확인
+		List<MateEntity> mateEntities = mateRepository.findByFromUserId(getUserId());
+		List<FindGatheringMatesResult> results = new ArrayList<>();
+
+		for (MateEntity mate : mateEntities) {
+			Optional<UserEntity> user = userRepository.findByUserIdAndNicknameContainingIgnoreCase(mate.getToUserId(),
+				query.getNickname());
+
+			if (user.isPresent()) {
+				Optional<GatheringMateEntity> filterUser = gatheringMateEntities.stream()
+					.filter(gm -> gm.getGatheringMateId().getUserId().equals(user.get().getUserId()))
+					.findAny();
+
+				if (filterUser.isEmpty()) {
+					results.add(FindGatheringMatesResult.findByGatheringMates(user.get(), null)); // TODO
+				}
+			}
+		}
+		// 이름 순으로 정렬
+		results.sort(Comparator.comparing(FindGatheringMatesResult::getNickname));
+		return results;
 	}
 
 	private Long getUserId() {

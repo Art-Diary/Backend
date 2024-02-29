@@ -12,5 +12,8 @@ import klieme.artdiary.users.data_access.entity.UserEntity;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 	Optional<UserEntity> findByUserId(Long userId);
 
+	Optional<UserEntity> findByUserIdAndNicknameContainingIgnoreCase(Long userId, String nickname);
+
 	List<UserEntity> findByNicknameContainingIgnoreCase(String nickname);
+
 }
