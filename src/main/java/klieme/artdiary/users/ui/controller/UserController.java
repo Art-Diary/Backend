@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import klieme.artdiary.users.service.UserOperationUseCase;
 import klieme.artdiary.users.ui.request_body.UserRequest;
 
 @RestController
+@RequestMapping(value = "/users")
 public class UserController {
 
 	private final UserOperationUseCase userOperationUseCase;

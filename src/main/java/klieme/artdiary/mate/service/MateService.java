@@ -13,7 +13,9 @@ import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
+import klieme.artdiary.gatherings.data_access.entity.GatheringMateEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringMateId;
+import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.mate.data_access.entity.MateEntity;
 import klieme.artdiary.mate.data_access.repository.MateRepository;
 import klieme.artdiary.users.data_access.entity.UserEntity;
@@ -23,11 +25,14 @@ import klieme.artdiary.users.data_access.repository.UserRepository;
 public class MateService implements MateReadUseCase, MateOperationUseCase {
 	private final MateRepository mateRepository;
 	private final UserRepository userRepository;
+	private final GatheringMateRepository gatheringMateRepository;
 
 	@Autowired
-	public MateService(MateRepository mateRepository, UserRepository userRepository) {
+	public MateService(MateRepository mateRepository, UserRepository userRepository,
+		GatheringMateRepository gatheringMateRepository) {
 		this.mateRepository = mateRepository;
 		this.userRepository = userRepository;
+		this.gatheringMateRepository = gatheringMateRepository;
 	}
 
 	@Override
@@ -44,6 +49,28 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 			 */
 			userEntity.ifPresent(user -> results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(user, null)));
 		}
+		return results;
+	}
+
+	@Override
+	public List<MateReadUseCase.FindMateResult> searchNewMate(String nickname) {
+		// 가져오기& 이미 내 전시메이트인 경우 보여주지 않기
+		List<MateReadUseCase.FindMateResult> results = new ArrayList<>();
+		List<MateEntity> mates = mateRepository.findByFromUserId(getUserId()); //나의 전시메이트 목록
+		List<UserEntity> users = userRepository.findByNicknameContainingIgnoreCase(nickname);
+
+		for (UserEntity user : users) {
+
+			Optional<MateEntity> filterUser = mates.stream()
+				.filter(m -> m.getToUserId().equals(user.getUserId()))
+				.findAny();
+
+			if (filterUser.isEmpty() && !user.getUserId().equals(getUserId())) {
+				results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(user, null)); //ToDo profile
+			}
+
+		}
+
 		return results;
 	}
 
