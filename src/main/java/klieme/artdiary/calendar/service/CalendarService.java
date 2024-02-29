@@ -1,5 +1,6 @@
 package klieme.artdiary.calendar.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import klieme.artdiary.calendar.enums.CalendarKind;
 import klieme.artdiary.calendar.info.ScheduleInfo;
+import klieme.artdiary.common.ImageTransfer;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
@@ -32,20 +34,22 @@ public class CalendarService implements CalendarReadUseCase {
 	private final GatheringExhRepository gatheringExhRepository;
 	private final ExhRepository exhRepository;
 	private final GatheringRepository gatheringRepository;
+	private final ImageTransfer imageTransfer;
 
 	@Autowired
 	public CalendarService(UserExhRepository userExhRepository, GatheringMateRepository gatheringMateRepository,
 		GatheringExhRepository gatheringExhRepository, ExhRepository exhRepository,
-		GatheringRepository gatheringRepository) {
+		GatheringRepository gatheringRepository, ImageTransfer imageTransfer) {
 		this.userExhRepository = userExhRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
 		this.exhRepository = exhRepository;
 		this.gatheringRepository = gatheringRepository;
+		this.imageTransfer = imageTransfer;
 	}
 
 	@Override
-	public List<FindCalendarResult> getExhSchedule(CalendarFindQuery query) {
+	public List<FindCalendarResult> getExhSchedule(CalendarFindQuery query) throws IOException {
 		// 반환 리스트
 		List<FindCalendarResult> results = new ArrayList<>();
 		// 전시회 정보 디비 요청 줄이기 위해 저장
@@ -99,13 +103,15 @@ public class CalendarService implements CalendarReadUseCase {
 	}
 
 	private void fillDayOfExhInfo(List<Pair<Long, ExhEntity>> exhInfo, UserExhEntity userExh,
-		GatheringExhEntity gatheringExh, HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos) {
+		GatheringExhEntity gatheringExh, HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos) throws IOException {
 		long exhId = userExh != null ? userExh.getExhId() : gatheringExh.getExhId();
 		LocalDate visitDate = userExh != null ? userExh.getVisitDate() : gatheringExh.getVisitDate();
 		ExhEntity exh = checkExhInfo(exhInfo, exhId);
 
 		if (exh != null) {
 			int day = visitDate.getDayOfMonth();
+			String poster = imageTransfer.downloadImage(exh.getPoster());
+
 			dayOfScheduleInfos.computeIfAbsent(day, k -> new ArrayList<>());
 			dayOfScheduleInfos.get(day).add(ScheduleInfo.builder()
 				.exhId(exh.getExhId())
@@ -113,14 +119,15 @@ public class CalendarService implements CalendarReadUseCase {
 				.gallery(exh.getGallery())
 				.exhPeriodStart(exh.getExhPeriodStart())
 				.exhPeriodEnd(exh.getExhPeriodEnd())
-				.poster(exh.getPoster()) // TODO
+				.poster(poster)
 				.visitDate(visitDate)
 				.build());
 		}
 	}
 
 	private void getAloneCalendar(LocalDate visitDateStart, LocalDate visitDateEnd,
-		HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos, List<Pair<Long, ExhEntity>> exhInfo) {
+		HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos, List<Pair<Long, ExhEntity>> exhInfo) throws
+		IOException {
 		// date와 userId로 userExh 조회
 		List<UserExhEntity> userExhEntityList = userExhRepository.findByUserIdAndVisitDateBetween(getUserId(),
 			visitDateStart, visitDateEnd);
@@ -131,7 +138,8 @@ public class CalendarService implements CalendarReadUseCase {
 	}
 
 	private void getOneGatherCalender(Long gatherId, LocalDate visitDateStart, LocalDate visitDateEnd,
-		HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos, List<Pair<Long, ExhEntity>> exhInfo) {
+		HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos, List<Pair<Long, ExhEntity>> exhInfo) throws
+		IOException {
 		// 속한 모임 목록 조회
 		Optional<GatheringMateEntity> gatheringMate = gatheringMateRepository.findByGatheringMateId(
 			GatheringMateId.builder()
@@ -153,7 +161,8 @@ public class CalendarService implements CalendarReadUseCase {
 	}
 
 	private void getGathersCalendar(LocalDate visitDateStart, LocalDate visitDateEnd,
-		HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos, List<Pair<Long, ExhEntity>> exhInfo) {
+		HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos, List<Pair<Long, ExhEntity>> exhInfo) throws
+		IOException {
 		// 속한 모임 목록 조회
 		List<GatheringMateEntity> gatheringMateEntityList = gatheringMateRepository.findByGatheringMateIdUserId(
 			getUserId());

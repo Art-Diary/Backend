@@ -32,14 +32,14 @@ public interface FavoriteExhReadUseCase {
 				.build();
 		}
 
-		public static FindFavoriteExhResult findByFavoriteExhDetail(ExhEntity exh) {
+		public static FindFavoriteExhResult findByFavoriteExhDetail(ExhEntity exh, String poster) {
 			return FindFavoriteExhResult.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
 				.exhPeriodStart(exh.getExhPeriodStart())
 				.exhPeriodEnd(exh.getExhPeriodEnd())
-				.poster(exh.getPoster())
+				.poster(poster)
 				.favoriteExh(true)
 				.build();
 		}

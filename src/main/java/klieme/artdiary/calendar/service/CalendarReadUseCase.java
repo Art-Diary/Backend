@@ -1,5 +1,6 @@
 package klieme.artdiary.calendar.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import klieme.artdiary.calendar.enums.CalendarKind;
@@ -10,7 +11,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface CalendarReadUseCase {
-	List<FindCalendarResult> getExhSchedule(CalendarFindQuery query);
+	List<FindCalendarResult> getExhSchedule(CalendarFindQuery query) throws IOException;
 
 	@EqualsAndHashCode
 	@Getter

@@ -1,5 +1,6 @@
 package klieme.artdiary.calendar.ui.controller;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class CalendarController {
 		@RequestParam(name = "gatherId", required = false) Long gatherId,
 		@RequestParam(name = "year") Integer year,
 		@RequestParam(name = "month") Integer month
-	) {
+	) throws IOException {
 		// 요청 파라미터 검증
 		if ((gatherId == null && CalendarKind.valueOfLabel(kind) == CalendarKind.GATHER)
 			|| (gatherId != null && CalendarKind.valueOfLabel(kind) != CalendarKind.GATHER)) {

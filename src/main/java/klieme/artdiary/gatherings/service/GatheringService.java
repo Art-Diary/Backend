@@ -136,18 +136,13 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		gatheringExhRepository.save(addGatheringExhEntity);
 
 		/* 반환 - 모임의 전시회 리스트 */
-		// 반환
+		// 반환 (모임에서 작성한 글들의 평점?으로 구현함.)
 		List<GatheringReadUseCase.FindGatheringExhsResult> result = new ArrayList<>();
 		// 모임이 갔다 온 각 전시회의 평점 구하기
 		List<Pair<Long, Double>> averages = getExhAverageRate(command.getGatherId());
 
 		for (Pair<Long, Double> average : averages) {
 			Optional<ExhEntity> exh = exhRepository.findByExhId(average.getFirst());
-			/* TODO
-			 * 모임에서 작성한 글들의 평점?으로 구현함.
-			 * 저장된 포스터 사진 있으면 구현
-			 * 아래 코드의 null 수정 필요
-			 */
 
 			if (exh.isPresent()) {
 				String poster = imageTransfer.downloadImage(exh.get().getPoster());
@@ -246,7 +241,6 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 
 		for (GatheringMateEntity gatheringMateEntity : gatheringMateEntities) {
 			UserEntity mate = getUser(gatheringMateEntity.getGatheringMateId().getUserId());
-			// TODO profile 구현 필요
 			String profile = imageTransfer.downloadImage(mate.getProfile());
 			results.add(FindGatheringMatesResult.findByGatheringMates(mate, profile));
 		}
@@ -271,22 +265,17 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 				.build());
 		}
 		// 2. gathering이 저장한 전시회 리스트(중복 제외)
-		// 모임이 갔다 온 각 전시회의 평점 구하기
+		// 모임이 갔다 온 각 전시회의 평점 구하기 (모임에서 작성한 글들의 평점?으로 구현함.)
 		List<Pair<Long, Double>> averages = getExhAverageRate(query.getGatherId());
 		for (Pair<Long, Double> average : averages) {
 			Optional<ExhEntity> exh = exhRepository.findByExhId(average.getFirst());
-			/* TODO
-			 * 모임에서 작성한 글들의 평점?으로 구현함.
-			 * 저장된 포스터 사진 있으면 구현
-			 * 아래 코드의 null 수정 필요
 
-			 */
 			if (exh.isPresent()) {
 				String poster = imageTransfer.downloadImage(exh.get().getPoster());
 				exhibitionInfoList.add(ExhibitionInfo.builder()
 					.exhId(exh.get().getExhId())
 					.exhName(exh.get().getExhName())
-					.poster(poster) // TODO 전시회 사진
+					.poster(poster)
 					.rate(average.getSecond())
 					.build());
 			}
@@ -326,7 +315,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 
 				if (filterUser.isEmpty()) {
 					String profile = imageTransfer.downloadImage(user.get().getProfile());
-					results.add(FindGatheringMatesResult.findByGatheringMates(user.get(), profile)); // TODO
+					results.add(FindGatheringMatesResult.findByGatheringMates(user.get(), profile));
 				}
 			}
 		}
