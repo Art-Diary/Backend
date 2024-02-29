@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -65,6 +66,19 @@ public class MateController {
 			viewResult.add(MateView.builder().result(result).build());
 		}
 		return ResponseEntity.ok(viewResult);
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<List<MateView>> searchNewMate(
+		@RequestParam(name = "nickname", required = false) String nickname) {
+
+		List<MateView> results = new ArrayList<>();
+
+		List<MateReadUseCase.FindMateResult> mateList = mateReadUseCase.searchNewMate(nickname);
+		for (MateReadUseCase.FindMateResult mate : mateList) {
+			results.add(MateView.builder().result(mate).build());
+		}
+		return ResponseEntity.ok(results);
 	}
 
 }

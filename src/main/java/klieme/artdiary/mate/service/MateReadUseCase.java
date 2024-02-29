@@ -10,6 +10,8 @@ import lombok.ToString;
 public interface MateReadUseCase {
 	List<FindMateResult> getMateList();
 
+	List<FindMateResult> searchNewMate(String nickname);
+
 	@Getter
 	@ToString
 	@Builder
