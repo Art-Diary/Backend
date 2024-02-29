@@ -1,8 +1,8 @@
 package klieme.artdiary.mate.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +10,9 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import klieme.artdiary.common.ArtDiaryException;
+import klieme.artdiary.common.ImageTransfer;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
-import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
-import klieme.artdiary.gatherings.data_access.entity.GatheringMateEntity;
-import klieme.artdiary.gatherings.data_access.entity.GatheringMateId;
-import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.mate.data_access.entity.MateEntity;
 import klieme.artdiary.mate.data_access.repository.MateRepository;
 import klieme.artdiary.users.data_access.entity.UserEntity;
@@ -25,35 +22,34 @@ import klieme.artdiary.users.data_access.repository.UserRepository;
 public class MateService implements MateReadUseCase, MateOperationUseCase {
 	private final MateRepository mateRepository;
 	private final UserRepository userRepository;
-	private final GatheringMateRepository gatheringMateRepository;
+	private final ImageTransfer imageTransfer;
 
 	@Autowired
-	public MateService(MateRepository mateRepository, UserRepository userRepository,
-		GatheringMateRepository gatheringMateRepository) {
+	public MateService(MateRepository mateRepository, UserRepository userRepository, ImageTransfer imageTransfer) {
 		this.mateRepository = mateRepository;
 		this.userRepository = userRepository;
-		this.gatheringMateRepository = gatheringMateRepository;
+		this.imageTransfer = imageTransfer;
 	}
 
 	@Override
-	public List<MateReadUseCase.FindMateResult> getMateList() {
+	public List<MateReadUseCase.FindMateResult> getMateList() throws IOException {
 		// exh_mate 테이블에서 내 전시 메이트 리스트 조회
 		List<MateEntity> mateEntities = mateRepository.findByFromUserId(getUserId());
 		List<MateReadUseCase.FindMateResult> results = new ArrayList<>();
 		// 각 toUserId로 회원 정보 조회
 		for (MateEntity mate : mateEntities) {
 			Optional<UserEntity> userEntity = userRepository.findByUserId(mate.getToUserId());
-			/* TODO
-			 * 저장된 프로필 사진 다운로드 구현
-			 * 아래 코드의 null 수정 필요
-			 */
-			userEntity.ifPresent(user -> results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(user, null)));
+
+			if (userEntity.isPresent()) {
+				String profile = imageTransfer.downloadImage(userEntity.get().getProfile());
+				results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(userEntity.get(), profile));
+			}
 		}
 		return results;
 	}
 
 	@Override
-	public List<MateReadUseCase.FindMateResult> searchNewMate(String nickname) {
+	public List<MateReadUseCase.FindMateResult> searchNewMate(String nickname) throws IOException {
 		// 가져오기& 이미 내 전시메이트인 경우 보여주지 않기
 		List<MateReadUseCase.FindMateResult> results = new ArrayList<>();
 		List<MateEntity> mates = mateRepository.findByFromUserId(getUserId()); //나의 전시메이트 목록
@@ -66,7 +62,8 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 				.findAny();
 
 			if (filterUser.isEmpty() && !user.getUserId().equals(getUserId())) {
-				results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(user, null)); //ToDo profile
+				String profile = imageTransfer.downloadImage(user.getProfile());
+				results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(user, profile));
 			}
 
 		}
@@ -76,7 +73,8 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 
 	@Override
 	@Transactional
-	public List<MateReadUseCase.FindMateResult> addMyMateCreate(MateOperationUseCase.AddMyMateCreateDummy dummy) {
+	public List<MateReadUseCase.FindMateResult> addMyMateCreate(MateOperationUseCase.AddMyMateCreateDummy dummy) throws
+		IOException {
 
 		//user에 있는지 확인
 		UserEntity checkEntity = userRepository.findByUserId(dummy.getToUserId())
@@ -105,10 +103,11 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 		for (MateEntity allMateEntity : allMateEntities) {
 			UserEntity tmp = userRepository.findByUserId(allMateEntity.getToUserId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			String profile = imageTransfer.downloadImage(tmp.getProfile());
 			MateReadUseCase.FindMateResult result = MateReadUseCase.FindMateResult.builder()
 				.userId(tmp.getUserId())
 				.nickname(tmp.getNickname())
-				.profile(tmp.getProfile())
+				.profile(profile)
 				.favoriteArt(tmp.getFavoriteArt())
 				.build();
 			results.add(result);

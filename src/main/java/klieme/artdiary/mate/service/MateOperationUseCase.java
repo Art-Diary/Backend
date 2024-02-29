@@ -1,5 +1,6 @@
 package klieme.artdiary.mate.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import lombok.Builder;
@@ -9,7 +10,7 @@ import lombok.ToString;
 
 public interface MateOperationUseCase {
 
-	List<MateReadUseCase.FindMateResult> addMyMateCreate(AddMyMateCreateDummy dummy);
+	List<MateReadUseCase.FindMateResult> addMyMateCreate(AddMyMateCreateDummy dummy) throws IOException;
 
 	@EqualsAndHashCode
 	@Builder
