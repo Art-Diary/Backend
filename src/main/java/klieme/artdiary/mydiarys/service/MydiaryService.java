@@ -124,7 +124,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 	}
 
 	@Override
-	public List<FindMyDiaryResult> getMyDiaries(MyDiariesFindQuery query) {
+	public List<FindMyDiaryResult> getMyDiaries(MyDiariesFindQuery query) throws IOException {
 		// user 데이터
 		UserEntity userEntity = getUser();
 		// exh 데이터
@@ -216,7 +216,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		return userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 	}
 
-	private List<FindMyDiaryResult> getMyDiaryList(UserEntity userEntity, ExhEntity exhEntity) {
+	private List<FindMyDiaryResult> getMyDiaryList(UserEntity userEntity, ExhEntity exhEntity) throws IOException {
 		List<FindMyDiaryResult> results = new ArrayList<>();
 		// (solo_diary) exhId 전시회에 대한 개인의 기록 리스트 조회
 		List<UserExhEntity> storedUserExhList = userExhRepository.findByUserIdAndExhId(userEntity.getUserId(),
@@ -225,7 +225,9 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			List<MydiaryEntity> savedEntityList = mydiaryRepository.findByUserExhId(storedUserExh.getUserExhId());
 			// 함수의 반환형에 맞도록 변환
 			for (MydiaryEntity mydiaryEntity : savedEntityList) {
-				results.add(FindMyDiaryResult.findByMyDiary(mydiaryEntity, userEntity, storedUserExh, exhEntity));
+				String thumbnail = imageTransfer.downloadImage(mydiaryEntity.getThumbnail());
+				results.add(
+					FindMyDiaryResult.findByMyDiary(mydiaryEntity, userEntity, storedUserExh, exhEntity, thumbnail));
 			}
 		}
 		// (gathering_diary) exhId 전시회에 대한 모임의 내 기록 리스트 반환
@@ -243,8 +245,9 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			GatheringEntity gatheringEntity = gatheringRepository.findByGatherId(gatheringExhEntity.get().getGatherId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			// 함수의 반환형에 맞도록 변환
+			String thumbnail = imageTransfer.downloadImage(gatheringDiaryEntity.getThumbnail());
 			results.add(FindMyDiaryResult.findByGatheringDiary(gatheringDiaryEntity, userEntity, gatheringEntity,
-				gatheringExhEntity.get(), exhEntity));
+				gatheringExhEntity.get(), exhEntity, thumbnail));
 		}
 		// 방문날짜순
 		results.sort(Comparator.comparing(FindMyDiaryResult::getVisitDate));

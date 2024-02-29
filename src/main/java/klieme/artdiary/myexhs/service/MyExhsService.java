@@ -1,5 +1,6 @@
 package klieme.artdiary.myexhs.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,14 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.ArtDiaryException;
+import klieme.artdiary.common.ImageTransfer;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
-import klieme.artdiary.exhibitions.service.ExhOperationUseCase;
-import klieme.artdiary.exhibitions.service.ExhReadUseCase;
 import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
@@ -40,11 +40,13 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 	private final UserExhRepository userExhRepository;
 	private final ExhRepository exhRepository;
 	private final MydiaryRepository mydiaryRepository;
+	private final ImageTransfer imageTransfer;
 
 	@Autowired
 	public MyExhsService(GatheringMateRepository gatheringMateRepository, GatheringRepository gatheringRepository,
 		GatheringExhRepository gatheringExhRepository, GatheringDiaryRepository gatheringDiaryRepository,
-		UserExhRepository userExhRepository, ExhRepository exhRepository, MydiaryRepository mydiaryRepository) {
+		UserExhRepository userExhRepository, ExhRepository exhRepository, MydiaryRepository mydiaryRepository,
+		ImageTransfer imageTransfer) {
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.gatheringRepository = gatheringRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
@@ -52,10 +54,11 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 		this.userExhRepository = userExhRepository;
 		this.exhRepository = exhRepository;
 		this.mydiaryRepository = mydiaryRepository;
+		this.imageTransfer = imageTransfer;
 	}
 
 	@Override
-	public List<MyExhsReadUseCase.FindMyExhsResult> getMyExhsList() {
+	public List<MyExhsReadUseCase.FindMyExhsResult> getMyExhsList() throws IOException {
 		Long userId = getUserId();
 
 		List<MyExhsReadUseCase.FindMyExhsResult> myExhs = new ArrayList<>(); //중복된 전시회 리스트 없고, rate 평균 계산된 상태
@@ -79,8 +82,10 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 
 			//한 userExhId에 대한 기록이 여러 개일 경우, for문 돌려서 myAllExhs에 저장. -> 근데 굳이 list로 받을 필요가 있나?
 			for (MydiaryEntity tmp : AllmydiaryEntity) {
+				String poster = imageTransfer.downloadImage(exhEntity.getPoster());
 				myAllExhs.add(
-					MyExhsReadUseCase.FindMyExhsResult.findMyExhs(exhEntity, tmp.getRate()));//mydiaryEntity.getRate());
+					MyExhsReadUseCase.FindMyExhsResult.findMyExhs(exhEntity, tmp.getRate(),
+						poster));//mydiaryEntity.getRate());
 			}
 		}
 
@@ -105,8 +110,10 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 					Entity.getGatheringExhId());
 
 				for (GatheringDiaryEntity gatheringDiaryEntity : AllgatheringDiaryEntity) {
+					String poster = imageTransfer.downloadImage(exhEntity.getPoster());
 					myAllExhs.add(
-						MyExhsReadUseCase.FindMyExhsResult.findMyExhs(exhEntity, gatheringDiaryEntity.getRate()));
+						MyExhsReadUseCase.FindMyExhsResult.findMyExhs(exhEntity, gatheringDiaryEntity.getRate(),
+							poster));
 				}
 			}
 		}
@@ -224,7 +231,7 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 
 		List<UserExhEntity> entities = userExhRepository.findByUserIdAndExhId(getUserId(), command.getExhId());
 		List<FindMyStoredDateResult> results = new ArrayList<>();
-		;
+
 		for (UserExhEntity tmp : entities) {
 			results.add(MyExhsReadUseCase.FindMyStoredDateResult.findByMyAllDatesSolo(tmp));
 		}

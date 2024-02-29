@@ -1,5 +1,6 @@
 package klieme.artdiary.mydiarys.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface MydiaryReadUseCase {
-	List<FindMyDiaryResult> getMyDiaries(MyDiariesFindQuery query);
+	List<FindMyDiaryResult> getMyDiaries(MyDiariesFindQuery query) throws IOException;
 
 	@EqualsAndHashCode
 	@Getter
@@ -46,14 +47,14 @@ public interface MydiaryReadUseCase {
 		private final Long gatheringExhId;
 
 		public static FindMyDiaryResult findByMyDiary(MydiaryEntity diary, UserEntity user, UserExhEntity userExh,
-			ExhEntity exh) {
+			ExhEntity exh, String thumbnail) {
 			return FindMyDiaryResult.builder()
 				.diaryId(diary.getSoloDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(diary.getThumbnail())
+				.thumbnail(thumbnail)
 				.writeDate(diary.getWriteDate())
 				.saying(diary.getSaying())
 				.nickname(user.getNickname())
@@ -64,14 +65,14 @@ public interface MydiaryReadUseCase {
 		}
 
 		public static FindMyDiaryResult findByGatheringDiary(GatheringDiaryEntity diary, UserEntity user,
-			GatheringEntity gathering, GatheringExhEntity gatheringExh, ExhEntity exh) {
+			GatheringEntity gathering, GatheringExhEntity gatheringExh, ExhEntity exh, String thumbnail) {
 			return FindMyDiaryResult.builder()
 				.diaryId(diary.getGatherDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(diary.getThumbnail())
+				.thumbnail(thumbnail)
 				.writeDate(diary.getWriteDate())
 				.saying(diary.getSaying())
 				.nickname(user.getNickname())
