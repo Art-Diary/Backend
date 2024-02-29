@@ -1,6 +1,7 @@
 package klieme.artdiary.gatherings.data_access.entity;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -65,8 +66,8 @@ public class GatheringDiaryEntity {
 		this.diaryPrivate =
 			entity.getDiaryPrivate().equals(this.diaryPrivate) ? this.diaryPrivate : entity.getDiaryPrivate();
 		this.contents = entity.getContents().equals(this.contents) ? this.contents : entity.getContents();
-		this.thumbnail = entity.getThumbnail().equals(this.thumbnail) ? this.thumbnail : entity.getThumbnail();
+		this.thumbnail = Objects.equals(entity.getThumbnail(), this.thumbnail) ? this.thumbnail : entity.getThumbnail();
 		this.writeDate = entity.getWriteDate().equals(this.writeDate) ? this.writeDate : entity.getWriteDate();
-		this.saying = entity.getSaying().equals(this.saying) ? this.saying : entity.getSaying();
+		this.saying = Objects.equals(entity.getSaying(), this.saying) ? this.saying : entity.getSaying();
 	}
 }

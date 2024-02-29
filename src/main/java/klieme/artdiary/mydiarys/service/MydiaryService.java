@@ -1,5 +1,6 @@
 package klieme.artdiary.mydiarys.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.ArtDiaryException;
+import klieme.artdiary.common.ImageTransfer;
+import klieme.artdiary.common.ImageType;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
@@ -40,12 +43,13 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 	private final ExhRepository exhRepository;
 	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final GatheringMateRepository gatheringMateRepository;
+	private final ImageTransfer imageTransfer;
 
 	@Autowired
 	public MydiaryService(MydiaryRepository mydiaryRepository, UserExhRepository userExhRepository,
 		GatheringExhRepository gatheringExhRepository, GatheringRepository gatheringRepository,
 		UserRepository userRepository, ExhRepository exhRepository, GatheringDiaryRepository gatheringDiaryRepository,
-		GatheringMateRepository gatheringMateRepository) {
+		GatheringMateRepository gatheringMateRepository, ImageTransfer imageTransfer) {
 		this.mydiaryRepository = mydiaryRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
@@ -54,12 +58,12 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		this.exhRepository = exhRepository;
 		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
+		this.imageTransfer = imageTransfer;
 	}
-
 
 	@Transactional
 	@Override
-	public List<FindMyDiaryResult> createMyDiary(MydiaryCreateCommand command) {
+	public List<FindMyDiaryResult> createMyDiary(MyDiaryCreateUpdateCommand command) throws IOException {
 		// user 데이터
 		UserEntity userEntity = getUser();
 		// exh 데이터
@@ -80,12 +84,14 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				.rate(command.getRate())
 				.diaryPrivate(command.getDiaryPrivate())
 				.contents(command.getContents())
-				.thumbnail(command.getThumbnail())
 				.writeDate(command.getWriteDate())
 				.saying(command.getSaying())
 				.userExhId(command.getUserExhId())
 				.build();
+			// 디비에 데이터 저장
 			mydiaryRepository.save(saveEntity);
+			// 사진 업로드
+			saveMyDiary(command, saveEntity);
 		} else { // 모임
 			// gatherExhId, exhId, userId 검증
 			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatheringExhId(
@@ -104,13 +110,15 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				.rate(command.getRate())
 				.diaryPrivate(command.getDiaryPrivate())
 				.contents(command.getContents())
-				.thumbnail(command.getThumbnail())
 				.writeDate(command.getWriteDate())
 				.saying(command.getSaying())
 				.userId(userEntity.getUserId())
 				.gatheringExhId(command.getGatheringExhId())
 				.build();
+			// 디비에 데이터 저장
 			gatheringDiaryRepository.save(saveEntity);
+			// 사진 업로드
+			saveGatheringDiary(command, saveEntity, storedGatherExhEntity.getGatherId());
 		}
 		return getMyDiaryList(userEntity, exhEntity);
 	}
@@ -124,7 +132,6 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 		return getMyDiaryList(userEntity, exhEntity);
 	}
-
 
 	@Transactional
 	@Override
@@ -159,10 +166,9 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		}
 	}
 
-
 	@Transactional
 	@Override
-	public List<FindMyDiaryResult> updateMyDiary(MyDiaryUpdateCommand command) {
+	public List<FindMyDiaryResult> updateMyDiary(MyDiaryCreateUpdateCommand command) throws IOException {
 		// user 데이터
 		UserEntity userEntity = getUser();
 		// exh 데이터
@@ -177,25 +183,17 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// 저장된 데이터 조회
-			MydiaryEntity saved = mydiaryRepository.findBySoloDiaryId(command.getDiaryId())
+			MydiaryEntity saveEntity = mydiaryRepository.findBySoloDiaryId(command.getDiaryId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			// 데이터 수정
-			saved.updateDiary(MydiaryEntity.builder()
-				.title(command.getTitle())
-				.rate(command.getRate())
-				.diaryPrivate(command.getDiaryPrivate())
-				.contents(command.getContents())
-				.thumbnail(command.getThumbnail())
-				.writeDate(command.getWriteDate())
-				.saying(command.getSaying())
-				.build());
-			mydiaryRepository.save(saved);
+			// 데이터 수정 & 사진 업로드
+			saveMyDiary(command, saveEntity);
 		} else { // 모임
 			// 저장된 데이터 조회
-			GatheringDiaryEntity saved = gatheringDiaryRepository.findByGatherDiaryIdAndUserId(command.getDiaryId(),
+			GatheringDiaryEntity saveEntity = gatheringDiaryRepository.findByGatherDiaryIdAndUserId(
+				command.getDiaryId(),
 				userEntity.getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			// gatherExhId, userId 검증
-			if (!saved.getGatheringExhId().equals(command.getGatheringExhId())) {
+			if (!saveEntity.getGatheringExhId().equals(command.getGatheringExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
 			// exhId 검증
@@ -204,17 +202,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			if (!storedGatherExhEntity.getExhId().equals(command.getExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
-			// 디비에 데이터 수정
-			saved.updateDiary(GatheringDiaryEntity.builder()
-				.title(command.getTitle())
-				.rate(command.getRate())
-				.diaryPrivate(command.getDiaryPrivate())
-				.contents(command.getContents())
-				.thumbnail(command.getThumbnail())
-				.writeDate(command.getWriteDate())
-				.saying(command.getSaying())
-				.build());
-			gatheringDiaryRepository.save(saved);
+			// 데이터 수정 & 사진 업로드
+			saveGatheringDiary(command, saveEntity, storedGatherExhEntity.getGatherId());
 		}
 		return getMyDiaryList(userEntity, exhEntity);
 	}
@@ -260,5 +249,53 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		// 방문날짜순
 		results.sort(Comparator.comparing(FindMyDiaryResult::getVisitDate));
 		return results;
+	}
+
+	private void saveGatheringDiary(MyDiaryCreateUpdateCommand command, GatheringDiaryEntity saveEntity,
+		Long gatherId) throws IOException {
+		// 사진 업로드
+		ImageTransfer.FindUploadResult uploadResult = null;
+
+		if (command.getThumbnail() != null && !command.getThumbnail().isEmpty()) {
+			uploadResult = imageTransfer.uploadImage(ImageTransfer.UploadQuery.builder()
+				.type(ImageType.THUMBNAIL_GATHER)
+				.image(command.getThumbnail())
+				.gatherId(gatherId)
+				.gatherDiaryId(saveEntity.getGatherDiaryId())
+				.build());
+		}
+		saveEntity.updateDiary(GatheringDiaryEntity.builder()
+			.title(command.getTitle())
+			.rate(command.getRate())
+			.diaryPrivate(command.getDiaryPrivate())
+			.contents(command.getContents())
+			.writeDate(command.getWriteDate())
+			.saying(command.getSaying())
+			.thumbnail(uploadResult != null ? uploadResult.getStoredPath() : saveEntity.getThumbnail())
+			.build());
+		gatheringDiaryRepository.save(saveEntity);
+	}
+
+	private void saveMyDiary(MyDiaryCreateUpdateCommand command, MydiaryEntity saveEntity) throws IOException {
+		// 사진 업로드
+		ImageTransfer.FindUploadResult uploadResult = null;
+
+		if (command.getThumbnail() != null && !command.getThumbnail().isEmpty()) {
+			uploadResult = imageTransfer.uploadImage(ImageTransfer.UploadQuery.builder()
+				.type(ImageType.THUMBNAIL_SOLO)
+				.image(command.getThumbnail())
+				.soloDiaryId(saveEntity.getSoloDiaryId())
+				.build());
+		}
+		saveEntity.updateDiary(MydiaryEntity.builder()
+			.title(command.getTitle())
+			.rate(command.getRate())
+			.diaryPrivate(command.getDiaryPrivate())
+			.contents(command.getContents())
+			.writeDate(command.getWriteDate())
+			.saying(command.getSaying())
+			.thumbnail(uploadResult != null ? uploadResult.getStoredPath() : saveEntity.getThumbnail())
+			.build());
+		mydiaryRepository.save(saveEntity);
 	}
 }

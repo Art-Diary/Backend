@@ -1,5 +1,6 @@
 package klieme.artdiary.mydiarys.ui.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -24,7 +25,6 @@ import klieme.artdiary.mydiarys.service.MydiaryOperationUseCase;
 import klieme.artdiary.mydiarys.service.MydiaryReadUseCase;
 import klieme.artdiary.mydiarys.ui.request_body.MydiaryRequest;
 import klieme.artdiary.mydiarys.ui.view.MydiaryView;
-import klieme.artdiary.myexhs.service.MyExhsOperationUseCase;
 
 @RestController
 @RequestMapping(value = "/myexhs/{exhId}/diaries")
@@ -41,14 +41,14 @@ public class MydiaryController {
 	@PostMapping("")
 	public ResponseEntity<List<MydiaryView>> createDiary(
 		@PathVariable(name = "exhId") Long exhId,
-		@Valid @RequestBody MydiaryRequest request
-	) {
+		@Valid @ModelAttribute MydiaryRequest request
+	) throws IOException {
 		if (!((request.getUserExhId() == -1 && request.getGatheringExhId() != -1)
 			|| (request.getUserExhId() != -1 && request.getGatheringExhId() == -1))) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		// request body 데이터 받아오기
-		var command = MydiaryOperationUseCase.MydiaryCreateCommand.builder()
+		var command = MydiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
 			.exhId(exhId)
 			.userExhId(request.getUserExhId())
 			.gatheringExhId(request.getGatheringExhId())
@@ -98,14 +98,14 @@ public class MydiaryController {
 	public ResponseEntity<List<MydiaryView>> updateMyDiary(
 		@PathVariable(name = "exhId") Long exhId,
 		@PathVariable(name = "diaryId") Long diaryId,
-		@Valid @RequestBody MydiaryRequest request
-	) {
+		@Valid @ModelAttribute MydiaryRequest request
+	) throws IOException {
 		if (!((request.getUserExhId() == -1 && request.getGatheringExhId() != -1)
 			|| (request.getUserExhId() != -1 && request.getGatheringExhId() == -1))) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		// request body 데이터 받아오기
-		var command = MydiaryOperationUseCase.MyDiaryUpdateCommand.builder()
+		var command = MydiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
 			.exhId(exhId)
 			.diaryId(diaryId)
 			.userExhId(request.getUserExhId())
