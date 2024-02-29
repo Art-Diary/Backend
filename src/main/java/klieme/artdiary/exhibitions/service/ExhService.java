@@ -1,5 +1,6 @@
 package klieme.artdiary.exhibitions.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.ArtDiaryException;
+import klieme.artdiary.common.ImageTransfer;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
@@ -47,13 +49,14 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	private final FavoriteExhRepository favoriteExhRepository;
 	private final MydiaryRepository mydiaryRepository;
 	private final UserRepository userRepository;
+	private final ImageTransfer imageTransfer;
 
 	@Autowired
 	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository,
 		GatheringMateRepository gatheringMateRepository, GatheringExhRepository gatheringExhRepository,
 		GatheringDiaryRepository gatheringDiaryRepository, GatheringRepository gatheringRepository,
 		FavoriteExhRepository favoriteExhRepository, MydiaryRepository mydiaryRepository,
-		UserRepository userRepository) {
+		UserRepository userRepository, ImageTransfer imageTransfer) {
 		this.exhRepository = exhRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
@@ -63,6 +66,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		this.favoriteExhRepository = favoriteExhRepository;
 		this.mydiaryRepository = mydiaryRepository;
 		this.userRepository = userRepository;
+		this.imageTransfer = imageTransfer;
 	}
 
 	@Transactional
@@ -155,7 +159,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	@Override
-	public List<FindExhResult> getExhList(ExhListFindQuery query) {
+	public List<FindExhResult> getExhList(ExhListFindQuery query) throws IOException {
 		List<FindExhResult> results = new ArrayList<>();
 		List<ExhEntity> exhEntityList = exhRepository.findAll();
 
@@ -194,7 +198,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	@Override
-	public ExhReadUseCase.FindExhResult getExhDetailInfo(Long exhId) { //나중에 getfindexhresult함수 사용으로 바꿔보기
+	public ExhReadUseCase.FindExhResult getExhDetailInfo(Long exhId) throws
+		IOException { //나중에 getfindexhresult함수 사용으로 바꿔보기
 
 		ExhEntity entity = exhRepository.findByExhId(exhId)
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
@@ -204,13 +209,14 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			.exhId(exhId)
 			.build());
 		boolean isFavoriteExh = favoriteExh.isPresent();
-		ExhReadUseCase.FindExhResult result = ExhReadUseCase.FindExhResult.findByExh(entity, isFavoriteExh);
+		ExhReadUseCase.FindExhResult result = ExhReadUseCase.FindExhResult.findByExh(entity, isFavoriteExh,
+			imageTransfer.downloadImage(entity.getPoster()));
 		return result;
 
 	}
 
 	@Override
-	public List<ExhReadUseCase.FindDiaryResult> getAllOfExhIdDiaries(Long exhId) {
+	public List<ExhReadUseCase.FindDiaryResult> getAllOfExhIdDiaries(Long exhId) throws IOException {
 		List<ExhReadUseCase.FindDiaryResult> results = new ArrayList<>();
 		//해당 exhId의 user_Exh에서 확인 후, solo_Diary에서 가져오기
 		List<UserExhEntity> userEntities = userExhRepository.findByExhId(exhId);
@@ -221,7 +227,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			UserEntity user = userRepository.findByUserId(userEntity.getUserId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			for (MydiaryEntity diary : diaries) {
-				FindDiaryResult tmp = ExhReadUseCase.FindDiaryResult.findSoloDiary(diary, userEntity, user, exh);
+				FindDiaryResult tmp = ExhReadUseCase.FindDiaryResult.findSoloDiary(diary, userEntity, user, exh,
+					imageTransfer.downloadImage(exh.getPoster()));
 				results.add(tmp);
 			}
 		}
@@ -239,7 +246,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				UserEntity user = userRepository.findByUserId(gDiary.getUserId())
 					.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 				FindDiaryResult tmp = ExhReadUseCase.FindDiaryResult.findGatheringDiary(gDiary, gatherEntity,
-					gatherName, user, exh);
+					gatherName, user, exh, imageTransfer.downloadImage(exh.getPoster()));
 				results.add(tmp);
 			}
 		}
@@ -325,7 +332,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			|| (exh.getExhPeriodStart().isBefore(targetDate) && exh.getExhPeriodEnd().isAfter(targetDate));
 	}
 
-	private FindExhResult getFindExhResult(ExhEntity exh) {
+	private FindExhResult getFindExhResult(ExhEntity exh) throws IOException {
 		/* TODO
 		 * 저장된 포스터 사진 있으면 구현
 		 * 아래 코드의 null 수정 필요
@@ -336,6 +343,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			.exhId(exh.getExhId())
 			.build());
 		boolean isFavoriteExh = favoriteExh.isPresent();
-		return FindExhResult.findByExhForList(exh, isFavoriteExh, null);
+		String thumbnail = imageTransfer.downloadImage(exh.getPoster());
+		return FindExhResult.findByExhForList(exh, isFavoriteExh, thumbnail);
 	}
 }

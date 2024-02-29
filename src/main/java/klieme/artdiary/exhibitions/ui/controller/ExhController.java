@@ -1,5 +1,6 @@
 package klieme.artdiary.exhibitions.ui.controller;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +94,7 @@ public class ExhController {
 	}
 
 	@GetMapping("/{exhId}")
-	public ResponseEntity<ExhView> getExhDetailInfo(@PathVariable(name = "exhId") Long exhId) {
+	public ResponseEntity<ExhView> getExhDetailInfo(@PathVariable(name = "exhId") Long exhId) throws IOException {
 
 		ExhReadUseCase.FindExhResult result = exhReadUseCase.getExhDetailInfo(exhId);
 
@@ -102,7 +103,9 @@ public class ExhController {
 	}
 
 	@GetMapping("/{exhId}/diaries")
-	public ResponseEntity<List<AllDiaryOfExhIdView>> getAllOfExhIdDiaries(@PathVariable(name = "exhId") Long exhId) {
+	public ResponseEntity<List<AllDiaryOfExhIdView>> getAllOfExhIdDiaries(
+		@PathVariable(name = "exhId") Long exhId) throws
+		IOException {
 
 		List<ExhReadUseCase.FindDiaryResult> diaryResults = exhReadUseCase.getAllOfExhIdDiaries(exhId);
 
@@ -115,14 +118,14 @@ public class ExhController {
 
 	}
 
-	@GetMapping("")
+	@GetMapping("")//-ing
 	public ResponseEntity<List<ExhView>> getExhList(
 		@RequestParam(name = "searchName", required = false) String searchName,
 		@RequestParam(name = "field", required = false) String field,
 		@RequestParam(name = "price", required = false) String price,
 		@RequestParam(name = "state", required = false) String state,
 		@RequestParam(name = "date", required = false) LocalDate date
-	) {
+	) throws IOException {
 		// 요청 파라미터 검증 => 조합: 1. (searchName) 2. (field, price, state) 3. (date)
 		if (!(searchName == null && field == null && price == null && state == null && date == null) &&
 			!((searchName == null && (field != null || price != null || state != null) && date == null)

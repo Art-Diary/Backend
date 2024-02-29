@@ -1,5 +1,6 @@
 package klieme.artdiary.exhibitions.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,11 +22,11 @@ import lombok.ToString;
 public interface ExhReadUseCase {
 	FindStoredDateResult getStoredDateOfExhs(StoredDateFindQuery query);
 
-	List<FindExhResult> getExhList(ExhListFindQuery query);
+	List<FindExhResult> getExhList(ExhListFindQuery query) throws IOException;
 
-	FindExhResult getExhDetailInfo(Long exhId);
+	FindExhResult getExhDetailInfo(Long exhId) throws IOException;
 
-	List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId);
+	List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId) throws IOException;
 
 	@EqualsAndHashCode
 	@Getter
@@ -105,14 +106,14 @@ public interface ExhReadUseCase {
 					.build();
 			}
 	*/
-		public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh) {
+		public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh, String poster) {
 			return FindExhResult.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
 				.exhPeriodStart(exh.getExhPeriodStart())
 				.exhPeriodEnd(exh.getExhPeriodEnd())
-				.poster(exh.getPoster())
+				.poster(poster)
 				.favoriteExh(favoriteExh)
 				.painter(exh.getPainter())
 				.fee(exh.getFee())
@@ -155,14 +156,14 @@ public interface ExhReadUseCase {
 		private final Long gatheringExhId; // 모임이 아닐 경우 null
 
 		public static FindDiaryResult findSoloDiary(MydiaryEntity diary, UserExhEntity userexh, UserEntity user,
-			ExhEntity exh) {
+			ExhEntity exh, String thumbnail) {
 			return FindDiaryResult.builder()
 				.diaryId(diary.getSoloDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(diary.getThumbnail())
+				.thumbnail(thumbnail)
 				.writeDate(diary.getWriteDate())
 				.saying(diary.getSaying())
 				.nickname(user.getNickname())
@@ -173,14 +174,14 @@ public interface ExhReadUseCase {
 		}
 
 		public static FindDiaryResult findGatheringDiary(GatheringDiaryEntity diary, GatheringExhEntity gatherexh,
-			GatheringEntity gather, UserEntity user, ExhEntity exh) {
+			GatheringEntity gather, UserEntity user, ExhEntity exh, String thumbnail) {
 			return FindDiaryResult.builder()
 				.diaryId(diary.getGatherDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(diary.getThumbnail())
+				.thumbnail(thumbnail)
 				.writeDate(diary.getWriteDate())
 				.saying(diary.getSaying())
 				.nickname(user.getNickname())
