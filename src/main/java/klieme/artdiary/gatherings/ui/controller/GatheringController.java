@@ -1,5 +1,6 @@
 package klieme.artdiary.gatherings.ui.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class GatheringController {
 	public ResponseEntity<List<GatheringExhView>> addExhAboutGathering(
 		@PathVariable(name = "gatherId") Long gatherId,
 		@Valid @RequestBody AddExhDateRequest request
-	) {
+	) throws IOException {
 		// request body 데이터 받아오기
 		var command = GatheringOperationUseCase.ExhGatheringCreateCommand.builder()
 			.gatherId(gatherId)
@@ -101,7 +102,7 @@ public class GatheringController {
 	public ResponseEntity<List<GatheringDiaryView>> getDiariesAboutGatheringExh(
 		@PathVariable(name = "gatherId") Long gatherId,
 		@PathVariable(name = "exhId") Long exhId
-	) {
+	) throws IOException {
 		var query = GatheringReadUseCase.GatheringDiariesFindQuery.builder()
 			.exhId(exhId)
 			.gatherId(gatherId)
@@ -122,7 +123,7 @@ public class GatheringController {
 	public ResponseEntity<List<GatheringMateView>> addGatheringMate(
 		@PathVariable(name = "gatherId") Long gatherId,
 		@Valid @RequestBody AddGatheringMateRequest request
-	) {
+	) throws IOException {
 		var command = GatheringOperationUseCase.GatheringMateCreateCommand.builder()
 			.gatherId(gatherId)
 			.userId(request.getUserId())
@@ -145,7 +146,7 @@ public class GatheringController {
 	@GetMapping("/{gatherId}")
 	public ResponseEntity<GatheringDetailInfoView> getGatheringDetailInfo(
 		@PathVariable(name = "gatherId") Long gatherId
-	) {
+	) throws IOException {
 		var query = GatheringReadUseCase.GatheringDetailInfoFindQuery.builder()
 			.gatherId(gatherId)
 			.build();
@@ -169,7 +170,7 @@ public class GatheringController {
 	public ResponseEntity<List<GatheringMateView>> searchUserForGathering(
 		@PathVariable(name = "gatherId") Long gatherId,
 		@NotBlank @RequestParam(name = "nickname") String nickname
-	) {
+	) throws IOException {
 		var query = GatheringReadUseCase.GatheringNicknameFindQuery.builder()
 			.gatherId(gatherId)
 			.nickname(nickname)

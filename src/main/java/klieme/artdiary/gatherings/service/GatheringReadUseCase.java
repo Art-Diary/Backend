@@ -1,5 +1,6 @@
 package klieme.artdiary.gatherings.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,11 +20,11 @@ public interface GatheringReadUseCase {
 
 	List<FindGatheringResult> getGatheringList();
 
-	List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query);
+	List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query) throws IOException;
 
-	FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query);
+	FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query) throws IOException;
 
-	List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query);
+	List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query) throws IOException;
 
 	@EqualsAndHashCode
 	@Getter
@@ -104,14 +105,15 @@ public interface GatheringReadUseCase {
 		private final Long gatheringExhId;
 
 		public static FindGatheringDiaryResult findByGatheringDiary(GatheringDiaryEntity gatheringDiary,
-			GatheringExhEntity gatheringExh, GatheringEntity gathering, UserEntity user, ExhEntity exh) {
+			GatheringExhEntity gatheringExh, GatheringEntity gathering, UserEntity user, ExhEntity exh,
+			String thumbnail) {
 			return FindGatheringDiaryResult.builder()
 				.diaryId(gatheringDiary.getGatherDiaryId())
 				.title(gatheringDiary.getTitle())
 				.rate(gatheringDiary.getRate())
 				.diaryPrivate(gatheringDiary.getDiaryPrivate())
 				.contents(gatheringDiary.getContents())
-				.thumbnail(gatheringDiary.getThumbnail())
+				.thumbnail(thumbnail)
 				.writeDate(gatheringDiary.getWriteDate())
 				.saying(gatheringDiary.getSaying())
 				.nickname(user.getNickname())
