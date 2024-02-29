@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.HttpStatus;
 
 import jakarta.validation.Valid;
 import klieme.artdiary.common.ArtDiaryException;
@@ -38,6 +38,10 @@ public class MydiaryController {
 		this.mydiaryReadUseCase = mydiaryReadUseCase;
 	}
 
+	/**
+	 *기록 추가
+	 * "/myexhs/:exhId/diaries"
+	 */
 	@PostMapping("")
 	public ResponseEntity<List<MydiaryView>> createDiary(
 		@PathVariable(name = "exhId") Long exhId,
@@ -71,8 +75,12 @@ public class MydiaryController {
 		return ResponseEntity.created(null).body(results);
 	}
 
+	/**
+	 * 기록 목록 조회
+	 * "/myexhs/:exhId/diaries"
+	 */
 	@GetMapping("")
-	public ResponseEntity<List<MydiaryView>> getDiaries(@PathVariable(name = "exhId") Long exhId) {
+	public ResponseEntity<List<MydiaryView>> getDiaries(@PathVariable(name = "exhId") Long exhId) throws IOException {
 		var query = MydiaryReadUseCase.MyDiariesFindQuery.builder().exhId(exhId).build();
 		// 비즈니스 로직 호출
 		List<MydiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryReadUseCase.getMyDiaries(query);
@@ -94,6 +102,10 @@ public class MydiaryController {
 
 	}
 
+	/**
+	 * 기록 수정
+	 * "/myexhs/:exhId/diaries/:diaryId"
+	 */
 	@PatchMapping("/{diaryId}")
 	public ResponseEntity<List<MydiaryView>> updateMyDiary(
 		@PathVariable(name = "exhId") Long exhId,

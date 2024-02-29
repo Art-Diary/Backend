@@ -1,5 +1,6 @@
 package klieme.artdiary.myexhs.ui.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,10 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import klieme.artdiary.exhibitions.service.ExhOperationUseCase;
-import klieme.artdiary.exhibitions.service.ExhReadUseCase;
-import klieme.artdiary.exhibitions.ui.request_body.AddSoloExhRequest;
-import klieme.artdiary.exhibitions.ui.view.StoredDateView;
 import klieme.artdiary.myexhs.service.MyExhsOperationUseCase;
 import klieme.artdiary.myexhs.service.MyExhsReadUseCase;
 import klieme.artdiary.myexhs.ui.request_body.AddMyExhsVisitDateRequest;
@@ -35,8 +32,12 @@ public class MyExhsController {
 		this.myExhsReadUseCase = myExhsReadUseCase;
 	}
 
+	/**
+	 * 내 기록의 전시회 목록 조회
+	 * "/myexhs"
+	 */
 	@GetMapping("")
-	public ResponseEntity<List<MyExhsView>> getMyExhsList() {
+	public ResponseEntity<List<MyExhsView>> getMyExhsList() throws IOException {
 
 		List<MyExhsReadUseCase.FindMyExhsResult> results = myExhsReadUseCase.getMyExhsList();
 

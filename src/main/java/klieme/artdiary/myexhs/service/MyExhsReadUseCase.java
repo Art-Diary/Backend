@@ -1,11 +1,11 @@
 package klieme.artdiary.myexhs.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
-import klieme.artdiary.exhibitions.service.ExhReadUseCase;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import lombok.ToString;
 
 public interface MyExhsReadUseCase {
 
-	List<FindMyExhsResult> getMyExhsList();
+	List<FindMyExhsResult> getMyExhsList() throws IOException;
 
 	List<FindMyStoredDateResult> getStoredDateOfExhs(MyStoredDateFindQuery query);
 
@@ -40,11 +40,11 @@ public interface MyExhsReadUseCase {
 
 		@Builder
 		public static FindMyExhsResult findMyExhs(ExhEntity entity,
-			double rate) {//MydiaryEntity,GroupDiaryEntity 둘다 사용하기 위해
+			double rate, String poster) {//MydiaryEntity,GroupDiaryEntity 둘다 사용하기 위해
 			return FindMyExhsResult.builder()
 				.exhId(entity.getExhId())
 				.exhName(entity.getExhName())
-				.poster(entity.getPoster())
+				.poster(poster)
 				.rate(rate)
 				.build();
 		}
