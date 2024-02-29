@@ -65,7 +65,7 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 				.filter(m -> m.getToUserId().equals(user.getUserId()))
 				.findAny();
 
-			if (filterUser.isEmpty()) {
+			if (filterUser.isEmpty() && !user.getUserId().equals(getUserId())) {
 				results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(user, null)); //ToDo profile
 			}
 
