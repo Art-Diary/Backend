@@ -333,10 +333,6 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	private FindExhResult getFindExhResult(ExhEntity exh) throws IOException {
-		/* TODO
-		 * 저장된 포스터 사진 있으면 구현
-		 * 아래 코드의 null 수정 필요
-		 */
 		// 전시회 좋아요 여부 구현
 		Optional<FavoriteExhEntity> favoriteExh = favoriteExhRepository.findByFavoriteExhId(FavoriteExhId.builder()
 			.userId(getUserId())

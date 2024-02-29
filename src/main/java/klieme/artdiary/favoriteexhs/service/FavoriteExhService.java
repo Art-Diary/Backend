@@ -68,8 +68,9 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 		for (FavoriteExhEntity fEntity : fEntities) { //알아낸 exhId에 대한 필요한 정보들 가져오기.
 			ExhEntity exh = exhRepository.findByExhId(fEntity.getFavoriteExhId().getExhId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			exh.imageToString(imageTransfer.downloadImage(exh.getPoster()));
-			favorites.add(FavoriteExhReadUseCase.FindFavoriteExhResult.findByFavoriteExhDetail(exh));
+			String poster = imageTransfer.downloadImage(exh.getPoster());
+
+			favorites.add(FavoriteExhReadUseCase.FindFavoriteExhResult.findByFavoriteExhDetail(exh, poster));
 		}
 		return favorites;
 	}

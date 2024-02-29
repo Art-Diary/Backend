@@ -32,6 +32,10 @@ public class FavoriteExhController {
 		this.favoriteExhReadUseCase = favoriteExhReadUseCase;
 	}
 
+	/**
+	 * 좋아요 전시회 목록 조회
+	 * "/favorites"
+	 */
 	@GetMapping("")
 	public ResponseEntity<List<FavoriteExhView>> getFavoriteExhList() throws IOException {
 

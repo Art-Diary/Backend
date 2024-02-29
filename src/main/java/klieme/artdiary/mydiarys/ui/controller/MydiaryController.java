@@ -60,7 +60,7 @@ public class MydiaryController {
 			.rate(request.getRate())
 			.diaryPrivate(request.getDiaryPrivate())
 			.contents(request.getContents())
-			.thumbnail(request.getThumbnail())//TODO 사진 형식으로 변경 예정
+			.thumbnail(request.getThumbnail())
 			.writeDate(request.getWriteDate())
 			.saying(request.getSaying())
 			.build();
@@ -126,7 +126,7 @@ public class MydiaryController {
 			.rate(request.getRate())
 			.diaryPrivate(request.getDiaryPrivate())
 			.contents(request.getContents())
-			.thumbnail(request.getThumbnail())//TODO 사진 형식으로 변경 예정
+			.thumbnail(request.getThumbnail())
 			.writeDate(request.getWriteDate())
 			.saying(request.getSaying())
 			.build();
