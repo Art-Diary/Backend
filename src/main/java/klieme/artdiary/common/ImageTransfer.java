@@ -65,7 +65,7 @@ public class ImageTransfer {
 		private final String storedPath;
 	}
 
-	public FindUploadResult uploadImage(UploadQuery query) throws IOException {
+	public FindUploadResult uploadImage(UploadQuery query) {
 		String os = System.getProperty("os.name").toLowerCase();
 		String defaultDir = os.contains("win") ? RECORD_LOCAL_PATH : RECORD_SERVER_PATH;
 		String imageToString;
