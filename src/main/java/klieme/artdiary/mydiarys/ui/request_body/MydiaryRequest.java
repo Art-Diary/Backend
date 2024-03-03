@@ -27,6 +27,7 @@ public class MydiaryRequest {
 	private Boolean diaryPrivate;
 	@NotBlank
 	private String contents;
+	@NotNull
 	private MultipartFile thumbnail;
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")

@@ -1,6 +1,5 @@
 package klieme.artdiary.users.service;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -48,7 +47,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Override
 	@Transactional
-	public UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) throws IOException {
+	public UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) {
 		UserEntity savedEntity = userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(
 			MessageType.NOT_FOUND));
 		// 닉네임 중복 확인
@@ -67,11 +66,8 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		// 사용자 정보 업데이트
 		savedEntity.updateUser(UserEntity.builder()
 			.nickname(command.getNickname())
-			.profile(uploadResult.getStoredPath() != null ? uploadResult.getStoredPath() : savedEntity.getProfile())
+			.profile(uploadResult.getStoredPath())
 			.favoriteArt(command.getFavoriteArt())
-			.alarm1(savedEntity.getAlarm1())
-			.alarm2(savedEntity.getAlarm2())
-			.alarm3(savedEntity.getAlarm3())
 			.build());
 		userRepository.save(savedEntity);
 		return UserReadUseCase.FindUserResult.findByUser(savedEntity, uploadResult.getImageToString());

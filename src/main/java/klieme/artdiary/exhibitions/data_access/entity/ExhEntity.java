@@ -57,8 +57,4 @@ public class ExhEntity {
 		this.poster = poster;
 		this.art = art;
 	}
-
-	public void imageToString(String imageString) {
-		this.poster = imageString;
-	}
 }

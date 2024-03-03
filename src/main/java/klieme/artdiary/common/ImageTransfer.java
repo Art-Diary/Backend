@@ -69,11 +69,8 @@ public class ImageTransfer {
 		String os = System.getProperty("os.name").toLowerCase();
 		String defaultDir = os.contains("win") ? RECORD_LOCAL_PATH : RECORD_SERVER_PATH;
 		String imageToString;
-		MultipartFile imageFile = query.getImage();
+		MultipartFile imageFile = query.getImage() != null && query.getImage().isEmpty() ? null : query.getImage();
 
-		if (imageFile != null && imageFile.isEmpty()) {
-			imageFile = null;
-		}
 		// 타입 별 저장할 위치 결정
 		if (query.getType() == ImageType.PROFILE) {
 			defaultDir += ("/profile/" + getUserId());
@@ -97,10 +94,18 @@ public class ImageTransfer {
 				imageFile.transferTo(new File(defaultDir));
 			}
 		} catch (Exception e) {
-			defaultDir = os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG;
-			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
-			defaultDir = null;
-			// throw new ArtDiaryException(MessageType.BAD_REQUEST);
+			// // 요청 image가 null인 경우 디비에 저장된 기존 사진이 존재하면 반환하고 아니면 기본 사진을 반환
+			// imageToString = checkFiles(defaultDir);
+			// System.out.println("3. ]]]]]]]]]]]]]]]]]]]]]" + defaultDir + "]]]]]]]]]]]]]]]]]]]]]");
+			//
+			// System.out.println("4. ]]]]]]]]]]]]]]]]]]]]]" + imageToString + "]]]]]]]]]]]]]]]]]]]]]");
+			// if (imageToString == null) {
+			// 	imageToString = Base64.getEncoder()
+			// 		.encodeToString(Files.readAllBytes(
+			// 			Paths.get(os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG)));
+			// }
+			// defaultDir = null;
+			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		return FindUploadResult.builder()
 			.imageToString(imageToString)
@@ -116,33 +121,36 @@ public class ImageTransfer {
 
 		if (!storeDir.exists()) {
 			// 사진 저장 경로가 없는 경우
-			try {
-				storeDir.mkdirs();
-			} catch (Exception e) {
-				e.getStackTrace();
+			boolean mkdir = storeDir.mkdirs();
+			if (!mkdir) {
+				throw new ArtDiaryException(MessageType.BAD_REQUEST);
 			}
 		} else {
 			// 이미 이름이 같은 사진이 있는 경우
 			String[] images = storeDir.list();
 
 			if (images != null) {
-				try {
-					for (String image : images) {
-						if (image.startsWith(imageName + ".")) {
+				for (String image : images) {
+					if (image.startsWith(imageName + ".")) {
+						try {
 							// 이미 저장된 사진인 경우 확인
 							String oldImageToString = Base64.getEncoder()
 								.encodeToString(Files.readAllBytes(Paths.get(dir + "/" + image)));
+
 							if (Objects.equals(oldImageToString, newImageToString)) {
 								check = true;
 								continue;
 							}
-							// 업로드 하려는 사진과 기존 사진이 다르면 기존 사진 삭제
-							File oldFile = new File(dir + "/" + image);
-							oldFile.delete();
+						} catch (Exception e) {
+							throw new ArtDiaryException(MessageType.BAD_REQUEST);
+						}
+						// 업로드 하려는 사진과 기존 사진이 다르면 기존 사진 삭제
+						File oldFile = new File(dir + "/" + image);
+						boolean delete = oldFile.delete();
+						if (!delete) {
+							throw new ArtDiaryException(MessageType.BAD_REQUEST);
 						}
 					}
-				} catch (Exception e) {
-					e.getStackTrace();
 				}
 			}
 		}
