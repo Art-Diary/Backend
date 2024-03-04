@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Objects;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -88,15 +89,17 @@ public class ImageTransfer {
 			String extension = Objects.requireNonNull(imageFile.getOriginalFilename())
 				.substring(imageFile.getOriginalFilename().lastIndexOf(".") + 1);
 			defaultDir += ("." + extension);
-			// 새 폴더 생성 및 기존 파일 삭제
-			newDir(defaultDir);
-			// 저장소에 저장
-			imageFile.transferTo(new File(defaultDir));
 			// image 정보를 string 형으로 전환
-			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
+			imageToString = Base64.getEncoder().encodeToString(IOUtils.toByteArray(imageFile.getInputStream()));
+			// 새 폴더 생성 및 기존 파일 삭제
+			if (!checkDirAndFiles(defaultDir, imageToString)) {
+				// 저장소에 저장
+				imageFile.transferTo(new File(defaultDir));
+			}
 		} catch (Exception e) {
 			defaultDir = os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG;
 			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
+			defaultDir = null;
 			// throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		return FindUploadResult.builder()
@@ -105,34 +108,45 @@ public class ImageTransfer {
 			.build();
 	}
 
-	private void newDir(String imageDir) {
+	private boolean checkDirAndFiles(String imageDir, String newImageToString) {
 		String dir = imageDir.substring(0, imageDir.lastIndexOf("/"));
 		String imageName = imageDir.substring(imageDir.lastIndexOf("/") + 1, imageDir.lastIndexOf("."));
 		File storeDir = new File(dir);
+		boolean check = false;
 
 		if (!storeDir.exists()) {
+			// 사진 저장 경로가 없는 경우
 			try {
 				storeDir.mkdirs();
 			} catch (Exception e) {
 				e.getStackTrace();
 			}
 		} else {
+			// 이미 이름이 같은 사진이 있는 경우
 			String[] images = storeDir.list();
 
-			if (images == null) {
-				return;
-			}
-			try {
-				for (String image : images) {
-					if (image.startsWith(imageName + ".")) {
-						File oldFile = new File(dir + "/" + image);
-						oldFile.delete();
+			if (images != null) {
+				try {
+					for (String image : images) {
+						if (image.startsWith(imageName + ".")) {
+							// 이미 저장된 사진인 경우 확인
+							String oldImageToString = Base64.getEncoder()
+								.encodeToString(Files.readAllBytes(Paths.get(dir + "/" + image)));
+							if (Objects.equals(oldImageToString, newImageToString)) {
+								check = true;
+								continue;
+							}
+							// 업로드 하려는 사진과 기존 사진이 다르면 기존 사진 삭제
+							File oldFile = new File(dir + "/" + image);
+							oldFile.delete();
+						}
 					}
+				} catch (Exception e) {
+					e.getStackTrace();
 				}
-			} catch (Exception e) {
-				e.getStackTrace();
 			}
 		}
+		return check;
 	}
 
 	private Long getUserId() {

@@ -15,19 +15,20 @@ public interface UserReadUseCase {
 	@ToString
 	@Builder
 	class FindUserResult {
-		private final String nickname;
 		private final Long userId;
+		private final String nickname;
 		private final String email;
 		private final String profile;
 		private final String favoriteArt;
 
 		public static FindUserResult findUserInfo(UserEntity user, String profile) {
 			return FindUserResult.builder()
-				.nickname(user.getNickname())
 				.userId(user.getUserId())
+				.nickname(user.getNickname())
 				.email(user.getEmail())
 				.profile(profile)
-				.favoriteArt(user.getFavoriteArt()).build();
+				.favoriteArt(user.getFavoriteArt())
+				.build();
 		}
 	}
 }
