@@ -255,7 +255,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 	}
 
 	private void saveGatheringDiary(MyDiaryCreateUpdateCommand command, GatheringDiaryEntity saveEntity,
-		Long gatherId) throws IOException {
+		Long gatherId) {
 		// 사진 업로드
 		ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(ImageTransfer.UploadQuery.builder()
 			.type(ImageType.THUMBNAIL_GATHER)
@@ -271,12 +271,12 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			.contents(command.getContents())
 			.writeDate(command.getWriteDate())
 			.saying(command.getSaying())
-			.thumbnail(uploadResult != null ? uploadResult.getStoredPath() : saveEntity.getThumbnail())
+			.thumbnail(uploadResult.getStoredPath())
 			.build());
 		gatheringDiaryRepository.save(saveEntity);
 	}
 
-	private void saveMyDiary(MyDiaryCreateUpdateCommand command, MydiaryEntity saveEntity) throws IOException {
+	private void saveMyDiary(MyDiaryCreateUpdateCommand command, MydiaryEntity saveEntity) {
 		// 사진 업로드
 		ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(ImageTransfer.UploadQuery.builder()
 			.type(ImageType.THUMBNAIL_SOLO)
@@ -291,7 +291,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			.contents(command.getContents())
 			.writeDate(command.getWriteDate())
 			.saying(command.getSaying())
-			.thumbnail(uploadResult != null ? uploadResult.getStoredPath() : saveEntity.getThumbnail())
+			.thumbnail(uploadResult.getStoredPath())
 			.build());
 		mydiaryRepository.save(saveEntity);
 	}

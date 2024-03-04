@@ -2,7 +2,6 @@ package klieme.artdiary.users.ui.controller;
 
 import java.io.IOException;
 
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+
 import klieme.artdiary.gatherings.service.GatheringOperationUseCase;
 import klieme.artdiary.gatherings.ui.view.GatheringView;
 import klieme.artdiary.users.service.UserOperationUseCase;
@@ -22,8 +22,11 @@ import klieme.artdiary.users.ui.request_body.UserNicknameRequest;
 import klieme.artdiary.users.ui.request_body.UserAlarmRequest;
 import klieme.artdiary.users.ui.request_body.UserRequest;
 import klieme.artdiary.users.ui.view.UserNicknameView;
+
+import klieme.artdiary.users.ui.request_body.UserAlarmRequest;
 import klieme.artdiary.users.ui.request_body.UserUpdateRequest;
 import klieme.artdiary.users.ui.view.UserAlarmView;
+
 import klieme.artdiary.users.ui.view.UserView;
 
 @RestController
@@ -43,7 +46,7 @@ public class UserController {
 	public ResponseEntity<UserView> getUserInfo() throws IOException {
 
 		UserReadUseCase.FindUserResult result = userReadUseCase.getUserInfo();
-		return ResponseEntity.created(null).body(UserView.builder().result(result).build());
+		return ResponseEntity.ok(UserView.builder().result(result).build());
 	}
 
 	@GetMapping("/verify")
@@ -54,7 +57,7 @@ public class UserController {
 			.build();
 
 		String result = userReadUseCase.verifyNickname(command);
-		return ResponseEntity.created(null).body(UserNicknameView.builder().nickname(result).build());
+		return ResponseEntity.ok(UserNicknameView.builder().nickname(result).build());
 	}
 
 	@PostMapping("")

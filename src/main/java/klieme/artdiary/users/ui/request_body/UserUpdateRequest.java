@@ -11,7 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 public class UserUpdateRequest {
-	// @NotNull
 	private MultipartFile profile;
 	@NotBlank
 	private String nickname;
