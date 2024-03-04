@@ -14,9 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+import klieme.artdiary.gatherings.service.GatheringOperationUseCase;
+import klieme.artdiary.gatherings.ui.view.GatheringView;
 import klieme.artdiary.users.service.UserOperationUseCase;
 import klieme.artdiary.users.service.UserReadUseCase;
+import klieme.artdiary.users.ui.request_body.DeleteReasonRequest;
 import klieme.artdiary.users.ui.request_body.UserNicknameRequest;
+import klieme.artdiary.users.ui.request_body.UserAlarmRequest;
 import klieme.artdiary.users.ui.request_body.UserRequest;
 import klieme.artdiary.users.ui.view.UserNicknameView;
 
@@ -127,5 +131,15 @@ public class UserController {
 			.build();
 		UserReadUseCase.FindAlarmResult result = userOperationUseCase.updateAlarm(command);
 		return ResponseEntity.ok(UserAlarmView.builder().result(result).build());
+	}
+
+	@PostMapping("/leave")
+	public void deleteUser(@Valid @RequestBody DeleteReasonRequest request) {
+		var command = UserOperationUseCase.DeleteReasonCommand.builder()
+			.reason(request.getReason())
+			.build();
+
+		userOperationUseCase.deleteUser(command);
+
 	}
 }

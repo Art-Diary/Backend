@@ -59,6 +59,10 @@ public class GatheringDiaryEntity {
 		this.gatheringExhId = gatheringExhId;
 	}
 
+	public void updateUserId() {
+		this.userId = null;
+	}
+
 	public void updateDiary(GatheringDiaryEntity entity) {
 		if (entity.getTitle() != null) {
 			this.title = entity.getTitle();

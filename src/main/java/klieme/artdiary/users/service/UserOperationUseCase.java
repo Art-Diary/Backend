@@ -17,6 +17,8 @@ public interface UserOperationUseCase {
 
 	UserReadUseCase.FindAlarmResult updateAlarm(UserAlarmUpdateCommand command);
 
+	void deleteUser(DeleteReasonCommand command);
+
 	@EqualsAndHashCode
 	@Getter
 	@ToString
@@ -51,5 +53,13 @@ public interface UserOperationUseCase {
 		private final Boolean alarm1;
 		private final Boolean alarm2;
 		private final Boolean alarm3;
+	}
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class DeleteReasonCommand {
+		private final String reason;
 	}
 }
