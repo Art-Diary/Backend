@@ -86,6 +86,44 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		return UserReadUseCase.FindUserResult.findUserInfo(savedEntity, uploadResult.getImageToString());
 	}
 
+	@Override
+	@Transactional
+	public FindAlarmResult updateAlarm(UserAlarmUpdateCommand command) {
+		UserEntity user = userRepository.findByUserId(getUserId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		if (command.getAlarm1() != null) {
+			if (user.getAlarm1().equals(command.getAlarm1())) {
+				throw new ArtDiaryException(MessageType.CONFLICT);
+			} else {
+				user.updateUser(UserEntity.builder()
+					.alarm1(command.getAlarm1())
+					.build());
+			}
+			return FindAlarmResult.findAlarm1(user);
+		}
+		if (command.getAlarm2() != null) {
+			if (user.getAlarm2().equals(command.getAlarm2())) {
+				throw new ArtDiaryException(MessageType.CONFLICT);
+			} else {
+				user.updateUser(UserEntity.builder()
+					.alarm2(command.getAlarm2())
+					.build());
+			}
+			return FindAlarmResult.findAlarm2(user);
+		}
+		if (command.getAlarm3() != null) {
+			if (user.getAlarm3().equals(command.getAlarm3())) {
+				throw new ArtDiaryException(MessageType.CONFLICT);
+			} else {
+				user.updateUser(UserEntity.builder()
+					.alarm3(command.getAlarm3())
+					.build());
+			}
+			return FindAlarmResult.findAlarm3(user);
+		}
+		return null;
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
