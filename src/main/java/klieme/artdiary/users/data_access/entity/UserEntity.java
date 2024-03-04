@@ -61,4 +61,25 @@ public class UserEntity {
 		this.alarm3 = alarm3;
 		this.refreshToken = refreshToken;
 	}
+
+	public void updateUser(UserEntity user) {
+		if (user.getNickname() != null) {
+			this.nickname = user.getNickname();
+		}
+		if (user.getProfile() != null) {
+			this.profile = user.getProfile();
+		}
+		if (user.getFavoriteArt() != null) {
+			this.favoriteArt = user.getFavoriteArt();
+		}
+		if (user.getAlarm1() != null) {
+			this.alarm1 = user.getAlarm1();
+		}
+		if (user.getAlarm2() != null) {
+			this.alarm2 = user.getAlarm2();
+		}
+		if (user.getAlarm3() != null) {
+			this.alarm3 = user.getAlarm3();
+		}
+	}
 }

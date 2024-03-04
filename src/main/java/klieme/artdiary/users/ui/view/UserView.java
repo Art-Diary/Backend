@@ -11,7 +11,6 @@ import lombok.ToString;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserView {
-
 	private final Long userId;
 	private final String nickname;
 	private final String email;
