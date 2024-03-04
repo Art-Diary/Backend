@@ -223,8 +223,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			List<MydiaryEntity> diaries = mydiaryRepository.findByUserExhId(userEntity.getUserExhId());
 			UserEntity user;
 
-			// 유저가 탈퇴하여 userId가 -1인 경우 고려
-			if (userEntity.getUserId() == -1) {
+			// 유저가 탈퇴하여 userId가 null인 경우 고려
+			if (userEntity.getUserId() == null) {
 				user = UserEntity.builder().nickname("전시 메이트").build();
 			} else {
 				user = userRepository.findByUserId(userEntity.getUserId())
@@ -253,8 +253,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				}
 				UserEntity user;
 
-				// 유저가 탈퇴하여 userId가 -1인 경우 고려
-				if (gDiary.getUserId() == -1) {
+				// 유저가 탈퇴하여 userId가 -null인 경우 고려
+				if (gDiary.getUserId() == null) {
 					user = UserEntity.builder().nickname("전시 메이트").build();
 				} else {
 					user = userRepository.findByUserId(gDiary.getUserId())

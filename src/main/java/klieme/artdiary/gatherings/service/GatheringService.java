@@ -188,8 +188,8 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 				String thumbnail = imageTransfer.downloadImage(gatheringDiary.getThumbnail());
 				UserEntity writer;
 
-				// 유저가 탈퇴하여 userId가 -1인 경우 고려
-				if (gatheringDiary.getUserId() == -1) {
+				// 유저가 탈퇴하여 userId가 -null인 경우 고려
+				if (gatheringDiary.getUserId() == null) {
 					writer = UserEntity.builder().nickname("전시 메이트").build();
 				} else {
 					writer = userRepository.findByUserId(gatheringDiary.getUserId())
