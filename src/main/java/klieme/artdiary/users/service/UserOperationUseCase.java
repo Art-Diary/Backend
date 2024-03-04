@@ -15,6 +15,8 @@ public interface UserOperationUseCase {
 
 	UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) throws IOException;
 
+	UserReadUseCase.FindAlarmResult updateAlarm(UserAlarmUpdateCommand command);
+
 	@EqualsAndHashCode
 	@Getter
 	@ToString
@@ -39,5 +41,15 @@ public interface UserOperationUseCase {
 		private final String nickname;
 		private final MultipartFile profile;
 		private final String favoriteArt;
+	}
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class UserAlarmUpdateCommand {
+		private final Boolean alarm1;
+		private final Boolean alarm2;
+		private final Boolean alarm3;
 	}
 }
