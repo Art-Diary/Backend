@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import klieme.artdiary.gatherings.ui.view.GatheringView;
 import klieme.artdiary.users.service.UserOperationUseCase;
 import klieme.artdiary.users.service.UserReadUseCase;
 import klieme.artdiary.users.ui.request_body.UserRequest;
@@ -24,15 +25,24 @@ import klieme.artdiary.users.ui.view.UserView;
 public class UserController {
 
 	private final UserOperationUseCase userOperationUseCase;
+	private final UserReadUseCase userReadUseCase;
 
 	@Autowired
-	public UserController(UserOperationUseCase userOperationUseCase) {
+	public UserController(UserOperationUseCase userOperationUseCase, UserReadUseCase userReadUseCase) {
 		this.userOperationUseCase = userOperationUseCase;
+		this.userReadUseCase = userReadUseCase;
 	}
 
 	@GetMapping("/hello")
 	public void helloPrint() {
 		System.out.println("hello");
+	}
+
+	@GetMapping("")
+	public ResponseEntity<UserView> getUserInfo() throws IOException {
+
+		UserReadUseCase.FindUserResult result = userReadUseCase.getUserInfo();
+		return ResponseEntity.created(null).body(UserView.builder().result(result).build());
 	}
 
 	@PostMapping("")

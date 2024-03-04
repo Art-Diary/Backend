@@ -28,6 +28,15 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		this.imageTransfer = imageTransfer;
 	}
 
+	@Override
+	public UserReadUseCase.FindUserResult getUserInfo() throws IOException {
+		UserEntity user = userRepository.findByUserId(getUserId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		String profile = imageTransfer.downloadImage(user.getProfile());
+		UserReadUseCase.FindUserResult result = UserReadUseCase.FindUserResult.findUserInfo(user, profile);
+		return result;
+	}
+
 	@Transactional
 	@Override
 	public String createDummy(UserDummyCreateCommand command) {
