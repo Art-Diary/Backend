@@ -14,27 +14,41 @@ import klieme.artdiary.common.ImageTransfer;
 import klieme.artdiary.common.ImageType;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
+import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
+import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
+import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
+import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepository;
+import klieme.artdiary.users.data_access.entity.ReasonEntity;
 import klieme.artdiary.users.data_access.entity.UserEntity;
+import klieme.artdiary.users.data_access.repository.ReasonRepository;
 import klieme.artdiary.users.data_access.repository.UserRepository;
 
 @Service
 public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	private final UserRepository userRepository;
+	private final UserExhRepository userExhRepository;
+	private final GatheringDiaryRepository gatheringDiaryRepository;
+	private final ReasonRepository reasonRepository;
 	private final ImageTransfer imageTransfer;
 
 	@Autowired
-	public UserService(UserRepository userRepository, ImageTransfer imageTransfer) {
+	public UserService(UserRepository userRepository, UserExhRepository userExhRepository,
+		GatheringDiaryRepository gatheringDiaryRepository, ReasonRepository reasonRepository,
+		ImageTransfer imageTransfer) {
 		this.userRepository = userRepository;
+		this.userExhRepository = userExhRepository;
+		this.gatheringDiaryRepository = gatheringDiaryRepository;
+		this.reasonRepository = reasonRepository;
 		this.imageTransfer = imageTransfer;
 	}
 
 	@Override
-	public UserReadUseCase.FindUserResult getUserInfo() throws IOException {
+	public FindUserResult getUserInfo() throws IOException {
 		UserEntity user = userRepository.findByUserId(getUserId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 		String profile = imageTransfer.downloadImage(user.getProfile());
-		UserReadUseCase.FindUserResult result = UserReadUseCase.FindUserResult.findUserInfo(user, profile);
+		FindUserResult result = FindUserResult.findUserInfo(user, profile);
 		return result;
 	}
 
@@ -76,7 +90,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Override
 	@Transactional
-	public UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) {
+	public FindUserResult updateUser(UserUpdateCommand command) {
 		UserEntity savedEntity = userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(
 			MessageType.NOT_FOUND));
 		// 닉네임 중복 확인
@@ -99,7 +113,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			.favoriteArt(command.getFavoriteArt())
 			.build());
 		userRepository.save(savedEntity);
-		return UserReadUseCase.FindUserResult.findUserInfo(savedEntity, uploadResult.getImageToString());
+		return FindUserResult.findUserInfo(savedEntity, uploadResult.getImageToString());
 	}
 
 	@Override
@@ -138,6 +152,34 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			return FindAlarmResult.findAlarm3(user);
 		}
 		return null;
+	}
+
+	@Override
+	@Transactional
+	public void deleteUser(DeleteReasonCommand command) {
+
+		//- UserExh, GatheringDiary 의 탈퇴 userId Null 로 변경.
+		// userExh에서 확인
+		List<UserExhEntity> userExhs = userExhRepository.findByUserId(getUserId());
+		for (UserExhEntity userExh : userExhs) {
+			userExh.updateUserId();
+			userExhRepository.save(userExh);
+		}
+		//GatheringDiary에서 확인
+		List<GatheringDiaryEntity> gDiaries = gatheringDiaryRepository.findByUserId(getUserId());
+		for (GatheringDiaryEntity gDiary : gDiaries) {
+			gDiary.updateUserId();
+			gatheringDiaryRepository.save(gDiary);
+		}
+
+		// - 탈퇴 이유 reason에 저장.
+		ReasonEntity reason = ReasonEntity.builder()
+			.reason(command.getReason()).build();
+		reasonRepository.save(reason);
+
+		// - user테이블에서 사용자 삭제
+		userRepository.deleteById(getUserId());
+
 	}
 
 	private Long getUserId() {

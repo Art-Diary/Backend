@@ -41,4 +41,8 @@ public class UserExhEntity {
 		this.userId = userId;
 		this.exhId = exhId;
 	}
+
+	public void updateUserId() {
+		this.userId = null;
+	}
 }
