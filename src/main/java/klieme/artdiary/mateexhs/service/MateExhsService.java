@@ -143,6 +143,9 @@ public class MateExhsService implements MateExhsReadUseCase {
 		for (UserExhEntity uEntity : uEntities) {
 			List<MydiaryEntity> diaryList = mydiaryRepository.findByUserExhId(uEntity.getUserExhId());
 			for (MydiaryEntity diary : diaryList) {
+				if (!diary.getDiaryPrivate()) {
+					continue;
+				}
 				String thumbnail = imageTransfer.downloadImage(diary.getThumbnail());
 				diaries.add(MateExhsReadUseCase.FindMateDiaryResult.findMateSoloDiary(diary, mateEntity, uEntity,
 					mateExhEntity, thumbnail));

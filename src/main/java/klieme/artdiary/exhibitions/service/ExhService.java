@@ -209,27 +209,33 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			.exhId(exhId)
 			.build());
 		boolean isFavoriteExh = favoriteExh.isPresent();
-		ExhReadUseCase.FindExhResult result = ExhReadUseCase.FindExhResult.findByExh(entity, isFavoriteExh,
-			imageTransfer.downloadImage(entity.getPoster()));
-		return result;
-
+		return FindExhResult.findByExh(entity, isFavoriteExh, imageTransfer.downloadImage(entity.getPoster()));
 	}
 
 	@Override
-	public List<ExhReadUseCase.FindDiaryResult> getAllOfExhIdDiaries(Long exhId) throws IOException {
-		List<ExhReadUseCase.FindDiaryResult> results = new ArrayList<>();
+	public List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId) throws IOException {
+		List<FindDiaryResult> results = new ArrayList<>();
 		//해당 exhId의 user_Exh에서 확인 후, solo_Diary에서 가져오기
-		List<UserExhEntity> userEntities = userExhRepository.findByExhId(exhId);
 		ExhEntity exh = exhRepository.findByExhId(exhId)
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		List<UserExhEntity> userEntities = userExhRepository.findByExhId(exhId);
 		for (UserExhEntity userEntity : userEntities) {
 			List<MydiaryEntity> diaries = mydiaryRepository.findByUserExhId(userEntity.getUserExhId());
-			UserEntity user = userRepository.findByUserId(userEntity.getUserId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			UserEntity user;
+
+			// 유저가 탈퇴하여 userId가 null인 경우 고려
+			if (userEntity.getUserId() == null) {
+				user = UserEntity.builder().nickname("전시 메이트").build();
+			} else {
+				user = userRepository.findByUserId(userEntity.getUserId())
+					.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			}
 			for (MydiaryEntity diary : diaries) {
-				FindDiaryResult tmp = ExhReadUseCase.FindDiaryResult.findSoloDiary(diary, userEntity, user, exh,
-					imageTransfer.downloadImage(exh.getPoster()));
-				results.add(tmp);
+				if (!diary.getDiaryPrivate()) {
+					continue;
+				}
+				results.add(FindDiaryResult.findSoloDiary(diary, userEntity, user, exh,
+					imageTransfer.downloadImage(exh.getPoster())));
 			}
 		}
 
@@ -240,14 +246,22 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				gatherEntity.getGatheringExhId());
 			GatheringEntity gatherName = gatheringRepository.findByGatherId(gatherEntity.getGatherId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			//	UserEntity user=userRepository.findByUserId(userEntity.getUserId()).orElseThrow(()->new ArtDiaryException(MessageType.NOT_FOUND));
 
 			for (GatheringDiaryEntity gDiary : gDiaries) {
-				UserEntity user = userRepository.findByUserId(gDiary.getUserId())
-					.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-				FindDiaryResult tmp = ExhReadUseCase.FindDiaryResult.findGatheringDiary(gDiary, gatherEntity,
-					gatherName, user, exh, imageTransfer.downloadImage(exh.getPoster()));
-				results.add(tmp);
+				if (!gDiary.getDiaryPrivate()) {
+					continue;
+				}
+				UserEntity user;
+
+				// 유저가 탈퇴하여 userId가 -null인 경우 고려
+				if (gDiary.getUserId() == null) {
+					user = UserEntity.builder().nickname("전시 메이트").build();
+				} else {
+					user = userRepository.findByUserId(gDiary.getUserId())
+						.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+				}
+				results.add(FindDiaryResult.findGatheringDiary(gDiary, gatherEntity,
+					gatherName, user, exh, imageTransfer.downloadImage(exh.getPoster())));
 			}
 		}
 		return results;

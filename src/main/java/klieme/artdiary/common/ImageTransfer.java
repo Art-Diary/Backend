@@ -8,6 +8,7 @@ import java.util.Base64;
 import java.util.Objects;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,38 +17,27 @@ import lombok.Getter;
 
 @Component
 public class ImageTransfer {
-	// @Value("${local.default.record.path}")
-	String RECORD_LOCAL_PATH = "C:/Users/Chaerin/Desktop/PROJECTS/artdiary/images";
-	// @Value("${server.default.record.path}")
-	String RECORD_SERVER_PATH;
-	// @Value("${local.default.loading.image}")
-	String RECORD_LOCAL_DEFAULT_IMG = "C:/Users/Chaerin/Desktop/PROJECTS/artdiary/images/default.png";
-	// @Value("${server.default.loading.image}")
-	String RECORD_SERVER_DEFAULT_IMG = "";
+	@Value("${local.image.base.dir}")
+	String RECORD_LOCAL_PATH;
+	@Value("${local.default.image.dir}")
+	String RECORD_LOCAL_DEFAULT_IMG;
 
 	/**
 	 * download image from storage
 	 */
 	public String downloadImage(String storagePath) throws IOException {
-		String os = System.getProperty("os.name").toLowerCase();
 		String imageToString;// image -> bytes -> string
 
 		try {
 			// image 정보를 string 형으로 전환
 			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(storagePath)));
 		} catch (Exception e) {
-			String defaultDir = os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG;
+			String defaultDir = RECORD_LOCAL_DEFAULT_IMG;
 			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
 		}
 		return imageToString;
 	}
 
-	/**
-	 * upload image to storage
-	 * {userId}/thumbnail/solo/{soloDiaryId}.png
-	 * {userId}/thumbnail/gathering/{gatherId}/{gatherDiaryId}.png
-	 * {userId}/profile/{userId}.png
-	 */
 	@Getter
 	@Builder
 	public static class UploadQuery {
@@ -65,9 +55,14 @@ public class ImageTransfer {
 		private final String storedPath;
 	}
 
+	/**
+	 * upload image to storage
+	 * /thumbnail/solo/{soloDiaryId}.png
+	 * /thumbnail/gathering/{gatherId}/{gatherDiaryId}.png
+	 * /profile/{userId}.png
+	 */
 	public FindUploadResult uploadImage(UploadQuery query) {
-		String os = System.getProperty("os.name").toLowerCase();
-		String defaultDir = os.contains("win") ? RECORD_LOCAL_PATH : RECORD_SERVER_PATH;
+		String defaultDir = RECORD_LOCAL_PATH;
 		String imageToString;
 		MultipartFile imageFile = query.getImage() != null && query.getImage().isEmpty() ? null : query.getImage();
 

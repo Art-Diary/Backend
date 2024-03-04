@@ -156,7 +156,6 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	@Override
 	public List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query) throws
 		IOException {
-		UserEntity user = getUser(getUserId());
 		// 모임에 포함되어 있는지 확인
 		gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
 			.userId(getUserId())
@@ -183,9 +182,21 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByGatheringExhId(
 				gatheringExh.getGatheringExhId());
 			for (GatheringDiaryEntity gatheringDiary : gatheringDiaryEntities) {
+				if (!gatheringDiary.getDiaryPrivate()) {
+					continue;
+				}
 				String thumbnail = imageTransfer.downloadImage(gatheringDiary.getThumbnail());
+				UserEntity writer;
+
+				// 유저가 탈퇴하여 userId가 -null인 경우 고려
+				if (gatheringDiary.getUserId() == null) {
+					writer = UserEntity.builder().nickname("전시 메이트").build();
+				} else {
+					writer = userRepository.findByUserId(gatheringDiary.getUserId())
+						.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+				}
 				results.add(
-					FindGatheringDiaryResult.findByGatheringDiary(gatheringDiary, gatheringExh, gathering, user, exh,
+					FindGatheringDiaryResult.findByGatheringDiary(gatheringDiary, gatheringExh, gathering, writer, exh,
 						thumbnail));
 			}
 		}
