@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import klieme.artdiary.gatherings.ui.view.GatheringView;
 import klieme.artdiary.users.service.UserOperationUseCase;
 import klieme.artdiary.users.service.UserReadUseCase;
 import klieme.artdiary.users.ui.request_body.UserAlarmRequest;
