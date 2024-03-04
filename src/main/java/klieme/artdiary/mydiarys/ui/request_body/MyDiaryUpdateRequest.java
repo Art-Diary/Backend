@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Setter
-public class MydiaryRequest {
+public class MyDiaryUpdateRequest {
 	@NotNull
 	private Long userExhId; // 개인 일정이 아닌 경우 -1
 	@NotNull
@@ -27,11 +27,9 @@ public class MydiaryRequest {
 	private Boolean diaryPrivate;
 	@NotBlank
 	private String contents;
-	@NotNull
 	private MultipartFile thumbnail;
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate writeDate;
 	private String saying;
 }
-
