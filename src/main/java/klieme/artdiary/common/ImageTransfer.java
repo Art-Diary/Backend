@@ -38,12 +38,6 @@ public class ImageTransfer {
 		return imageToString;
 	}
 
-	/**
-	 * upload image to storage
-	 * {userId}/thumbnail/solo/{soloDiaryId}.png
-	 * {userId}/thumbnail/gathering/{gatherId}/{gatherDiaryId}.png
-	 * {userId}/profile/{userId}.png
-	 */
 	@Getter
 	@Builder
 	public static class UploadQuery {
@@ -61,6 +55,12 @@ public class ImageTransfer {
 		private final String storedPath;
 	}
 
+	/**
+	 * upload image to storage
+	 * /thumbnail/solo/{soloDiaryId}.png
+	 * /thumbnail/gathering/{gatherId}/{gatherDiaryId}.png
+	 * /profile/{userId}.png
+	 */
 	public FindUploadResult uploadImage(UploadQuery query) {
 		String defaultDir = RECORD_LOCAL_PATH;
 		String imageToString;
