@@ -1,6 +1,8 @@
 package klieme.artdiary.users.service;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,24 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		String profile = imageTransfer.downloadImage(user.getProfile());
 		UserReadUseCase.FindUserResult result = UserReadUseCase.FindUserResult.findUserInfo(user, profile);
 		return result;
+	}
+
+	@Override
+	public String verifyNickname(CreateNicknameCommand command) {
+
+		//기존 닉네임 가져오기
+		List<UserEntity> userNicknameList = userRepository.findAll();
+
+		//닉네임 한글만!
+		//닉네임 확인 & 있는 경우 에러 발생.
+		for (UserEntity user : userNicknameList) {
+			if (Objects.equals(command.getNickname(), user.getNickname())) {
+				throw (new ArtDiaryException(MessageType.CONFLICT));
+			}
+		}
+		//없으면 저장하기?
+
+		return command.getNickname();
 	}
 
 	@Transactional

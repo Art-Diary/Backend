@@ -4,12 +4,15 @@ import java.io.IOException;
 
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 public interface UserReadUseCase {
 
 	FindUserResult getUserInfo() throws IOException;
+
+	String verifyNickname(UserReadUseCase.CreateNicknameCommand command);
 
 	@Getter
 	@ToString
@@ -29,5 +32,13 @@ public interface UserReadUseCase {
 				.profile(profile)
 				.favoriteArt(user.getFavoriteArt()).build();
 		}
+	}
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class CreateNicknameCommand {
+		private final String nickname;
 	}
 }

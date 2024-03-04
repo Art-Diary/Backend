@@ -24,4 +24,5 @@ public interface UserOperationUseCase {
 		private final Boolean alarm2;
 		private final Boolean alarm3;
 	}
+
 }

@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import klieme.artdiary.gatherings.service.GatheringOperationUseCase;
 import klieme.artdiary.gatherings.ui.view.GatheringView;
 import klieme.artdiary.users.service.UserOperationUseCase;
 import klieme.artdiary.users.service.UserReadUseCase;
+import klieme.artdiary.users.ui.request_body.UserNicknameRequest;
 import klieme.artdiary.users.ui.request_body.UserRequest;
+import klieme.artdiary.users.ui.view.UserNicknameView;
 import klieme.artdiary.users.ui.view.UserView;
 
 @RestController
@@ -41,6 +44,17 @@ public class UserController {
 
 		UserReadUseCase.FindUserResult result = userReadUseCase.getUserInfo();
 		return ResponseEntity.created(null).body(UserView.builder().result(result).build());
+	}
+
+	@GetMapping("/verify")
+	public ResponseEntity<UserNicknameView> verifyNickname(@Valid @RequestBody UserNicknameRequest request) {
+
+		var command = UserReadUseCase.CreateNicknameCommand.builder()
+			.nickname(request.getNickname())
+			.build();
+
+		String result = userReadUseCase.verifyNickname(command);
+		return ResponseEntity.created(null).body(UserNicknameView.builder().nickname(result).build());
 	}
 
 	@PostMapping("")
