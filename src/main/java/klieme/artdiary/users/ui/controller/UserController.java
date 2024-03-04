@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
-import klieme.artdiary.gatherings.service.GatheringOperationUseCase;
-import klieme.artdiary.gatherings.ui.view.GatheringView;
 import klieme.artdiary.users.service.UserOperationUseCase;
 import klieme.artdiary.users.service.UserReadUseCase;
 import klieme.artdiary.users.ui.request_body.UserNicknameRequest;
@@ -45,7 +43,7 @@ public class UserController {
 	public ResponseEntity<UserView> getUserInfo() throws IOException {
 
 		UserReadUseCase.FindUserResult result = userReadUseCase.getUserInfo();
-		return ResponseEntity.created(null).body(UserView.builder().result(result).build());
+		return ResponseEntity.ok(UserView.builder().result(result).build());
 	}
 
 	@GetMapping("/verify")
@@ -56,7 +54,7 @@ public class UserController {
 			.build();
 
 		String result = userReadUseCase.verifyNickname(command);
-		return ResponseEntity.created(null).body(UserNicknameView.builder().nickname(result).build());
+		return ResponseEntity.ok(UserNicknameView.builder().nickname(result).build());
 	}
 
 	@PostMapping("")

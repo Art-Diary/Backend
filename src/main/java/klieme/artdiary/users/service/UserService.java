@@ -41,7 +41,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	@Override
 	public String verifyNickname(CreateNicknameCommand command) {
 
-		//기존 닉네임 가져오기
+		//기존 닉네임 가져오기 => contain 사용해서 바로 닉네임 찾는 쿼리 사용해도 될 것 같음. (by 채린)
 		List<UserEntity> userNicknameList = userRepository.findAll();
 
 		//닉네임 한글만!
