@@ -21,7 +21,7 @@ public interface UserReadUseCase {
 		private final String profile;
 		private final String favoriteArt;
 
-		public static FindUserResult findByUser(UserEntity user, String profile) {
+		public static FindUserResult findUserInfo(UserEntity user, String profile) {
 			return FindUserResult.builder()
 				.userId(user.getUserId())
 				.nickname(user.getNickname())

@@ -83,7 +83,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			.alarm3(savedEntity.getAlarm3())
 			.build());
 		userRepository.save(savedEntity);
-		return UserReadUseCase.FindUserResult.findByUser(savedEntity, uploadResult.getImageToString());
+		return UserReadUseCase.FindUserResult.findUserInfo(savedEntity, uploadResult.getImageToString());
 	}
 
 	private Long getUserId() {
