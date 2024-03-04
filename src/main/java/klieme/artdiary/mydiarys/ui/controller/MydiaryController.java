@@ -23,6 +23,7 @@ import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.mydiarys.service.MydiaryOperationUseCase;
 import klieme.artdiary.mydiarys.service.MydiaryReadUseCase;
+import klieme.artdiary.mydiarys.ui.request_body.MyDiaryUpdateRequest;
 import klieme.artdiary.mydiarys.ui.request_body.MydiaryRequest;
 import klieme.artdiary.mydiarys.ui.view.MydiaryView;
 
@@ -96,7 +97,7 @@ public class MydiaryController {
 	@DeleteMapping("/{diaryId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteDiary(@PathVariable(name = "exhId") Long exhId, @PathVariable(name = "diaryId") Long diaryId,
-		@RequestParam(name = "solo", required = true) Boolean solo) {
+		@RequestParam(name = "solo") Boolean solo) {
 
 		mydiaryOperationUseCase.deleteMyDiary(exhId, solo, diaryId);
 
@@ -110,7 +111,7 @@ public class MydiaryController {
 	public ResponseEntity<List<MydiaryView>> updateMyDiary(
 		@PathVariable(name = "exhId") Long exhId,
 		@PathVariable(name = "diaryId") Long diaryId,
-		@Valid @ModelAttribute MydiaryRequest request
+		@Valid @ModelAttribute MyDiaryUpdateRequest request
 	) throws IOException {
 		if (!((request.getUserExhId() == -1 && request.getGatheringExhId() != -1)
 			|| (request.getUserExhId() != -1 && request.getGatheringExhId() == -1))) {

@@ -41,7 +41,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	@Override
 	public String verifyNickname(CreateNicknameCommand command) {
 
-		//기존 닉네임 가져오기
+		//기존 닉네임 가져오기 => contain 사용해서 바로 닉네임 찾는 쿼리 사용해도 될 것 같음. (by 채린)
 		List<UserEntity> userNicknameList = userRepository.findAll();
 
 		//닉네임 한글만!
@@ -76,7 +76,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Override
 	@Transactional
-	public UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) throws IOException {
+	public UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) {
 		UserEntity savedEntity = userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(
 			MessageType.NOT_FOUND));
 		// 닉네임 중복 확인
@@ -95,11 +95,8 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		// 사용자 정보 업데이트
 		savedEntity.updateUser(UserEntity.builder()
 			.nickname(command.getNickname())
-			.profile(uploadResult.getStoredPath() != null ? uploadResult.getStoredPath() : savedEntity.getProfile())
+			.profile(uploadResult.getStoredPath())
 			.favoriteArt(command.getFavoriteArt())
-			.alarm1(savedEntity.getAlarm1())
-			.alarm2(savedEntity.getAlarm2())
-			.alarm3(savedEntity.getAlarm3())
 			.build());
 		userRepository.save(savedEntity);
 		return UserReadUseCase.FindUserResult.findUserInfo(savedEntity, uploadResult.getImageToString());

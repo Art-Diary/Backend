@@ -44,9 +44,9 @@ public class ImageTransfer {
 
 	/**
 	 * upload image to storage
-	 * userId/thumbnail/solo/{soloDiaryId}.png
-	 * userId/thumbnail/gathering/{gatherId}/{gatherDiaryId}.png
-	 * userId/profile/{userId}.png
+	 * {userId}/thumbnail/solo/{soloDiaryId}.png
+	 * {userId}/thumbnail/gathering/{gatherId}/{gatherDiaryId}.png
+	 * {userId}/profile/{userId}.png
 	 */
 	@Getter
 	@Builder
@@ -65,15 +65,12 @@ public class ImageTransfer {
 		private final String storedPath;
 	}
 
-	public FindUploadResult uploadImage(UploadQuery query) throws IOException {
+	public FindUploadResult uploadImage(UploadQuery query) {
 		String os = System.getProperty("os.name").toLowerCase();
 		String defaultDir = os.contains("win") ? RECORD_LOCAL_PATH : RECORD_SERVER_PATH;
 		String imageToString;
-		MultipartFile imageFile = query.getImage();
+		MultipartFile imageFile = query.getImage() != null && query.getImage().isEmpty() ? null : query.getImage();
 
-		if (imageFile != null && imageFile.isEmpty()) {
-			imageFile = null;
-		}
 		// 타입 별 저장할 위치 결정
 		if (query.getType() == ImageType.PROFILE) {
 			defaultDir += ("/profile/" + getUserId());
@@ -83,25 +80,33 @@ public class ImageTransfer {
 			defaultDir += ("/thumbnail/gathering/" + query.getGatherId() + "/" + query.getGatherDiaryId());
 		}
 		// 이미지 저장 및 string 형으로 전환
-		try {
-			// 확장자
-			assert imageFile != null;
-			String extension = Objects.requireNonNull(imageFile.getOriginalFilename())
-				.substring(imageFile.getOriginalFilename().lastIndexOf(".") + 1);
-			defaultDir += ("." + extension);
-			// image 정보를 string 형으로 전환
-			imageToString = Base64.getEncoder().encodeToString(IOUtils.toByteArray(imageFile.getInputStream()));
-			// 새 폴더 생성 및 기존 파일 삭제
-			if (!checkDirAndFiles(defaultDir, imageToString)) {
-				// 저장소에 저장
-				imageFile.transferTo(new File(defaultDir));
+		if (imageFile == null) { // (update) 이미지를 null로 요청한 경우: 기존 사진 유지
+			// 요청 image가 null인 경우 디비에 저장된 기존 사진이 존재하면 반환하고 아니면 기본 사진을 반환
+			FindUploadResult result = checkFiles(defaultDir);
+
+			if (result.getImageToString() == null || result.getStoredPath() == null) {
+				throw new ArtDiaryException(MessageType.BAD_REQUEST);
 			}
-		} catch (Exception e) {
-			defaultDir = os.contains("win") ? RECORD_LOCAL_DEFAULT_IMG : RECORD_SERVER_DEFAULT_IMG;
-			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
-			defaultDir = null;
-			// throw new ArtDiaryException(MessageType.BAD_REQUEST);
+			imageToString = result.getImageToString();
+			defaultDir = result.getStoredPath();
+		} else { // (insert, update) 디폴트 사진이나 새로운 사진 저장할 경우
+			try {
+				// 확장자
+				String extension = Objects.requireNonNull(imageFile.getOriginalFilename())
+					.substring(imageFile.getOriginalFilename().lastIndexOf(".") + 1);
+				defaultDir += ("." + extension);
+				// image 정보를 string 형으로 전환
+				imageToString = Base64.getEncoder().encodeToString(IOUtils.toByteArray(imageFile.getInputStream()));
+				// 새 폴더 생성 및 기존 파일 삭제
+				if (!checkDirAndFiles(defaultDir, imageToString)) {
+					// 저장소에 저장
+					imageFile.transferTo(new File(defaultDir));
+				}
+			} catch (Exception e) {
+				throw new ArtDiaryException(MessageType.BAD_REQUEST);
+			}
 		}
+
 		return FindUploadResult.builder()
 			.imageToString(imageToString)
 			.storedPath(defaultDir)
@@ -116,37 +121,68 @@ public class ImageTransfer {
 
 		if (!storeDir.exists()) {
 			// 사진 저장 경로가 없는 경우
-			try {
-				storeDir.mkdirs();
-			} catch (Exception e) {
-				e.getStackTrace();
+			boolean mkdir = storeDir.mkdirs();
+			if (!mkdir) {
+				throw new ArtDiaryException(MessageType.BAD_REQUEST);
 			}
 		} else {
 			// 이미 이름이 같은 사진이 있는 경우
 			String[] images = storeDir.list();
 
 			if (images != null) {
-				try {
-					for (String image : images) {
-						if (image.startsWith(imageName + ".")) {
+				for (String image : images) {
+					if (image.startsWith(imageName + ".")) {
+						try {
 							// 이미 저장된 사진인 경우 확인
 							String oldImageToString = Base64.getEncoder()
 								.encodeToString(Files.readAllBytes(Paths.get(dir + "/" + image)));
+
 							if (Objects.equals(oldImageToString, newImageToString)) {
 								check = true;
 								continue;
 							}
-							// 업로드 하려는 사진과 기존 사진이 다르면 기존 사진 삭제
-							File oldFile = new File(dir + "/" + image);
-							oldFile.delete();
+						} catch (Exception e) {
+							throw new ArtDiaryException(MessageType.BAD_REQUEST);
+						}
+						// 업로드 하려는 사진과 기존 사진이 다르면 기존 사진 삭제
+						File oldFile = new File(dir + "/" + image);
+						boolean delete = oldFile.delete();
+						if (!delete) {
+							throw new ArtDiaryException(MessageType.BAD_REQUEST);
 						}
 					}
-				} catch (Exception e) {
-					e.getStackTrace();
 				}
 			}
 		}
 		return check;
+	}
+
+	private FindUploadResult checkFiles(String imageDir) {
+		String dir = imageDir.substring(0, imageDir.lastIndexOf("/"));
+		String imageName = imageDir.substring(imageDir.lastIndexOf("/") + 1);
+		File storeDir = new File(dir);
+		String[] images = storeDir.list(); // 이미 이름이 같은 사진이 있는 경우
+		String imageToString = null;
+		String storedPath = null;
+
+		if (images != null) {
+			for (String image : images) {
+				if (image.startsWith(imageName + ".")) {
+					storedPath = dir + "/" + image;
+					try {
+						imageToString = Base64.getEncoder()
+							.encodeToString(Files.readAllBytes(Paths.get(dir + "/" + image)));
+					} catch (Exception e) {
+						throw new ArtDiaryException(MessageType.BAD_REQUEST);
+					}
+					break;
+				}
+			}
+		}
+		return FindUploadResult.builder()
+			.imageToString(imageToString)
+			.storedPath(storedPath)
+			.build();
 	}
 
 	private Long getUserId() {

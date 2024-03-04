@@ -1,7 +1,6 @@
 package klieme.artdiary.gatherings.data_access.entity;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -61,13 +60,24 @@ public class GatheringDiaryEntity {
 	}
 
 	public void updateDiary(GatheringDiaryEntity entity) {
-		this.title = entity.getTitle().equals(this.title) ? this.title : entity.getTitle();
-		this.rate = entity.getRate().equals(this.rate) ? this.rate : entity.getRate();
-		this.diaryPrivate =
-			entity.getDiaryPrivate().equals(this.diaryPrivate) ? this.diaryPrivate : entity.getDiaryPrivate();
-		this.contents = entity.getContents().equals(this.contents) ? this.contents : entity.getContents();
-		this.thumbnail = Objects.equals(entity.getThumbnail(), this.thumbnail) ? this.thumbnail : entity.getThumbnail();
-		this.writeDate = entity.getWriteDate().equals(this.writeDate) ? this.writeDate : entity.getWriteDate();
-		this.saying = Objects.equals(entity.getSaying(), this.saying) ? this.saying : entity.getSaying();
+		if (entity.getTitle() != null) {
+			this.title = entity.getTitle();
+		}
+		if (entity.getRate() != null) {
+			this.rate = entity.getRate();
+		}
+		if (entity.getDiaryPrivate() != null) {
+			this.diaryPrivate = entity.getDiaryPrivate();
+		}
+		if (entity.getContents() != null) {
+			this.contents = entity.getContents();
+		}
+		if (entity.getWriteDate() != null) {
+			this.writeDate = entity.getWriteDate();
+		}
+		if (entity.getThumbnail() != null) {
+			this.thumbnail = entity.getThumbnail();
+		}
+		this.saying = entity.getSaying();
 	}
 }
