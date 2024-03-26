@@ -8,6 +8,7 @@ import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
+import klieme.artdiary.myexhs.info.StoredDateInfo;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -83,28 +84,27 @@ public interface MyExhsReadUseCase {
 	class FindMyStoredDateResult {
 		private final Long exhId;
 		private final Long gatherId; // 개인일 경우엔 null
-		private final Long gatheringExhId; // 개인일 경우엔 null
+		// private final Long gatheringExhId; // 개인일 경우엔 null
 		private final String gatherName; // 개인일 경우엔 null
+		private final List<StoredDateInfo> dateInfoList;
 		private final Long userExhId; // 모임일 경우엔 null
-		private final List<LocalDate> dates;
-		private final LocalDate date;// 혜원 추가
+		private final LocalDate visitDate;// 혜원 추가
 
-		public static FindMyStoredDateResult findByMyStoredDateSolo(UserExhEntity userExh, List<LocalDate> dates) {
+		public static FindMyStoredDateResult findByMyStoredDateSolo(UserExhEntity userExh,
+			List<StoredDateInfo> dateInfoList) {
 			return FindMyStoredDateResult.builder()
 				.exhId(userExh.getExhId())
-				.userExhId(userExh.getUserExhId())
-				.dates(dates)
+				.dateInfoList(dateInfoList)
 				.build();
 		}
 
 		public static FindMyStoredDateResult findByMyStoredDateGather(GatheringExhEntity gatheringExh,
-			GatheringEntity gathering, List<LocalDate> dates) {
+			GatheringEntity gathering, List<StoredDateInfo> dateInfoList) {
 			return FindMyStoredDateResult.builder()
 				.exhId(gatheringExh.getExhId())
 				.gatherId(gathering.getGatherId())
-				.gatheringExhId(gatheringExh.getGatheringExhId())
 				.gatherName(gathering.getGatherName())
-				.dates(dates)
+				.dateInfoList(dateInfoList)
 				.build();
 		}
 
@@ -112,7 +112,7 @@ public interface MyExhsReadUseCase {
 			return FindMyStoredDateResult.builder()
 				.exhId(userExh.getExhId())
 				.userExhId(userExh.getUserExhId())
-				.date(userExh.getVisitDate())
+				.visitDate(userExh.getVisitDate())
 				.build();
 		}
 

@@ -1,7 +1,6 @@
 package klieme.artdiary.myexhs.service;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +29,7 @@ import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository
 import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
 import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
 import klieme.artdiary.mydiarys.data_access.repository.MydiaryRepository;
+import klieme.artdiary.myexhs.info.StoredDateInfo;
 
 @Service
 public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase {
@@ -171,11 +171,14 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 		// 전시회에 대한 개인의 일정 -> userExh 테이블
 		List<UserExhEntity> userExhEntities = userExhRepository.findByUserIdAndExhId(userId, exhEntity.getExhId());
 		if (!userExhEntities.isEmpty()) {
-			List<LocalDate> dates = new ArrayList<>();
+			List<StoredDateInfo> dateInfoList = new ArrayList<>();
 			for (UserExhEntity userExh : userExhEntities) {
-				dates.add(userExh.getVisitDate());
+				dateInfoList.add(StoredDateInfo.builder()
+					.userExhId(userExh.getUserExhId())
+					.visitDate(userExh.getVisitDate())
+					.build());
 			}
-			results.add(FindMyStoredDateResult.findByMyStoredDateSolo(userExhEntities.get(0), dates));
+			results.add(FindMyStoredDateResult.findByMyStoredDateSolo(userExhEntities.getFirst(), dateInfoList));
 		}
 		// 자신이 속한 모임에 대한 한 전시회에 대한 일정 -> gatherMate, gatherExh 테이블
 		// 자신이 속한 모임 목록
@@ -185,15 +188,19 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 			List<GatheringExhEntity> gatheringExhEntities = gatheringExhRepository.findByGatherIdAndExhId(
 				gatheringMate.getGatheringMateId().getGatherId(), exhEntity.getExhId());
 			if (!gatheringExhEntities.isEmpty()) {
-				List<LocalDate> dates = new ArrayList<>();
-				for (GatheringExhEntity gatheringExh : gatheringExhEntities) {
-					dates.add(gatheringExh.getVisitDate());
-				}
 				GatheringEntity gathering = gatheringRepository.findByGatherId(
-						gatheringExhEntities.get(0).getGatherId())
+						gatheringExhEntities.getFirst().getGatherId())
 					.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+				List<StoredDateInfo> dateInfoList = new ArrayList<>();
+				for (GatheringExhEntity gatheringExh : gatheringExhEntities) {
+					dateInfoList.add(StoredDateInfo.builder()
+						.gatheringExhId(gatheringExh.getGatheringExhId())
+						.visitDate(gatheringExh.getVisitDate())
+						.build());
+				}
 				results.add(
-					FindMyStoredDateResult.findByMyStoredDateGather(gatheringExhEntities.get(0), gathering, dates));
+					FindMyStoredDateResult.findByMyStoredDateGather(gatheringExhEntities.getFirst(), gathering,
+						dateInfoList));
 			}
 		}
 		return results;
