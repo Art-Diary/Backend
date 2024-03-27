@@ -80,9 +80,10 @@ public class MyExhsController {
 		List<MyExhsReadUseCase.FindMyStoredDateResult> results = myExhsReadUseCase.getStoredDateOfExhs(query);
 		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
 		List<MyStoredDateView> viewResult = new ArrayList<>();
+		long index = 0L;
 
 		for (MyExhsReadUseCase.FindMyStoredDateResult result : results) {
-			viewResult.add(MyStoredDateView.builder().result(result).build());
+			viewResult.add(MyStoredDateView.builder().index(index++).result(result).build());
 		}
 		return ResponseEntity.ok(viewResult);
 	}
