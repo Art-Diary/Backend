@@ -113,6 +113,7 @@ public class MydiaryController {
 		@PathVariable(name = "diaryId") Long diaryId,
 		@Valid @ModelAttribute MyDiaryUpdateRequest request
 	) throws IOException {
+		System.out.println("[기록 수정]");
 		if (!((request.getUserExhId() == -1 && request.getGatheringExhId() != -1)
 			|| (request.getUserExhId() != -1 && request.getGatheringExhId() == -1))) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
