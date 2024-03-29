@@ -82,6 +82,9 @@ public class GatheringDiaryEntity {
 		if (entity.getThumbnail() != null) {
 			this.thumbnail = entity.getThumbnail();
 		}
+		if (entity.getGatheringExhId() != null) {
+			this.gatheringExhId = entity.getGatheringExhId();
+		}
 		this.saying = entity.getSaying();
 	}
 }

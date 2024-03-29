@@ -90,7 +90,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Override
 	@Transactional
-	public FindUserResult updateUser(UserUpdateCommand command) {
+	public FindUserResult updateUser(UserUpdateCommand command) throws IOException {
 		UserEntity savedEntity = userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(
 			MessageType.NOT_FOUND));
 		// 닉네임 중복 확인
