@@ -192,16 +192,17 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			GatheringDiaryEntity saveEntity = gatheringDiaryRepository.findByGatherDiaryIdAndUserId(
 				command.getDiaryId(),
 				userEntity.getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			// gatherExhId, userId 검증
-			if (!saveEntity.getGatheringExhId().equals(command.getGatheringExhId())) {
-				throw new ArtDiaryException(MessageType.NOT_FOUND);
-			}
 			// exhId 검증
 			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatheringExhId(
 				command.getGatheringExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			if (!storedGatherExhEntity.getExhId().equals(command.getExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
+			// 유저가 모임에 포함되어있는지 확인
+			gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
+				.userId(userEntity.getUserId())
+				.gatherId(storedGatherExhEntity.getGatherId())
+				.build()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			// 데이터 수정 & 사진 업로드
 			saveGatheringDiary(command, saveEntity, storedGatherExhEntity.getGatherId());
 		}
@@ -255,7 +256,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 	}
 
 	private void saveGatheringDiary(MyDiaryCreateUpdateCommand command, GatheringDiaryEntity saveEntity,
-		Long gatherId) {
+		Long gatherId) throws IOException {
 		// 사진 업로드
 		ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(ImageTransfer.UploadQuery.builder()
 			.type(ImageType.THUMBNAIL_GATHER)
@@ -272,11 +273,12 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			.writeDate(command.getWriteDate())
 			.saying(command.getSaying())
 			.thumbnail(uploadResult.getStoredPath())
+			.gatheringExhId(command.getGatheringExhId())
 			.build());
 		gatheringDiaryRepository.save(saveEntity);
 	}
 
-	private void saveMyDiary(MyDiaryCreateUpdateCommand command, MydiaryEntity saveEntity) {
+	private void saveMyDiary(MyDiaryCreateUpdateCommand command, MydiaryEntity saveEntity) throws IOException {
 		// 사진 업로드
 		ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(ImageTransfer.UploadQuery.builder()
 			.type(ImageType.THUMBNAIL_SOLO)
@@ -292,6 +294,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			.writeDate(command.getWriteDate())
 			.saying(command.getSaying())
 			.thumbnail(uploadResult.getStoredPath())
+			.userExhId(command.getUserExhId())
 			.build());
 		mydiaryRepository.save(saveEntity);
 	}

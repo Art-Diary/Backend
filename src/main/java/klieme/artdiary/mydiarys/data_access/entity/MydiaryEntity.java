@@ -75,6 +75,9 @@ public class MydiaryEntity {
 		if (entity.getThumbnail() != null) {
 			this.thumbnail = entity.getThumbnail();
 		}
+		if (entity.getUserExhId() != null) {
+			this.userExhId = entity.getUserExhId();
+		}
 		this.saying = entity.getSaying();
 	}
 }

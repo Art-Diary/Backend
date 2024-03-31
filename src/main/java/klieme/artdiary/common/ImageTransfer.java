@@ -61,7 +61,7 @@ public class ImageTransfer {
 	 * /thumbnail/gathering/{gatherId}/{gatherDiaryId}.png
 	 * /profile/{userId}.png
 	 */
-	public FindUploadResult uploadImage(UploadQuery query) {
+	public FindUploadResult uploadImage(UploadQuery query) throws IOException {
 		String defaultDir = RECORD_LOCAL_PATH;
 		String imageToString;
 		MultipartFile imageFile = query.getImage() != null && query.getImage().isEmpty() ? null : query.getImage();
@@ -80,10 +80,13 @@ public class ImageTransfer {
 			FindUploadResult result = checkFiles(defaultDir);
 
 			if (result.getImageToString() == null || result.getStoredPath() == null) {
-				throw new ArtDiaryException(MessageType.BAD_REQUEST);
+				defaultDir = null;
+				imageToString = Base64.getEncoder()
+					.encodeToString(Files.readAllBytes(Paths.get(RECORD_LOCAL_DEFAULT_IMG)));
+			} else {
+				imageToString = result.getImageToString();
+				defaultDir = result.getStoredPath();
 			}
-			imageToString = result.getImageToString();
-			defaultDir = result.getStoredPath();
 		} else { // (insert, update) 디폴트 사진이나 새로운 사진 저장할 경우
 			try {
 				// 확장자
