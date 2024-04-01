@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
 
 @Repository
-public interface MydiaryRepository extends JpaRepository<MydiaryEntity, Long> {
+public interface MydiaryRepository extends JpaRepository<MydiaryEntity, Long>, MydiaryRepoCustom {
 	List<MydiaryEntity> findByUserExhId(Long userExhId);
 
 	Optional<MydiaryEntity> findBySoloDiaryId(Long soloDiaryId);

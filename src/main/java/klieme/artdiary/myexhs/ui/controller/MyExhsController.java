@@ -54,7 +54,7 @@ public class MyExhsController {
 	public ResponseEntity<List<MyStoredDateView>> addSoloExhVisitDate(
 		@Valid @RequestBody AddMyExhsVisitDateRequest addMyExhsVisitDateRequest) {
 
-		System.out.println("Test");
+		System.out.println("[내 기록의 전시회 방문 날짜 추가]");
 
 		var command = MyExhsOperationUseCase.AddMyExhVisitDateDummyCommand.builder()
 			.visitDate(addMyExhsVisitDateRequest.getVisitDate())
