@@ -24,40 +24,33 @@ import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringMateEntity;
-import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
 import klieme.artdiary.mydiarys.data_access.repository.MydiaryRepository;
 import klieme.artdiary.myexhs.info.StoredDateInfo;
-import klieme.artdiary.users.data_access.repository.UserRepository;
 
 @Service
 public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase {
 	private final GatheringMateRepository gatheringMateRepository;
 	private final GatheringRepository gatheringRepository;
 	private final GatheringExhRepository gatheringExhRepository;
-	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final UserExhRepository userExhRepository;
 	private final ExhRepository exhRepository;
 	private final MydiaryRepository mydiaryRepository;
 	private final ImageTransfer imageTransfer;
-	private final UserRepository userRepository;
 
 	@Autowired
 	public MyExhsService(GatheringMateRepository gatheringMateRepository, GatheringRepository gatheringRepository,
-		GatheringExhRepository gatheringExhRepository, GatheringDiaryRepository gatheringDiaryRepository,
-		UserExhRepository userExhRepository, ExhRepository exhRepository, MydiaryRepository mydiaryRepository,
-		ImageTransfer imageTransfer, UserRepository userRepository) {
+		GatheringExhRepository gatheringExhRepository, UserExhRepository userExhRepository, ExhRepository exhRepository,
+		MydiaryRepository mydiaryRepository, ImageTransfer imageTransfer) {
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.gatheringRepository = gatheringRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
-		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.userExhRepository = userExhRepository;
 		this.exhRepository = exhRepository;
 		this.mydiaryRepository = mydiaryRepository;
 		this.imageTransfer = imageTransfer;
-		this.userRepository = userRepository;
 	}
 
 	@Override
