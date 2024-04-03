@@ -2,10 +2,12 @@ package klieme.artdiary.myexhs.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,15 +21,12 @@ import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
-import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringMateEntity;
-import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
-import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
 import klieme.artdiary.mydiarys.data_access.repository.MydiaryRepository;
 import klieme.artdiary.myexhs.info.StoredDateInfo;
 
@@ -36,7 +35,6 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 	private final GatheringMateRepository gatheringMateRepository;
 	private final GatheringRepository gatheringRepository;
 	private final GatheringExhRepository gatheringExhRepository;
-	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final UserExhRepository userExhRepository;
 	private final ExhRepository exhRepository;
 	private final MydiaryRepository mydiaryRepository;
@@ -44,13 +42,11 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 
 	@Autowired
 	public MyExhsService(GatheringMateRepository gatheringMateRepository, GatheringRepository gatheringRepository,
-		GatheringExhRepository gatheringExhRepository, GatheringDiaryRepository gatheringDiaryRepository,
-		UserExhRepository userExhRepository, ExhRepository exhRepository, MydiaryRepository mydiaryRepository,
-		ImageTransfer imageTransfer) {
+		GatheringExhRepository gatheringExhRepository, UserExhRepository userExhRepository, ExhRepository exhRepository,
+		MydiaryRepository mydiaryRepository, ImageTransfer imageTransfer) {
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.gatheringRepository = gatheringRepository;
 		this.gatheringExhRepository = gatheringExhRepository;
-		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.userExhRepository = userExhRepository;
 		this.exhRepository = exhRepository;
 		this.mydiaryRepository = mydiaryRepository;
@@ -60,104 +56,31 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 	@Override
 	public List<MyExhsReadUseCase.FindMyExhsResult> getMyExhsList() throws IOException {
 		Long userId = getUserId();
+		// 1. 개인의 전시회 기록
+		List<Map<String, Object>> myStoredExhList = mydiaryRepository.sumRateByUserExhId(userId);
+		// 2. gatheringDiary애서 userId를 통해 친구가 작성한 기록이 있는 경우
+		List<Map<String, Object>> myStoredGatherExhList = mydiaryRepository.sumRateByGatherExhId(userId);
 
-		List<MyExhsReadUseCase.FindMyExhsResult> myExhs = new ArrayList<>(); //중복된 전시회 리스트 없고, rate 평균 계산된 상태
-		List<MyExhsReadUseCase.FindMyExhsResult> myAllExhs = new ArrayList<>(); //모든 전시회 받아옴.
-		// List<GatheringReadUseCase.FindGatheringResult> gatherings = new ArrayList<>();
-		Map<Long, Integer> checkRate = new HashMap<>();
-		// Map<Long, Double> realRate = new HashMap<Long, Double>();//지금까지의 총 평점 합 -> 아마 필요 없을 듯
+		//
+		HashMap<Long, Long> countDiary = new HashMap<>(); // 전시회에 대한 기록 개수
+		HashMap<Long, Double> sumDiaryRate = new HashMap<>(); // 전시회에 대한 기록 별점 합
+		HashMap<Long, ExhEntity> exhEntityHashMap = new HashMap<>(); // 전시회에 대한 기록 별점 합
 
-		//혼자 갔다온 전시회 있는지 확인
-		List<UserExhEntity> soloExhEntities = userExhRepository.findByUserId(userId);
+		// 중복 코드를 줄이기 위해 메서드로 분리
+		processExhibitionList(myStoredExhList, countDiary, sumDiaryRate, exhEntityHashMap);
+		processExhibitionList(myStoredGatherExhList, countDiary, sumDiaryRate, exhEntityHashMap);
 
-		//userexh의 exhId로 exhibition에서 전시회 정보 확인(전시회이름, 포스터), userExhId로 SoloDiary에서 그 전시회에 대한 기록 정보 확인(평균)
-		//확인 후 myAllExhs에 저장
-		for (UserExhEntity Entity : soloExhEntities) {
-			//혼자갔다온 전시회 정보 가져오기(exhId,exhName,poster)
-			ExhEntity exhEntity = exhRepository.findByExhId(Entity.getExhId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		List<Long> exhIds = new ArrayList<>(countDiary.keySet());
+		exhIds.sort(Comparator.naturalOrder());
 
-			//혼자갔다온 전시회에 대한 기록 가져오기 (rate)
-			List<MydiaryEntity> AllmydiaryEntity = mydiaryRepository.findByUserExhId(Entity.getUserExhId());
-
-			//한 userExhId에 대한 기록이 여러 개일 경우, for문 돌려서 myAllExhs에 저장. -> 근데 굳이 list로 받을 필요가 있나?
-			for (MydiaryEntity tmp : AllmydiaryEntity) {
-				String poster = imageTransfer.downloadImage(exhEntity.getPoster());
-				myAllExhs.add(
-					MyExhsReadUseCase.FindMyExhsResult.findMyExhs(exhEntity, tmp.getRate(),
-						poster));//mydiaryEntity.getRate());
-			}
+		List<MyExhsReadUseCase.FindMyExhsResult> result = new ArrayList<>();
+		for (Long exhId : exhIds) {
+			ExhEntity exh = exhEntityHashMap.get(exhId);
+			double averageRate = countDiary.get(exhId) == 0 ? 0.0 : sumDiaryRate.get(exhId) / countDiary.get(exhId);
+			String poster = imageTransfer.downloadImage(exh.getPoster());
+			result.add(MyExhsReadUseCase.FindMyExhsResult.findMyExhs(exh, averageRate, poster));
 		}
-
-		//모임에서 갔다온 전시회 (중복 확인 필요)
-		//모임있는지 확인
-		List<GatheringMateEntity> gEntities = gatheringMateRepository.findByGatheringMateIdUserId(userId);
-
-		//모임있을시, userId도 확인하고(내기록만 가져와야하니까), 한 모임의 한 전시를
-		for (GatheringMateEntity gEntity : gEntities) {
-			List<GatheringExhEntity> gatheringExhEntities = gatheringExhRepository.findByGatherId(
-				gEntity.getGatheringMateId().getGatherId());
-
-			//gatherId로 gatherExh에서 exhId 확인, exhId로 exhibitions에서 전시회 정보 확인(id,exhname,poster)
-			//gatherId로 gatherExh에서 gatherExhId 확인 gatherExhId로 gatheringdiary에서 rate 확인,
-			for (GatheringExhEntity Entity : gatheringExhEntities) {
-				//모임에서 갔다 온 전시회 정보 가져오기(exhId,exhName,poster)
-				ExhEntity exhEntity = exhRepository.findByExhId(
-					Entity.getExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-
-				//모임에서 갔다 온 전시회에 대한 기록 가져오기 (rate)
-				List<GatheringDiaryEntity> AllgatheringDiaryEntity = gatheringDiaryRepository.findByGatheringExhId(
-					Entity.getGatheringExhId());
-
-				for (GatheringDiaryEntity gatheringDiaryEntity : AllgatheringDiaryEntity) {
-					String poster = imageTransfer.downloadImage(exhEntity.getPoster());
-					myAllExhs.add(
-						MyExhsReadUseCase.FindMyExhsResult.findMyExhs(exhEntity, gatheringDiaryEntity.getRate(),
-							poster));
-				}
-			}
-		}
-
-		//중복되는 전시회 평점 총합으로 계산해서 myexhs에 저장
-		for (MyExhsReadUseCase.FindMyExhsResult tmpresult : myAllExhs) {
-
-			if (myExhs.isEmpty()) {//myExhs에 아무것도 없을때
-				myExhs.add(tmpresult);
-				checkRate.put(tmpresult.getExhId(), 1);
-			} else {
-				int index = 0;
-				boolean checkEmpty = true;
-				for (MyExhsReadUseCase.FindMyExhsResult tmpList : myExhs) {//
-					if (tmpList.equalsExhId(tmpresult)) {
-						checkRate.replace(tmpresult.getExhId(), checkRate.get(tmpresult.getExhId()) + 1);
-
-						myExhs.set(index,
-							MyExhsReadUseCase.FindMyExhsResult.UpdateMyrate(tmpList.getExhId(), tmpList.getExhName(),
-								tmpList.getPoster(), tmpList.getRate() + tmpresult.getRate()));
-						checkEmpty = false;
-
-					}
-
-					index = index + 1;
-				}
-
-				if (checkEmpty) {
-					checkRate.put(tmpresult.getExhId(), 1);
-					myExhs.add(tmpresult);
-				}
-			}
-		}
-
-		// 전시회 마다 평점 계산
-		int index = 0;
-		for (MyExhsReadUseCase.FindMyExhsResult result : myExhs) {
-			double resultRate = result.getRate() / checkRate.get(result.getExhId());
-			myExhs.set(index, MyExhsReadUseCase.FindMyExhsResult.UpdateMyrate(result.getExhId(), result.getExhName(),
-				result.getPoster(), resultRate));
-			index++;
-		}
-
-		return myExhs;
+		return result;
 	}
 
 	@Override
@@ -178,6 +101,10 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 					.visitDate(userExh.getVisitDate())
 					.build());
 			}
+			dateInfoList = dateInfoList.stream()
+				.sorted(Comparator.nullsLast(Comparator.comparing(StoredDateInfo::getVisitDate,
+					Comparator.nullsLast(Comparator.naturalOrder()))))
+				.collect(Collectors.toList());
 			results.add(FindMyStoredDateResult.findByMyStoredDateSolo(userExhEntities.getFirst(), dateInfoList));
 		}
 		// 자신이 속한 모임에 대한 한 전시회에 대한 일정 -> gatherMate, gatherExh 테이블
@@ -198,6 +125,10 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 						.visitDate(gatheringExh.getVisitDate())
 						.build());
 				}
+				dateInfoList = dateInfoList.stream()
+					.sorted(Comparator.nullsLast(Comparator.comparing(StoredDateInfo::getVisitDate,
+						Comparator.nullsLast(Comparator.naturalOrder()))))
+					.collect(Collectors.toList());
 				results.add(
 					FindMyStoredDateResult.findByMyStoredDateGather(gatheringExhEntities.getFirst(), gathering,
 						dateInfoList));
@@ -208,8 +139,7 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 
 	@Transactional
 	@Override
-	public List<FindMyStoredDateResult> addMyExhVisitDateDummy(
-		klieme.artdiary.myexhs.service.MyExhsOperationUseCase.AddMyExhVisitDateDummyCommand command) {
+	public List<FindMyStoredDateResult> addMyExhVisitDateDummy(AddMyExhVisitDateDummyCommand command) {
 		// 전시회 아이디 검증
 		ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
@@ -221,11 +151,12 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 		if (userExhEntity.isPresent()) {
 			throw new ArtDiaryException(MessageType.CONFLICT);
 		}
-
 		// 전시회 일정에 맞춰 갈 수 있는지 확인
-		if (exhEntity.getExhPeriodStart().isAfter(command.getVisitDate())
-			|| exhEntity.getExhPeriodEnd().isBefore(command.getVisitDate())) {
-			throw new ArtDiaryException(MessageType.FORBIDDEN_DATE);
+		if (command.getVisitDate() != null) {
+			if (exhEntity.getExhPeriodStart().isAfter(command.getVisitDate())
+				|| exhEntity.getExhPeriodEnd().isBefore(command.getVisitDate())) {
+				throw new ArtDiaryException(MessageType.FORBIDDEN_DATE);
+			}
 		}
 
 		// DB에 데이터 생성
@@ -246,9 +177,27 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 		//	return MyExhsReadUseCase.FindMyStoredDateResult.findByMyStoredDateSolo(entity, null);
 	}
 
+	// 중복 코드를 메서드로 분리
+	private void processExhibitionList(List<Map<String, Object>> exhibitionList, HashMap<Long, Long> countDiary,
+		HashMap<Long, Double> sumDiaryRate, HashMap<Long, ExhEntity> exhEntityHashMap) {
+		for (Map<String, Object> map : exhibitionList) {
+			ExhEntity exh = (ExhEntity)map.get("exhibition");
+			Long count = (Long)map.get("count");
+			Double sumOfRate = (Double)map.get("sumOfRate");
+
+			countDiary.putIfAbsent(exh.getExhId(), 0L);
+			sumDiaryRate.putIfAbsent(exh.getExhId(), 0.0);
+
+			Long countExh = countDiary.get(exh.getExhId());
+			Double sumExhRate = sumDiaryRate.get(exh.getExhId());
+
+			countDiary.put(exh.getExhId(), countExh + count);
+			sumDiaryRate.put(exh.getExhId(), sumExhRate + sumOfRate);
+			exhEntityHashMap.put(exh.getExhId(), exh);
+		}
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
 }
-
-

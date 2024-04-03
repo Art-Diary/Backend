@@ -251,7 +251,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				gatheringExhEntity.get(), exhEntity, thumbnail));
 		}
 		// 방문날짜순
-		results.sort(Comparator.comparing(FindMyDiaryResult::getVisitDate));
+		results.sort(Comparator.comparing(FindMyDiaryResult::getWriteDate));
 		return results;
 	}
 
