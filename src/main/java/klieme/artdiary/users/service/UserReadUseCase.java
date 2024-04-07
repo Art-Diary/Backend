@@ -23,6 +23,9 @@ public interface UserReadUseCase {
 		private final String email;
 		private final String profile;
 		private final String favoriteArt;
+		private final Boolean alarm1;
+		private final Boolean alarm2;
+		private final Boolean alarm3;
 
 		public static FindUserResult findUserInfo(UserEntity user, String profile) {
 			return FindUserResult.builder()
@@ -31,6 +34,9 @@ public interface UserReadUseCase {
 				.email(user.getEmail())
 				.profile(profile)
 				.favoriteArt(user.getFavoriteArt())
+				.alarm1(user.getAlarm1())
+				.alarm2(user.getAlarm2())
+				.alarm3(user.getAlarm3())
 				.build();
 		}
 	}
