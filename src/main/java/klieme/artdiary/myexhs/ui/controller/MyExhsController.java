@@ -19,7 +19,9 @@ import klieme.artdiary.myexhs.service.MyExhsReadUseCase;
 import klieme.artdiary.myexhs.ui.request_body.AddMyExhsVisitDateRequest;
 import klieme.artdiary.myexhs.ui.view.MyExhsView;
 import klieme.artdiary.myexhs.ui.view.MyStoredDateView;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/myexhs")
 public class MyExhsController {
@@ -38,6 +40,7 @@ public class MyExhsController {
 	 */
 	@GetMapping("")
 	public ResponseEntity<List<MyExhsView>> getMyExhsList() throws IOException {
+		log.info("[내 기록의 전시회 목록 조회]");
 
 		List<MyExhsReadUseCase.FindMyExhsResult> results = myExhsReadUseCase.getMyExhsList();
 
@@ -54,7 +57,7 @@ public class MyExhsController {
 	public ResponseEntity<List<MyStoredDateView>> addSoloExhVisitDate(
 		@Valid @RequestBody AddMyExhsVisitDateRequest addMyExhsVisitDateRequest) {
 
-		System.out.println("[내 기록의 전시회 방문 날짜 추가]");
+		log.info("[내 기록의 전시회 방문 날짜 추가]");
 
 		var command = MyExhsOperationUseCase.AddMyExhVisitDateDummyCommand.builder()
 			.visitDate(addMyExhsVisitDateRequest.getVisitDate())
@@ -75,6 +78,7 @@ public class MyExhsController {
 
 	@GetMapping("/{exhId}")
 	public ResponseEntity<List<MyStoredDateView>> getStoredDateOfExhs(@PathVariable(name = "exhId") Long exhId) {
+		log.info("[한 전시회에 대하여 캘린더에 저장된 날짜 조회]");
 		var query = MyExhsReadUseCase.MyStoredDateFindQuery.builder().exhId(exhId).build();
 		// 비즈니스 로직 호출
 		List<MyExhsReadUseCase.FindMyStoredDateResult> results = myExhsReadUseCase.getStoredDateOfExhs(query);

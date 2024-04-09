@@ -103,7 +103,8 @@ public class CalendarService implements CalendarReadUseCase {
 	}
 
 	private void fillDayOfExhInfo(List<Pair<Long, ExhEntity>> exhInfo, UserExhEntity userExh,
-		GatheringExhEntity gatheringExh, HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos) throws IOException {
+		GatheringExhEntity gatheringExh, GatheringEntity gathering,
+		HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos) throws IOException {
 		long exhId = userExh != null ? userExh.getExhId() : gatheringExh.getExhId();
 		LocalDate visitDate = userExh != null ? userExh.getVisitDate() : gatheringExh.getVisitDate();
 		ExhEntity exh = checkExhInfo(exhInfo, exhId);
@@ -121,6 +122,8 @@ public class CalendarService implements CalendarReadUseCase {
 				.exhPeriodEnd(exh.getExhPeriodEnd())
 				.poster(poster)
 				.visitDate(visitDate)
+				.gatherId(gathering != null ? gathering.getGatherId() : null)
+				.gatherName(gathering != null ? gathering.getGatherName() : null)
 				.build());
 		}
 	}
@@ -133,7 +136,7 @@ public class CalendarService implements CalendarReadUseCase {
 			visitDateStart, visitDateEnd);
 
 		for (UserExhEntity userExh : userExhEntityList) {
-			fillDayOfExhInfo(exhInfo, userExh, null, dayOfScheduleInfos);
+			fillDayOfExhInfo(exhInfo, userExh, null, null, dayOfScheduleInfos);
 		}
 	}
 
@@ -154,7 +157,7 @@ public class CalendarService implements CalendarReadUseCase {
 				List<GatheringExhEntity> gatheringExhEntityList = gatheringExhRepository.findByGatherIdAndVisitDateBetween(
 					gathering.get().getGatherId(), visitDateStart, visitDateEnd);
 				for (GatheringExhEntity gatheringExh : gatheringExhEntityList) {
-					fillDayOfExhInfo(exhInfo, null, gatheringExh, dayOfScheduleInfos);
+					fillDayOfExhInfo(exhInfo, null, gatheringExh, gathering.get(), dayOfScheduleInfos);
 				}
 			}
 		}
@@ -177,7 +180,7 @@ public class CalendarService implements CalendarReadUseCase {
 			List<GatheringExhEntity> gatheringExhEntityList = gatheringExhRepository.findByGatherIdAndVisitDateBetween(
 				gathering.get().getGatherId(), visitDateStart, visitDateEnd);
 			for (GatheringExhEntity gatheringExh : gatheringExhEntityList) {
-				fillDayOfExhInfo(exhInfo, null, gatheringExh, dayOfScheduleInfos);
+				fillDayOfExhInfo(exhInfo, null, gatheringExh, gathering.get(), dayOfScheduleInfos);
 			}
 		}
 	}

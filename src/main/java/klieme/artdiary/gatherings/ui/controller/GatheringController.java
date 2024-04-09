@@ -29,7 +29,9 @@ import klieme.artdiary.gatherings.ui.view.GatheringDiaryView;
 import klieme.artdiary.gatherings.ui.view.GatheringExhView;
 import klieme.artdiary.gatherings.ui.view.GatheringMateView;
 import klieme.artdiary.gatherings.ui.view.GatheringView;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/gatherings")
 public class GatheringController {
@@ -45,6 +47,7 @@ public class GatheringController {
 
 	@PostMapping("")
 	public ResponseEntity<GatheringView> createGathering(@Valid @RequestBody AddGatheringRequest request) {
+		log.info("[모임 생성]");
 		// request body 데이터 받아오기
 		var command = GatheringOperationUseCase.GatheringCreateCommand.builder()
 			.gatherName(request.getGatherName())
@@ -57,6 +60,7 @@ public class GatheringController {
 
 	@GetMapping("")
 	public ResponseEntity<List<GatheringView>> getGatheringList() {
+		log.info("[모임 목록 조회]");
 
 		List<GatheringReadUseCase.FindGatheringResult> results = gatheringReadUseCase.getGatheringList();
 
@@ -77,6 +81,7 @@ public class GatheringController {
 		@PathVariable(name = "gatherId") Long gatherId,
 		@Valid @RequestBody AddExhDateRequest request
 	) throws IOException {
+		log.info("[모임의 일정에 전시회 관람 날짜 추가]");
 		// request body 데이터 받아오기
 		var command = GatheringOperationUseCase.ExhGatheringCreateCommand.builder()
 			.gatherId(gatherId)
@@ -103,6 +108,7 @@ public class GatheringController {
 		@PathVariable(name = "gatherId") Long gatherId,
 		@PathVariable(name = "exhId") Long exhId
 	) throws IOException {
+		log.info("[한 전시회에 대한 모임 기록 목록 조회]");
 		var query = GatheringReadUseCase.GatheringDiariesFindQuery.builder()
 			.exhId(exhId)
 			.gatherId(gatherId)
@@ -124,6 +130,7 @@ public class GatheringController {
 		@PathVariable(name = "gatherId") Long gatherId,
 		@Valid @RequestBody AddGatheringMateRequest request
 	) throws IOException {
+		log.info("[모임 메이트 추가]");
 		var command = GatheringOperationUseCase.GatheringMateCreateCommand.builder()
 			.gatherId(gatherId)
 			.userId(request.getUserId())
@@ -147,6 +154,7 @@ public class GatheringController {
 	public ResponseEntity<GatheringDetailInfoView> getGatheringDetailInfo(
 		@PathVariable(name = "gatherId") Long gatherId
 	) throws IOException {
+		log.info("[모임 상세 정보 조회(모임 멤버 + 갔다온 전시회 목록)]");
 		var query = GatheringReadUseCase.GatheringDetailInfoFindQuery.builder()
 			.gatherId(gatherId)
 			.build();
@@ -160,6 +168,7 @@ public class GatheringController {
 	@DeleteMapping("/{gatherId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteGathering(@PathVariable(name = "gatherId") Long gatherId) {
+		log.info("[모임 나가기]");
 		gatheringOperationUseCase.deleteMyGathering(gatherId);
 	}
 
@@ -171,6 +180,7 @@ public class GatheringController {
 		@PathVariable(name = "gatherId") Long gatherId,
 		@NotBlank @RequestParam(name = "nickname") String nickname
 	) throws IOException {
+		log.info("[모임 메이트 추가할 때 닉네임 검색]");
 		var query = GatheringReadUseCase.GatheringNicknameFindQuery.builder()
 			.gatherId(gatherId)
 			.nickname(nickname)

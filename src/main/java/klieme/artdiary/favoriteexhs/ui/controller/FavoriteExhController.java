@@ -18,7 +18,9 @@ import klieme.artdiary.favoriteexhs.service.FavoriteExhReadUseCase;
 import klieme.artdiary.favoriteexhs.ui.request_body.DeleteFavoriteExhsRequest;
 import klieme.artdiary.favoriteexhs.ui.request_body.FavoriteExhRequest;
 import klieme.artdiary.favoriteexhs.ui.view.FavoriteExhView;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/favorites")
 public class FavoriteExhController {
@@ -38,6 +40,7 @@ public class FavoriteExhController {
 	 */
 	@GetMapping("")
 	public ResponseEntity<List<FavoriteExhView>> getFavoriteExhList() throws IOException {
+		log.info("[좋아요 전시회 목록 조회]");
 
 		List<FavoriteExhReadUseCase.FindFavoriteExhResult> results = favoriteExhReadUseCase.getFavoriteExhs();
 
@@ -52,6 +55,7 @@ public class FavoriteExhController {
 
 	@PostMapping("/like")
 	public ResponseEntity<FavoriteExhView> createFavoriteExh(@Valid @RequestBody FavoriteExhRequest request) {
+		log.info("[전시회 좋아요 생성 클릭]");
 		// request data 저장
 		var command = FavoriteExhOperationUseCase.FavoriteExhCreateCommand.builder()
 			.exhId(request.getExhId())
@@ -63,6 +67,7 @@ public class FavoriteExhController {
 
 	@PostMapping("/unlike")
 	public void deleteFavoriteExh(@Valid @RequestBody DeleteFavoriteExhsRequest deleterequests) {
+		log.info("[전시회 좋아요 해제 클릭]");
 
 		List<FavoriteExhOperationUseCase.FavoriteExhCreateCommand> commands = new ArrayList<>();
 		List<Long> requests = deleterequests.getFavoriteExhsList();

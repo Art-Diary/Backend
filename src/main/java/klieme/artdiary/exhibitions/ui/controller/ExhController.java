@@ -27,7 +27,9 @@ import klieme.artdiary.exhibitions.ui.request_body.ExhRequest;
 import klieme.artdiary.exhibitions.ui.view.AllDiaryOfExhIdView;
 import klieme.artdiary.exhibitions.ui.view.ExhView;
 import klieme.artdiary.exhibitions.ui.view.StoredDateView;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/exhibitions")
 public class ExhController {
@@ -44,7 +46,7 @@ public class ExhController {
 	@PostMapping("")
 	public void createDummyDate(@Valid @RequestBody ExhRequest exhRequest) {
 
-		System.out.println("Test");
+		log.info("[새로운 전시회 저장]");
 
 		var command = ExhOperationUseCase.ExhDummyCreateCommand.builder()
 			.exhName(exhRequest.getExhName())
@@ -84,6 +86,7 @@ public class ExhController {
 		@PathVariable(name = "exhId") Long exhId,
 		@RequestParam(name = "gatherId", required = false) Long gatherId
 	) {
+		log.info("[한 전시회에 대해 캘린더에 저장된 날짜 조회]");
 		var query = ExhReadUseCase.StoredDateFindQuery.builder()
 			.exhId(exhId)
 			.gatherId(gatherId)
@@ -95,6 +98,7 @@ public class ExhController {
 
 	@GetMapping("/{exhId}")
 	public ResponseEntity<ExhView> getExhDetailInfo(@PathVariable(name = "exhId") Long exhId) throws IOException {
+		log.info("[전시회 상세 정보 조회]");
 
 		ExhReadUseCase.FindExhResult result = exhReadUseCase.getExhDetailInfo(exhId);
 
@@ -106,6 +110,7 @@ public class ExhController {
 	public ResponseEntity<List<AllDiaryOfExhIdView>> getAllOfExhIdDiaries(
 		@PathVariable(name = "exhId") Long exhId) throws
 		IOException {
+		log.info("[전시회 상세 정보 중 기록 조회]");
 
 		List<ExhReadUseCase.FindDiaryResult> diaryResults = exhReadUseCase.getAllOfExhIdDiaries(exhId);
 
@@ -126,6 +131,8 @@ public class ExhController {
 		@RequestParam(name = "state", required = false) String state,
 		@RequestParam(name = "date", required = false) LocalDate date
 	) throws IOException {
+		log.info("[전시회 목록 조회(+전시회 검색, 좋아요 조회)]");
+
 		// 요청 파라미터 검증 => 조합: 1. (searchName) 2. (field, price, state) 3. (date)
 		if (!(searchName == null && field == null && price == null && state == null && date == null) &&
 			!((searchName == null && (field != null || price != null || state != null) && date == null)

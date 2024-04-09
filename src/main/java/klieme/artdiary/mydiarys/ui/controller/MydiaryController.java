@@ -26,7 +26,9 @@ import klieme.artdiary.mydiarys.service.MydiaryReadUseCase;
 import klieme.artdiary.mydiarys.ui.request_body.MyDiaryUpdateRequest;
 import klieme.artdiary.mydiarys.ui.request_body.MydiaryRequest;
 import klieme.artdiary.mydiarys.ui.view.MydiaryView;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/myexhs/{exhId}/diaries")
 public class MydiaryController {
@@ -48,6 +50,7 @@ public class MydiaryController {
 		@PathVariable(name = "exhId") Long exhId,
 		@Valid @ModelAttribute MydiaryRequest request
 	) throws IOException {
+		log.info("[기록 추가]");
 		if (!((request.getUserExhId() == -1 && request.getGatheringExhId() != -1)
 			|| (request.getUserExhId() != -1 && request.getGatheringExhId() == -1))) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
@@ -82,6 +85,7 @@ public class MydiaryController {
 	 */
 	@GetMapping("")
 	public ResponseEntity<List<MydiaryView>> getDiaries(@PathVariable(name = "exhId") Long exhId) throws IOException {
+		log.info("[기록 목록 조회]");
 		var query = MydiaryReadUseCase.MyDiariesFindQuery.builder().exhId(exhId).build();
 		// 비즈니스 로직 호출
 		List<MydiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryReadUseCase.getMyDiaries(query);
@@ -98,6 +102,7 @@ public class MydiaryController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteDiary(@PathVariable(name = "exhId") Long exhId, @PathVariable(name = "diaryId") Long diaryId,
 		@RequestParam(name = "solo") Boolean solo) {
+		log.info("[기록 삭제]");
 
 		mydiaryOperationUseCase.deleteMyDiary(exhId, solo, diaryId);
 
@@ -113,7 +118,7 @@ public class MydiaryController {
 		@PathVariable(name = "diaryId") Long diaryId,
 		@Valid @ModelAttribute MyDiaryUpdateRequest request
 	) throws IOException {
-		System.out.println("[기록 수정]");
+		log.info("[기록 수정]");
 		if (!((request.getUserExhId() == -1 && request.getGatheringExhId() != -1)
 			|| (request.getUserExhId() != -1 && request.getGatheringExhId() == -1))) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
