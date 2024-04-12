@@ -13,20 +13,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-
 import klieme.artdiary.users.service.UserOperationUseCase;
 import klieme.artdiary.users.service.UserReadUseCase;
 import klieme.artdiary.users.ui.request_body.DeleteReasonRequest;
-import klieme.artdiary.users.ui.request_body.UserNicknameRequest;
 import klieme.artdiary.users.ui.request_body.UserAlarmRequest;
+import klieme.artdiary.users.ui.request_body.UserNicknameRequest;
 import klieme.artdiary.users.ui.request_body.UserRequest;
 import klieme.artdiary.users.ui.view.UserNicknameView;
-
 import klieme.artdiary.users.ui.request_body.UserUpdateRequest;
 import klieme.artdiary.users.ui.view.UserAlarmView;
-
 import klieme.artdiary.users.ui.view.UserView;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
@@ -42,6 +41,7 @@ public class UserController {
 
 	@GetMapping("")
 	public ResponseEntity<UserView> getUserInfo() throws IOException {
+		log.info("[사용자 정보 조회]");
 
 		UserReadUseCase.FindUserResult result = userReadUseCase.getUserInfo();
 		return ResponseEntity.ok(UserView.builder().result(result).build());
@@ -49,6 +49,7 @@ public class UserController {
 
 	@PostMapping("/verify")
 	public ResponseEntity<UserNicknameView> verifyNickname(@Valid @RequestBody UserNicknameRequest request) {
+		log.info("[닉네임 검사]");
 
 		var command = UserReadUseCase.CreateNicknameCommand.builder()
 			.nickname(request.getNickname())
@@ -60,7 +61,7 @@ public class UserController {
 
 	@PostMapping("")
 	public void createDummyData(@Valid @RequestBody UserRequest userRequest) {
-		System.out.println("test");
+		log.info("[새로운 사용자 추가]");
 
 		var command = UserOperationUseCase.UserDummyCreateCommand.builder()
 			.email(userRequest.getEmail())
@@ -82,6 +83,7 @@ public class UserController {
 	 */
 	@PatchMapping("")
 	public ResponseEntity<UserView> updateUser(@Valid @ModelAttribute UserUpdateRequest request) throws IOException {
+		log.info("[사용자 프로필 설정]");
 		var command = UserOperationUseCase.UserUpdateCommand.builder()
 			.nickname(request.getNickname())
 			.profile(request.getProfile())
@@ -97,7 +99,8 @@ public class UserController {
 	 */
 	@PatchMapping("/alarm1")
 	public ResponseEntity<UserAlarmView> updateAlarm1(@Valid @RequestBody UserAlarmRequest request) {
-		System.out.println("[알림1 설정 수정]");
+		log.info("[알림1 설정]");
+    
 		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
 			.alarm1(request.getAlarm())
 			.build();
@@ -111,7 +114,8 @@ public class UserController {
 	 */
 	@PatchMapping("/alarm2")
 	public ResponseEntity<UserAlarmView> updateAlarm2(@Valid @RequestBody UserAlarmRequest request) {
-		System.out.println("[알림2 설정 수정]");
+		log.info("[알림2 설정]");
+    
 		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
 			.alarm2(request.getAlarm())
 			.build();
@@ -125,7 +129,8 @@ public class UserController {
 	 */
 	@PatchMapping("/alarm3")
 	public ResponseEntity<UserAlarmView> updateAlarm3(@Valid @RequestBody UserAlarmRequest request) {
-		System.out.println("[알림3 설정 수정]");
+		log.info("[알림3 설정]");
+    
 		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
 			.alarm3(request.getAlarm())
 			.build();
@@ -135,6 +140,7 @@ public class UserController {
 
 	@PostMapping("/leave")
 	public void deleteUser(@Valid @RequestBody DeleteReasonRequest request) {
+		log.info("[사용자 삭제]");
 		var command = UserOperationUseCase.DeleteReasonCommand.builder()
 			.reason(request.getReason())
 			.build();

@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import klieme.artdiary.mateexhs.service.MateExhsReadUseCase;
 import klieme.artdiary.mateexhs.ui.view.MateDiaryView;
 import klieme.artdiary.mateexhs.ui.view.MateExhsView;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/mates/{mateId}/exhibitions")
 public class MateExhsController {
@@ -32,6 +34,7 @@ public class MateExhsController {
 	@GetMapping("")
 	public ResponseEntity<List<MateExhsView>> getMateExhsList(@PathVariable(name = "mateId") Long mateId) throws
 		IOException {
+		log.info("[전시 메이트가 갔다온 전시회 목록]");
 		var query = MateExhsReadUseCase.MateExhsFindQuery.builder().mateId(mateId).build();
 		// 비즈니스 로직 호출
 		List<MateExhsReadUseCase.FindMateExhsResult> results = mateExhsReadUseCase.getMateExhsList(query);
@@ -51,6 +54,7 @@ public class MateExhsController {
 	@GetMapping("/{exhId}/diaries")
 	public ResponseEntity<List<MateDiaryView>> getMateDiaries(@PathVariable(name = "mateId") Long mateId,
 		@PathVariable(name = "exhId") Long exhId) throws IOException {
+		log.info("[전시 메이트의 전시회 기록 목록]");
 		var query = MateExhsReadUseCase.MateDiaryFindQuery.builder().mateId(mateId).exhId(exhId).build();
 
 		//비즈니스 로직

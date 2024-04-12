@@ -17,7 +17,9 @@ import klieme.artdiary.calendar.service.CalendarReadUseCase;
 import klieme.artdiary.calendar.ui.view.CalendarView;
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/calendars")
 public class CalendarController {
@@ -39,6 +41,7 @@ public class CalendarController {
 		@RequestParam(name = "year") Integer year,
 		@RequestParam(name = "month") Integer month
 	) throws IOException {
+		log.info("[모임과 날짜 별 저장된 전시회 조회]");
 		// 요청 파라미터 검증
 		if ((gatherId == null && CalendarKind.valueOfLabel(kind) == CalendarKind.GATHER)
 			|| (gatherId != null && CalendarKind.valueOfLabel(kind) != CalendarKind.GATHER)) {
