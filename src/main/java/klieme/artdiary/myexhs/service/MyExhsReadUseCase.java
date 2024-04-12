@@ -5,9 +5,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
-import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
+import klieme.artdiary.myexhs.data_access.entity.UserExhEntity;
 import klieme.artdiary.myexhs.info.StoredDateInfo;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

@@ -5,11 +5,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
-import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
+import klieme.artdiary.myexhs.data_access.entity.UserExhEntity;
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
