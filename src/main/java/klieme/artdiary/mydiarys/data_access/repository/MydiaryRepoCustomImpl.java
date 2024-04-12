@@ -10,10 +10,10 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.QExhEntity;
-import klieme.artdiary.exhibitions.data_access.entity.QUserExhEntity;
 import klieme.artdiary.gatherings.data_access.entity.QGatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.QGatheringExhEntity;
 import klieme.artdiary.mydiarys.data_access.entity.QMydiaryEntity;
+import klieme.artdiary.myexhs.data_access.entity.QUserExhEntity;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

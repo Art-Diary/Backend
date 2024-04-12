@@ -19,9 +19,9 @@ import klieme.artdiary.users.ui.request_body.DeleteReasonRequest;
 import klieme.artdiary.users.ui.request_body.UserAlarmRequest;
 import klieme.artdiary.users.ui.request_body.UserNicknameRequest;
 import klieme.artdiary.users.ui.request_body.UserRequest;
-import klieme.artdiary.users.ui.view.UserNicknameView;
 import klieme.artdiary.users.ui.request_body.UserUpdateRequest;
 import klieme.artdiary.users.ui.view.UserAlarmView;
+import klieme.artdiary.users.ui.view.UserNicknameView;
 import klieme.artdiary.users.ui.view.UserView;
 import lombok.extern.slf4j.Slf4j;
 
@@ -100,7 +100,7 @@ public class UserController {
 	@PatchMapping("/alarm1")
 	public ResponseEntity<UserAlarmView> updateAlarm1(@Valid @RequestBody UserAlarmRequest request) {
 		log.info("[알림1 설정]");
-    
+
 		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
 			.alarm1(request.getAlarm())
 			.build();
@@ -115,7 +115,7 @@ public class UserController {
 	@PatchMapping("/alarm2")
 	public ResponseEntity<UserAlarmView> updateAlarm2(@Valid @RequestBody UserAlarmRequest request) {
 		log.info("[알림2 설정]");
-    
+
 		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
 			.alarm2(request.getAlarm())
 			.build();
@@ -130,7 +130,7 @@ public class UserController {
 	@PatchMapping("/alarm3")
 	public ResponseEntity<UserAlarmView> updateAlarm3(@Valid @RequestBody UserAlarmRequest request) {
 		log.info("[알림3 설정]");
-    
+
 		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
 			.alarm3(request.getAlarm())
 			.build();

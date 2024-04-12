@@ -16,9 +16,7 @@ import klieme.artdiary.common.ImageType;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
-import klieme.artdiary.exhibitions.data_access.entity.UserExhEntity;
 import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
-import klieme.artdiary.exhibitions.data_access.repository.UserExhRepository;
 import klieme.artdiary.gatherings.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
@@ -29,6 +27,8 @@ import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository
 import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
 import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
 import klieme.artdiary.mydiarys.data_access.repository.MydiaryRepository;
+import klieme.artdiary.myexhs.data_access.entity.UserExhEntity;
+import klieme.artdiary.myexhs.data_access.repository.UserExhRepository;
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import klieme.artdiary.users.data_access.repository.UserRepository;
 

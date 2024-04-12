@@ -1,4 +1,4 @@
-package klieme.artdiary.exhibitions.data_access.entity;
+package klieme.artdiary.myexhs.data_access.entity;
 
 import java.time.LocalDate;
 
