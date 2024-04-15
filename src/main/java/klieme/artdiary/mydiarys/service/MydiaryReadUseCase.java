@@ -26,7 +26,7 @@ public interface MydiaryReadUseCase {
 	class MyDiariesFindQuery {
 		private final Long exhId;
 		private final Boolean forget;
-		private final LocalDate date;
+		private final LocalDate visitDate;
 		private final Long gatheringExhId;
 	}
 

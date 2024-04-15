@@ -247,7 +247,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				mydiaryRepository.getMyDiaryListInSoloWithJoin(userEntity.getUserId(),
 					exhEntity.getExhId()) :
 				mydiaryRepository.getMyDiaryListWithDateInSoloWithJoin(userEntity.getUserId(),
-					exhEntity.getExhId(), query.getDate());
+					exhEntity.getExhId(), query.getVisitDate());
 
 		for (Tuple tuple : userExhDiaryList) {
 			UserExhEntity userExh = tuple.get(0, UserExhEntity.class);
@@ -269,7 +269,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				gatheringRepository.getMyDiaryListInGatheringWithJoin(userEntity.getUserId(),
 					exhEntity.getExhId()) :
 				gatheringRepository.getMyDiaryListWithDateInGatheringWithJoin(userEntity.getUserId(),
-					exhEntity.getExhId(), query.getDate(), query.getGatheringExhId());
+					exhEntity.getExhId(), query.getVisitDate(), query.getGatheringExhId());
 
 		for (Tuple tuple : gatherExhDiaryList) {
 			GatheringEntity gathering = tuple.get(0, GatheringEntity.class);
