@@ -41,7 +41,7 @@ public class GatheringDiaryEntity {
 	private String saying;
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
-	@Column(name = "gathering_exh_id", nullable = false)
+	@Column(name = "gather_exh_id", nullable = false)
 	private Long gatherExhId;
 
 	@Builder
