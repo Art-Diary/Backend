@@ -66,7 +66,7 @@ public class GatheringRepoCustomImpl implements GatheringRepoCustom {
 
 	@Override
 	public List<Tuple> getMyDiaryListWithDateInGatheringWithJoin(Long userId, Long exhId, LocalDate visitDate,
-		Long gatheringExhId) {
+		Long gatherId) {
 		QGatheringDiaryEntity gatheringDiary = QGatheringDiaryEntity.gatheringDiaryEntity;
 		QGatheringExhEntity gatheringExh = QGatheringExhEntity.gatheringExhEntity;
 		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
@@ -79,7 +79,7 @@ public class GatheringRepoCustomImpl implements GatheringRepoCustom {
 			.fetchJoin()
 			.where(gatheringDiary.userId.eq(userId), gatheringExh.exhId.eq(exhId),
 				visitDate == null ? gatheringExh.visitDate.isNull() : gatheringExh.visitDate.eq(visitDate),
-				gatheringExh.gatherExhId.eq(gatheringExhId))
+				gatheringExh.gatherId.eq(gatherId))
 			.fetch();
 	}
 }

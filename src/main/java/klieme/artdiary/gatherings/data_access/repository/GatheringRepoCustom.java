@@ -13,5 +13,5 @@ public interface GatheringRepoCustom {
 	List<Tuple> getMyDiaryListInGatheringWithJoin(Long userId, Long exhId);
 
 	List<Tuple> getMyDiaryListWithDateInGatheringWithJoin(Long userId, Long exhId, LocalDate visitDate,
-		Long gatheringExhId);
+		Long gatherId);
 }

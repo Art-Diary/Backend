@@ -221,7 +221,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		MyDiariesFindQuery query) throws IOException {
 		List<FindMyDiaryResult> results = new ArrayList<>();
 
-		if (query != null && query.getForget() != null && query.getGatheringExhId() == null) {
+		if (query != null && query.getForget() != null && query.getGatherId() == null) {
 			// (solo_diary) exhId 전시회에 대한 개인의 기록 리스트 조회
 			getMySoloDiaryList(userEntity, exhEntity, query, results);
 		} else if (query != null && query.getForget() != null) {
@@ -269,7 +269,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				gatheringRepository.getMyDiaryListInGatheringWithJoin(userEntity.getUserId(),
 					exhEntity.getExhId()) :
 				gatheringRepository.getMyDiaryListWithDateInGatheringWithJoin(userEntity.getUserId(),
-					exhEntity.getExhId(), query.getVisitDate(), query.getGatheringExhId());
+					exhEntity.getExhId(), query.getVisitDate(), query.getGatherId());
 
 		for (Tuple tuple : gatherExhDiaryList) {
 			GatheringEntity gathering = tuple.get(0, GatheringEntity.class);

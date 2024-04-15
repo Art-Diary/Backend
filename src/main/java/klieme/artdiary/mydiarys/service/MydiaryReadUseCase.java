@@ -27,7 +27,7 @@ public interface MydiaryReadUseCase {
 		private final Long exhId;
 		private final Boolean forget;
 		private final LocalDate visitDate;
-		private final Long gatheringExhId;
+		private final Long gatherId;
 	}
 
 	@Getter
