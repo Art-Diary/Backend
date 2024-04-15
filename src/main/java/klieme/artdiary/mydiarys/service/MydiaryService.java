@@ -2,13 +2,13 @@ package klieme.artdiary.mydiarys.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.querydsl.core.Tuple;
 
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.ImageTransfer;
@@ -120,7 +120,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			// 사진 업로드
 			saveGatheringDiary(command, saveEntity, storedGatherExhEntity.getGatherId());
 		}
-		return getMyDiaryList(userEntity, exhEntity);
+		return getMyDiaryList(userEntity, exhEntity, null);
 	}
 
 	@Override
@@ -130,7 +130,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		// exh 데이터
 		ExhEntity exhEntity = exhRepository.findByExhId(query.getExhId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-		return getMyDiaryList(userEntity, exhEntity);
+		return getMyDiaryList(userEntity, exhEntity, query);
 	}
 
 	@Transactional
@@ -206,7 +206,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			// 데이터 수정 & 사진 업로드
 			saveGatheringDiary(command, saveEntity, storedGatherExhEntity.getGatherId());
 		}
-		return getMyDiaryList(userEntity, exhEntity);
+		return getMyDiaryList(userEntity, exhEntity, null);
 	}
 
 	private Long getUserId() {
@@ -217,42 +217,71 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		return userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 	}
 
-	private List<FindMyDiaryResult> getMyDiaryList(UserEntity userEntity, ExhEntity exhEntity) throws IOException {
+	private List<FindMyDiaryResult> getMyDiaryList(UserEntity userEntity, ExhEntity exhEntity,
+		MyDiariesFindQuery query) throws IOException {
 		List<FindMyDiaryResult> results = new ArrayList<>();
+
+		if (query != null && query.getForget() != null && query.getGatheringExhId() == null) {
+			// (solo_diary) exhId 전시회에 대한 개인의 기록 리스트 조회
+			getMySoloDiaryList(userEntity, exhEntity, query, results);
+		} else if (query != null && query.getForget() != null) {
+			// (gathering_diary) exhId 전시회에 대한 모임의 내 기록 리스트 반환
+			getMyGatheringDiaryList(userEntity, exhEntity, query, results);
+		} else {
+			// (solo_diary) exhId 전시회에 대한 개인의 기록 리스트 조회
+			getMySoloDiaryList(userEntity, exhEntity, query, results);
+			// (gathering_diary) exhId 전시회에 대한 모임의 내 기록 리스트 반환
+			getMyGatheringDiaryList(userEntity, exhEntity, query, results);
+		}
+
+		// TODO 방문날짜순 - 좀 더 생각해보기
+		// results.sort(Comparator.comparing(FindMyDiaryResult::getWriteDate));
+		return results;
+	}
+
+	private void getMySoloDiaryList(UserEntity userEntity, ExhEntity exhEntity, MyDiariesFindQuery query,
+		List<FindMyDiaryResult> results) throws IOException {
 		// (solo_diary) exhId 전시회에 대한 개인의 기록 리스트 조회
-		List<UserExhEntity> storedUserExhList = userExhRepository.findByUserIdAndExhId(userEntity.getUserId(),
-			exhEntity.getExhId());
-		for (UserExhEntity storedUserExh : storedUserExhList) {
-			List<MydiaryEntity> savedEntityList = mydiaryRepository.findByUserExhId(storedUserExh.getUserExhId());
-			// 함수의 반환형에 맞도록 변환
-			for (MydiaryEntity mydiaryEntity : savedEntityList) {
-				String thumbnail = imageTransfer.downloadImage(mydiaryEntity.getThumbnail());
-				results.add(
-					FindMyDiaryResult.findByMyDiary(mydiaryEntity, userEntity, storedUserExh, exhEntity, thumbnail));
+		List<Tuple> userExhDiaryList =
+			query == null || query.getForget() == null ?
+				mydiaryRepository.getMyDiaryListInSoloWithJoin(userEntity.getUserId(),
+					exhEntity.getExhId()) :
+				mydiaryRepository.getMyDiaryListWithDateInSoloWithJoin(userEntity.getUserId(),
+					exhEntity.getExhId(), query.getDate());
+
+		for (Tuple tuple : userExhDiaryList) {
+			UserExhEntity userExh = tuple.get(0, UserExhEntity.class);
+			MydiaryEntity myDiary = tuple.get(1, MydiaryEntity.class);
+
+			if (myDiary != null && userExh != null) {
+				String thumbnail = imageTransfer.downloadImage(myDiary.getThumbnail());
+				results.add(FindMyDiaryResult.findByMyDiary(myDiary, userEntity, userExh, exhEntity, thumbnail));
 			}
 		}
+	}
+
+	private void getMyGatheringDiaryList(UserEntity userEntity, ExhEntity exhEntity, MyDiariesFindQuery query,
+		List<FindMyDiaryResult> results) throws IOException {
 		// (gathering_diary) exhId 전시회에 대한 모임의 내 기록 리스트 반환
 		// gathering_diary에서 userId에 해당하는 데이터 목록 조회
-		List<GatheringDiaryEntity> gatheringDiaryEntityList = gatheringDiaryRepository.findByUserId(
-			userEntity.getUserId());
-		for (GatheringDiaryEntity gatheringDiaryEntity : gatheringDiaryEntityList) {
-			// gathering_exh에서 exhId 걸러내고
-			Optional<GatheringExhEntity> gatheringExhEntity = gatheringExhRepository.findByGatheringExhId(
-				gatheringDiaryEntity.getGatheringExhId());
-			if (gatheringExhEntity.isEmpty() || !gatheringExhEntity.get().getExhId().equals(exhEntity.getExhId())) {
-				continue;
+		List<Tuple> gatherExhDiaryList =
+			query == null || query.getForget() == null ?
+				gatheringRepository.getMyDiaryListInGatheringWithJoin(userEntity.getUserId(),
+					exhEntity.getExhId()) :
+				gatheringRepository.getMyDiaryListWithDateInGatheringWithJoin(userEntity.getUserId(),
+					exhEntity.getExhId(), query.getDate(), query.getGatheringExhId());
+
+		for (Tuple tuple : gatherExhDiaryList) {
+			GatheringEntity gathering = tuple.get(0, GatheringEntity.class);
+			GatheringExhEntity gatheringExh = tuple.get(1, GatheringExhEntity.class);
+			GatheringDiaryEntity gatheringDiary = tuple.get(2, GatheringDiaryEntity.class);
+
+			if (gathering != null && gatheringExh != null && gatheringDiary != null) {
+				String thumbnail = imageTransfer.downloadImage(gatheringDiary.getThumbnail());
+				results.add(FindMyDiaryResult.findByGatheringDiary(gatheringDiary, userEntity, gathering, gatheringExh,
+					exhEntity, thumbnail));
 			}
-			// gatherId로 gathering 데이터 가져오기.
-			GatheringEntity gatheringEntity = gatheringRepository.findByGatherId(gatheringExhEntity.get().getGatherId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			// 함수의 반환형에 맞도록 변환
-			String thumbnail = imageTransfer.downloadImage(gatheringDiaryEntity.getThumbnail());
-			results.add(FindMyDiaryResult.findByGatheringDiary(gatheringDiaryEntity, userEntity, gatheringEntity,
-				gatheringExhEntity.get(), exhEntity, thumbnail));
 		}
-		// 방문날짜순
-		results.sort(Comparator.comparing(FindMyDiaryResult::getWriteDate));
-		return results;
 	}
 
 	private void saveGatheringDiary(MyDiaryCreateUpdateCommand command, GatheringDiaryEntity saveEntity,

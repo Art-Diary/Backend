@@ -1,5 +1,6 @@
 package klieme.artdiary.mydiarys.data_access.repository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,8 +11,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibitions.data_access.entity.QExhEntity;
-import klieme.artdiary.gatherings.data_access.entity.QGatheringDiaryEntity;
-import klieme.artdiary.gatherings.data_access.entity.QGatheringExhEntity;
 import klieme.artdiary.mydiarys.data_access.entity.QMydiaryEntity;
 import klieme.artdiary.myexhs.data_access.entity.QUserExhEntity;
 import lombok.RequiredArgsConstructor;
@@ -49,30 +48,31 @@ public class MydiaryRepoCustomImpl implements MydiaryRepoCustom {
 	}
 
 	@Override
-	public List<Map<String, Object>> sumRateByGatherExhId(Long userId) {
-		QGatheringDiaryEntity gatheringDiary = QGatheringDiaryEntity.gatheringDiaryEntity;
-		QGatheringExhEntity gatheringExh = QGatheringExhEntity.gatheringExhEntity;
-		QExhEntity exh = QExhEntity.exhEntity;
+	public List<Tuple> getMyDiaryListInSoloWithJoin(Long userId, Long exhId) {
+		QMydiaryEntity myDiary = QMydiaryEntity.mydiaryEntity;
+		QUserExhEntity userExh = QUserExhEntity.userExhEntity;
 
-		List<Tuple> tuples = query
-			.select(gatheringDiary.rate.sum(), gatheringDiary.count(), exh)
-			.from(gatheringDiary)
-			.leftJoin(gatheringExh).on(gatheringDiary.gatheringExhId.eq(gatheringExh.gatheringExhId))
-			.leftJoin(exh).on(gatheringExh.exhId.eq(exh.exhId))
+		return query
+			.select(userExh, myDiary)
+			.from(userExh)
+			.leftJoin(myDiary).on(myDiary.userExhId.eq(userExh.userExhId))
 			.fetchJoin()
-			.where(gatheringDiary.userId.eq(userId))
-			.groupBy(gatheringExh.exhId)
+			.where(userExh.userId.eq(userId), userExh.exhId.eq(exhId))
 			.fetch();
+	}
 
-		List<Map<String, Object>> result = new ArrayList<>();
+	@Override
+	public List<Tuple> getMyDiaryListWithDateInSoloWithJoin(Long userId, Long exhId, LocalDate visitDate) {
+		QMydiaryEntity myDiary = QMydiaryEntity.mydiaryEntity;
+		QUserExhEntity userExh = QUserExhEntity.userExhEntity;
 
-		for (Tuple tuple : tuples) {
-			Map<String, Object> row = new HashMap<>();
-			row.put("sumOfRate", tuple.get(0, Long.class));
-			row.put("count", tuple.get(1, Long.class));
-			row.put("exhibition", tuple.get(2, ExhEntity.class));
-			result.add(row);
-		}
-		return result;
+		return query
+			.select(userExh, myDiary)
+			.from(userExh)
+			.leftJoin(myDiary).on(myDiary.userExhId.eq(userExh.userExhId))
+			.fetchJoin()
+			.where(userExh.userId.eq(userId), userExh.exhId.eq(exhId),
+				visitDate == null ? userExh.visitDate.isNull() : userExh.visitDate.eq(visitDate))
+			.fetch();
 	}
 }

@@ -1,10 +1,12 @@
 package klieme.artdiary.mydiarys.ui.controller;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -84,9 +86,32 @@ public class MydiaryController {
 	 * "/myexhs/:exhId/diaries"
 	 */
 	@GetMapping("")
-	public ResponseEntity<List<MydiaryView>> getDiaries(@PathVariable(name = "exhId") Long exhId) throws IOException {
+	public ResponseEntity<List<MydiaryView>> getDiaries(@PathVariable(name = "exhId") Long exhId,
+		@DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(name = "date", required = false) LocalDate date,
+		@RequestParam(name = "forget", required = false) Boolean forget,
+		@RequestParam(name = "gatheringExhId", required = false) Long gatheringExhId) throws IOException {
+
 		log.info("[기록 목록 조회]");
-		var query = MydiaryReadUseCase.MyDiariesFindQuery.builder().exhId(exhId).build();
+
+		// request parameter 확인
+		// forget이 null이면 날짜를 적용하지 않은 api로 인식.
+		// forget이 null이 아니면 forget=true/false에 따라 date 값 확인
+		// forget이 true일 때 date 값이 null로 설정되어 '기억안남'으로 인식
+		// forget이 false일 때 date 값이 null이 아닌 날짜 값이 들어있어 요청한 날짜에 대한 api로 인식.
+		if (forget != null && ((forget && date != null) || (!forget && date == null))) {
+			throw new ArtDiaryException(MessageType.BAD_REQUEST);
+		}
+		// forget이 널일때 date나 gatheringExhId도 널이어야한다.
+		if (forget == null && (date != null || gatheringExhId != null)) {
+			throw new ArtDiaryException(MessageType.BAD_REQUEST);
+		}
+
+		var query = MydiaryReadUseCase.MyDiariesFindQuery.builder()
+			.exhId(exhId)
+			.forget(forget)
+			.date(forget == null ? null : date)
+			.gatheringExhId(forget == null ? null : gatheringExhId)
+			.build();
 		// 비즈니스 로직 호출
 		List<MydiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryReadUseCase.getMyDiaries(query);
 		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환

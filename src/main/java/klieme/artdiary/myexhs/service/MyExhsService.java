@@ -56,10 +56,10 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 	@Override
 	public List<MyExhsReadUseCase.FindMyExhsResult> getMyExhsList() throws IOException {
 		Long userId = getUserId();
-		// 1. 개인의 전시회 기록
+		// 1. 혼자 방문한 전시회들의 기록 평점 구하기
 		List<Map<String, Object>> myStoredExhList = mydiaryRepository.sumRateByUserExhId(userId);
-		// 2. gatheringDiary애서 userId를 통해 친구가 작성한 기록이 있는 경우
-		List<Map<String, Object>> myStoredGatherExhList = mydiaryRepository.sumRateByGatherExhId(userId);
+		// 2. 모임에서 갔다온 전시회들의 내가 작성한 기록 평점 구하기
+		List<Map<String, Object>> myStoredGatherExhList = gatheringRepository.sumRateByGatherExhId(userId);
 
 		//
 		HashMap<Long, Long> countDiary = new HashMap<>(); // 전시회에 대한 기록 개수
