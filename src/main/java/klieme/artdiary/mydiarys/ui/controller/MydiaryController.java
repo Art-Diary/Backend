@@ -53,15 +53,15 @@ public class MydiaryController {
 		@Valid @ModelAttribute MydiaryRequest request
 	) throws IOException {
 		log.info("[기록 추가]");
-		if (!((request.getUserExhId() == -1 && request.getGatheringExhId() != -1)
-			|| (request.getUserExhId() != -1 && request.getGatheringExhId() == -1))) {
+		if (!((request.getUserExhId() == -1 && request.getGatherExhId() != -1)
+			|| (request.getUserExhId() != -1 && request.getGatherExhId() == -1))) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		// request body 데이터 받아오기
 		var command = MydiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
 			.exhId(exhId)
 			.userExhId(request.getUserExhId())
-			.gatheringExhId(request.getGatheringExhId())
+			.gatherExhId(request.getGatherExhId())
 			.title(request.getTitle())
 			.rate(request.getRate())
 			.diaryPrivate(request.getDiaryPrivate())
@@ -144,8 +144,8 @@ public class MydiaryController {
 		@Valid @ModelAttribute MyDiaryUpdateRequest request
 	) throws IOException {
 		log.info("[기록 수정]");
-		if (!((request.getUserExhId() == -1 && request.getGatheringExhId() != -1)
-			|| (request.getUserExhId() != -1 && request.getGatheringExhId() == -1))) {
+		if (!((request.getUserExhId() == -1 && request.getGatherExhId() != -1)
+			|| (request.getUserExhId() != -1 && request.getGatherExhId() == -1))) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		// request body 데이터 받아오기
@@ -153,7 +153,7 @@ public class MydiaryController {
 			.exhId(exhId)
 			.diaryId(diaryId)
 			.userExhId(request.getUserExhId())
-			.gatheringExhId(request.getGatheringExhId())
+			.gatherExhId(request.getGatherExhId())
 			.title(request.getTitle())
 			.rate(request.getRate())
 			.diaryPrivate(request.getDiaryPrivate())

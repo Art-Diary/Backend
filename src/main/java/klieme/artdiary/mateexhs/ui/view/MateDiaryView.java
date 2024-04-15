@@ -27,7 +27,7 @@ public class MateDiaryView {
 	private final LocalDate visitDate;
 	private final String exhName;
 	private final Long userExhId;
-	private final Long gatheringExhId;
+	private final Long gatherExhId;
 
 	@Builder
 	public MateDiaryView(MateExhsReadUseCase.FindMateDiaryResult result) {
@@ -44,7 +44,7 @@ public class MateDiaryView {
 		this.visitDate = result.getVisitDate();
 		this.exhName = result.getExhName();
 		this.userExhId = result.getUserExhId();
-		this.gatheringExhId = result.getGatheringExhId();
+		this.gatherExhId = result.getGatherExhId();
 
 	}
 

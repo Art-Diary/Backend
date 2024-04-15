@@ -102,7 +102,7 @@ public interface GatheringReadUseCase {
 		private final String gatherName;
 		private final LocalDate visitDate;
 		private final String exhName;
-		private final Long gatheringExhId;
+		private final Long gatherExhId;
 
 		public static FindGatheringDiaryResult findByGatheringDiary(GatheringDiaryEntity gatheringDiary,
 			GatheringExhEntity gatheringExh, GatheringEntity gathering, UserEntity user, ExhEntity exh,
@@ -120,7 +120,7 @@ public interface GatheringReadUseCase {
 				.gatherName(gathering.getGatherName())
 				.visitDate(gatheringExh.getVisitDate())
 				.exhName(exh.getExhName())
-				.gatheringExhId(gatheringDiary.getGatheringExhId())
+				.gatherExhId(gatheringDiary.getGatherExhId())
 				.build();
 		}
 	}

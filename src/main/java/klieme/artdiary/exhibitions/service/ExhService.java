@@ -242,8 +242,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		//해당 exhId의 gather_Exh에서 확인 후, gather_Diary에서 가져오기
 		List<GatheringExhEntity> gatherEntities = gatheringExhRepository.findByExhId(exhId);
 		for (GatheringExhEntity gatherEntity : gatherEntities) {
-			List<GatheringDiaryEntity> gDiaries = gatheringDiaryRepository.findByGatheringExhId(
-				gatherEntity.getGatheringExhId());
+			List<GatheringDiaryEntity> gDiaries = gatheringDiaryRepository.findByGatherExhId(
+				gatherEntity.getGatherExhId());
 			GatheringEntity gatherName = gatheringRepository.findByGatherId(gatherEntity.getGatherId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 

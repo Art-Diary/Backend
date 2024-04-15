@@ -26,7 +26,7 @@ public interface MydiaryOperationUseCase {
 		private final Long exhId;
 		private final Long diaryId; // update에서 사용
 		private final Long userExhId; // 개인 일정이 아닌 경우 -1
-		private final Long gatheringExhId; // 모임이 아닐 경우 -1
+		private final Long gatherExhId; // 모임이 아닐 경우 -1
 		private final String title;
 		private final Double rate;
 		private final Boolean diaryPrivate;

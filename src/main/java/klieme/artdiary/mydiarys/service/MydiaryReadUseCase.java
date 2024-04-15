@@ -47,7 +47,7 @@ public interface MydiaryReadUseCase {
 		private final LocalDate visitDate;
 		private final String exhName;
 		private final Long userExhId;
-		private final Long gatheringExhId;
+		private final Long gatherExhId;
 
 		public static FindMyDiaryResult findByMyDiary(MydiaryEntity diary, UserEntity user, UserExhEntity userExh,
 			ExhEntity exh, String thumbnail) {
@@ -82,7 +82,7 @@ public interface MydiaryReadUseCase {
 				.gatherName(gathering.getGatherName())
 				.visitDate(gatheringExh.getVisitDate())
 				.exhName(exh.getExhName())
-				.gatheringExhId(gatheringExh.getGatheringExhId())
+				.gatherExhId(gatheringExh.getGatherExhId())
 				.build();
 		}
 	}

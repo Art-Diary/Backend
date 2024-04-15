@@ -94,8 +94,8 @@ public class MateExhsService implements MateExhsReadUseCase {
 		// 2. gatheringDiary애서 userId를 통해 친구가 작성한 기록이 있는 경우
 		List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByUserId(query.getMateId());
 		for (GatheringDiaryEntity gatheringDiary : gatheringDiaryEntities) {
-			Optional<GatheringExhEntity> gatheringExhEntity = gatheringExhRepository.findByGatheringExhId(
-				gatheringDiary.getGatheringExhId());
+			Optional<GatheringExhEntity> gatheringExhEntity = gatheringExhRepository.findByGatherExhId(
+				gatheringDiary.getGatherExhId());
 			if (gatheringExhEntity.isEmpty()) {
 				continue;
 			}
@@ -163,8 +163,8 @@ public class MateExhsService implements MateExhsReadUseCase {
 			List<GatheringExhEntity> gatheringExhEntities = gatheringExhRepository.findByGatherIdAndExhId(
 				gEntity.getGatheringMateId().getGatherId(), mateExhEntity.getExhId());
 			for (GatheringExhEntity gatheringExhEntity : gatheringExhEntities) {
-				List<GatheringDiaryEntity> gatheringDiaryList = gatheringDiaryRepository.findByGatheringExhId(
-					gatheringExhEntity.getGatheringExhId());
+				List<GatheringDiaryEntity> gatheringDiaryList = gatheringDiaryRepository.findByGatherExhId(
+					gatheringExhEntity.getGatherExhId());
 				for (GatheringDiaryEntity gatheringDiary : gatheringDiaryList) {
 					String thumbnail = imageTransfer.downloadImage(gatheringDiary.getThumbnail());
 					diaries.add(

@@ -27,11 +27,10 @@ public class AllDiaryOfExhIdView {
 	private final LocalDate visitDate;
 	private final String exhName;
 	private final Long userExhId; // 개인 일정이 아닌 경우 null
-	private final Long gatheringExhId; // 모임이 아닐 경우 null
+	private final Long gatherExhId; // 모임이 아닐 경우 null
 
 	@Builder
 	public AllDiaryOfExhIdView(ExhReadUseCase.FindDiaryResult result) {
-
 		this.diaryId = result.getDiaryId();
 		this.title = result.getTitle();
 		this.rate = result.getRate();
@@ -45,8 +44,6 @@ public class AllDiaryOfExhIdView {
 		this.visitDate = result.getVisitDate();
 		this.exhName = result.getExhName();
 		this.userExhId = result.getUserExhId();
-		this.gatheringExhId = result.getGatheringExhId();
-
+		this.gatherExhId = result.getGatherExhId();
 	}
-
 }

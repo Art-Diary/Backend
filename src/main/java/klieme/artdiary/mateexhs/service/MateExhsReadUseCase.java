@@ -77,7 +77,7 @@ public interface MateExhsReadUseCase {
 		private final LocalDate visitDate;
 		private final String exhName;
 		private final Long userExhId;
-		private final Long gatheringExhId;
+		private final Long gatherExhId;
 
 		@Builder
 		public static MateExhsReadUseCase.FindMateDiaryResult findMateSoloDiary(MydiaryEntity diary, UserEntity user,
@@ -115,7 +115,7 @@ public interface MateExhsReadUseCase {
 				.gatherName(gathering.getGatherName())
 				.visitDate(gatheringExh.getVisitDate())
 				.exhName(exh.getExhName())
-				.gatheringExhId(gatheringExh.getGatheringExhId())
+				.gatherExhId(gatheringExh.getGatherExhId())
 				.build();
 		}
 

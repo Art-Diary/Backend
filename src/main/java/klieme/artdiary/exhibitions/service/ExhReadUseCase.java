@@ -153,7 +153,7 @@ public interface ExhReadUseCase {
 		private final LocalDate visitDate;
 		private final String exhName;
 		private final Long userExhId; // 개인 일정이 아닌 경우 null
-		private final Long gatheringExhId; // 모임이 아닐 경우 null
+		private final Long gatherExhId; // 모임이 아닐 경우 null
 
 		public static FindDiaryResult findSoloDiary(MydiaryEntity diary, UserExhEntity userexh, UserEntity user,
 			ExhEntity exh, String thumbnail) {
@@ -188,7 +188,7 @@ public interface ExhReadUseCase {
 				.gatherName(gather.getGatherName())
 				.visitDate(gatherexh.getVisitDate())
 				.exhName(exh.getExhName())
-				.gatheringExhId(gatherexh.getGatheringExhId())
+				.gatherExhId(gatherexh.getGatherExhId())
 				.build();
 		}
 	}

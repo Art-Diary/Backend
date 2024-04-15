@@ -18,7 +18,7 @@ public class MydiaryRequest {
 	@NotNull
 	private Long userExhId; // 개인 일정이 아닌 경우 -1
 	@NotNull
-	private Long gatheringExhId; // 모임이 아닐 경우 -1
+	private Long gatherExhId; // 모임이 아닐 경우 -1
 	@NotBlank
 	private String title;
 	@NotNull
