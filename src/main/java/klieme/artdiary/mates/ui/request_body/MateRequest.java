@@ -1,4 +1,4 @@
-package klieme.artdiary.mate.ui.request_body;
+package klieme.artdiary.mates.ui.request_body;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package klieme.artdiary.mate.data_access.entity;
+package klieme.artdiary.mates.data_access.entity;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;

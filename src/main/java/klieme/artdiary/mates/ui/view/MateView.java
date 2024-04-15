@@ -1,8 +1,8 @@
-package klieme.artdiary.mate.ui.view;
+package klieme.artdiary.mates.ui.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import klieme.artdiary.mate.service.MateReadUseCase;
+import klieme.artdiary.mates.service.MateReadUseCase;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
