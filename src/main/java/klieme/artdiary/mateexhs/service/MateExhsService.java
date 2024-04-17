@@ -23,7 +23,7 @@ import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepositor
 import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
-import klieme.artdiary.mate.data_access.repository.MateRepository;
+import klieme.artdiary.mates.data_access.repository.MateRepository;
 import klieme.artdiary.mydiarys.data_access.entity.MydiaryEntity;
 import klieme.artdiary.mydiarys.data_access.repository.MydiaryRepository;
 import klieme.artdiary.myexhs.data_access.entity.UserExhEntity;

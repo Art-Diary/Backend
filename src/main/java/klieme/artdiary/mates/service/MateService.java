@@ -1,4 +1,4 @@
-package klieme.artdiary.mate.service;
+package klieme.artdiary.mates.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,8 +13,8 @@ import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.ImageTransfer;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
-import klieme.artdiary.mate.data_access.entity.MateEntity;
-import klieme.artdiary.mate.data_access.repository.MateRepository;
+import klieme.artdiary.mates.data_access.entity.MateEntity;
+import klieme.artdiary.mates.data_access.repository.MateRepository;
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import klieme.artdiary.users.data_access.repository.UserRepository;
 

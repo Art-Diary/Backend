@@ -1,4 +1,4 @@
-package klieme.artdiary.mate.service;
+package klieme.artdiary.mates.service;
 
 import java.io.IOException;
 import java.util.List;

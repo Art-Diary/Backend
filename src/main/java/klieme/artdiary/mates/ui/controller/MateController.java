@@ -1,4 +1,4 @@
-package klieme.artdiary.mate.ui.controller;
+package klieme.artdiary.mates.ui.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import klieme.artdiary.mate.service.MateOperationUseCase;
-import klieme.artdiary.mate.service.MateReadUseCase;
-import klieme.artdiary.mate.ui.request_body.MateRequest;
-import klieme.artdiary.mate.ui.view.MateView;
+import klieme.artdiary.mates.service.MateOperationUseCase;
+import klieme.artdiary.mates.service.MateReadUseCase;
+import klieme.artdiary.mates.ui.request_body.MateRequest;
+import klieme.artdiary.mates.ui.view.MateView;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
