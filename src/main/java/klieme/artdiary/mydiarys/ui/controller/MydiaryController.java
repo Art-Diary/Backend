@@ -89,9 +89,9 @@ public class MydiaryController {
 	public ResponseEntity<List<MydiaryView>> getDiaries(@PathVariable(name = "exhId") Long exhId,
 		@DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(name = "visitDate", required = false) LocalDate visitDate,
 		@RequestParam(name = "forget", required = false) Boolean forget,
-		@RequestParam(name = "gatherExhId", required = false) Long gatherExhId) throws IOException {
+		@RequestParam(name = "gatherId", required = false) Long gatherId) throws IOException {
 
-		log.info("[기록 목록 조회]");
+		log.info("[기록 목록 조회]" + " forget: " + forget + " visitDate: " + visitDate + " gatherId: " + gatherId);
 
 		// request parameter 확인
 		// forget이 null이면 날짜를 적용하지 않은 api로 인식.
@@ -102,7 +102,7 @@ public class MydiaryController {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		// forget이 널일때 date나 gatheringExhId도 널이어야한다.
-		if (forget == null && (visitDate != null || gatherExhId != null)) {
+		if (forget == null && (visitDate != null || gatherId != null)) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 
@@ -110,7 +110,7 @@ public class MydiaryController {
 			.exhId(exhId)
 			.forget(forget)
 			.visitDate(forget == null ? null : visitDate)
-			.gatheringExhId(forget == null ? null : gatherExhId)
+			.gatherId(forget == null ? null : gatherId)
 			.build();
 		// 비즈니스 로직 호출
 		List<MydiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryReadUseCase.getMyDiaries(query);
