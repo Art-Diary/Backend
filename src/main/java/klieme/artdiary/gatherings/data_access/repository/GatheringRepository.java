@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
 
 @Repository
-public interface GatheringRepository extends JpaRepository<GatheringEntity, Long> {
+public interface GatheringRepository extends JpaRepository<GatheringEntity, Long>, GatheringRepoCustom {
 
 	Optional<GatheringEntity> findByGatherId(Long gatherId);
 }

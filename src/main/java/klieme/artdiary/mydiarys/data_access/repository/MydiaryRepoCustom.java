@@ -1,9 +1,15 @@
 package klieme.artdiary.mydiarys.data_access.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import com.querydsl.core.Tuple;
+
 public interface MydiaryRepoCustom {
 	List<Map<String, Object>> sumRateByUserExhId(Long userId);
-	List<Map<String, Object>> sumRateByGatherExhId(Long userId);
+
+	List<Tuple> getMyDiaryListInSoloWithJoin(Long userId, Long exhId);
+
+	List<Tuple> getMyDiaryListWithDateInSoloWithJoin(Long userId, Long exhId, LocalDate visitDate);
 }

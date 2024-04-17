@@ -25,6 +25,9 @@ public interface MydiaryReadUseCase {
 	@Builder
 	class MyDiariesFindQuery {
 		private final Long exhId;
+		private final Boolean forget;
+		private final LocalDate date;
+		private final Long gatheringExhId;
 	}
 
 	@Getter
