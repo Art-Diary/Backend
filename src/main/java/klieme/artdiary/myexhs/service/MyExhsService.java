@@ -121,7 +121,7 @@ public class MyExhsService implements MyExhsReadUseCase, MyExhsOperationUseCase 
 				List<StoredDateInfo> dateInfoList = new ArrayList<>();
 				for (GatheringExhEntity gatheringExh : gatheringExhEntities) {
 					dateInfoList.add(StoredDateInfo.builder()
-						.gatheringExhId(gatheringExh.getGatheringExhId())
+						.gatherExhId(gatheringExh.getGatherExhId())
 						.visitDate(gatheringExh.getVisitDate())
 						.build());
 				}

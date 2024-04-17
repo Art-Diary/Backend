@@ -26,7 +26,7 @@ public class MydiaryView {
 	private final LocalDate visitDate;
 	private final String exhName;
 	private final Long userExhId;
-	private final Long gatheringExhId;
+	private final Long gatherExhId;
 
 	@Builder
 	public MydiaryView(MydiaryReadUseCase.FindMyDiaryResult result) {
@@ -43,6 +43,6 @@ public class MydiaryView {
 		this.visitDate = result.getVisitDate();
 		this.exhName = result.getExhName();
 		this.userExhId = result.getUserExhId();
-		this.gatheringExhId = result.getGatheringExhId();
+		this.gatherExhId = result.getGatherExhId();
 	}
 }

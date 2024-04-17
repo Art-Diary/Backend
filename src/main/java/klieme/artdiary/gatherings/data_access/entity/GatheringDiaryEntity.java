@@ -41,12 +41,12 @@ public class GatheringDiaryEntity {
 	private String saying;
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
-	@Column(name = "gathering_exh_id", nullable = false)
-	private Long gatheringExhId;
+	@Column(name = "gather_exh_id", nullable = false)
+	private Long gatherExhId;
 
 	@Builder
 	public GatheringDiaryEntity(Long gatherDiaryId, String title, Double rate, Boolean diaryPrivate, String contents,
-		String thumbnail, LocalDate writeDate, String saying, Long userId, Long gatheringExhId) {
+		String thumbnail, LocalDate writeDate, String saying, Long userId, Long gatherExhId) {
 		this.gatherDiaryId = gatherDiaryId;
 		this.title = title;
 		this.rate = rate;
@@ -56,7 +56,7 @@ public class GatheringDiaryEntity {
 		this.writeDate = writeDate;
 		this.saying = saying;
 		this.userId = userId;
-		this.gatheringExhId = gatheringExhId;
+		this.gatherExhId = gatherExhId;
 	}
 
 	public void updateUserId() {
@@ -82,8 +82,8 @@ public class GatheringDiaryEntity {
 		if (entity.getThumbnail() != null) {
 			this.thumbnail = entity.getThumbnail();
 		}
-		if (entity.getGatheringExhId() != null) {
-			this.gatheringExhId = entity.getGatheringExhId();
+		if (entity.getGatherExhId() != null) {
+			this.gatherExhId = entity.getGatherExhId();
 		}
 		this.saying = entity.getSaying();
 	}

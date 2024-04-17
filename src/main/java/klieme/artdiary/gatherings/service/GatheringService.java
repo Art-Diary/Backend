@@ -179,8 +179,8 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		List<FindGatheringDiaryResult> results = new ArrayList<>();
 		// gatherDiary 테이블에서 gatherExhId로 다이어리 리스트 조회
 		for (GatheringExhEntity gatheringExh : gatheringExhEntities) {
-			List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByGatheringExhId(
-				gatheringExh.getGatheringExhId());
+			List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByGatherExhId(
+				gatheringExh.getGatherExhId());
 			for (GatheringDiaryEntity gatheringDiary : gatheringDiaryEntities) {
 				if (!gatheringDiary.getDiaryPrivate()) {
 					continue;
@@ -354,8 +354,8 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		// 각 전시회의 기록들을 조회하여 별점 합 얻기
 		for (GatheringExhEntity gatheringExh : gatheringExhEntityList) {
 			// gatheringDiary에서 기록 조회
-			List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByGatheringExhId(
-				gatheringExh.getGatheringExhId());
+			List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByGatherExhId(
+				gatheringExh.getGatherExhId());
 
 			countDiary.putIfAbsent(gatheringExh.getExhId(), 0);
 			sumDiaryRate.putIfAbsent(gatheringExh.getExhId(), 0.0);

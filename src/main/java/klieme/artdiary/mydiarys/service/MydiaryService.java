@@ -94,8 +94,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			saveMyDiary(command, saveEntity);
 		} else { // 모임
 			// gatherExhId, exhId, userId 검증
-			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatheringExhId(
-				command.getGatheringExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatherExhId(
+				command.getGatherExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			if (!storedGatherExhEntity.getExhId().equals(command.getExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
@@ -113,7 +113,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				.writeDate(command.getWriteDate())
 				.saying(command.getSaying())
 				.userId(userEntity.getUserId())
-				.gatheringExhId(command.getGatheringExhId())
+				.gatherExhId(command.getGatherExhId())
 				.build();
 			// 디비에 데이터 저장
 			gatheringDiaryRepository.save(saveEntity);
@@ -155,8 +155,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			GatheringDiaryEntity gatheringDiaryEntity = gatheringDiaryRepository.findByGatherDiaryIdAndUserId(diaryId,
 				getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			//gatherexhId로 gather_exh에서 exhId가 가지고 있는 exhId가 맞는지 확인, gathering_diary에서 gatehrdiarId 삭제
-			GatheringExhEntity gatheringExhEntity = gatheringExhRepository.findByGatheringExhId(
-					gatheringDiaryEntity.getGatheringExhId())
+			GatheringExhEntity gatheringExhEntity = gatheringExhRepository.findByGatherExhId(
+					gatheringDiaryEntity.getGatherExhId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			if (gatheringExhEntity.getExhId().equals(exhId)) {
 				gatheringDiaryRepository.delete(gatheringDiaryEntity);
@@ -193,8 +193,8 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				command.getDiaryId(),
 				userEntity.getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			// exhId 검증
-			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatheringExhId(
-				command.getGatheringExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			GatheringExhEntity storedGatherExhEntity = gatheringExhRepository.findByGatherExhId(
+				command.getGatherExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			if (!storedGatherExhEntity.getExhId().equals(command.getExhId())) {
 				throw new ArtDiaryException(MessageType.NOT_FOUND);
 			}
@@ -247,7 +247,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				mydiaryRepository.getMyDiaryListInSoloWithJoin(userEntity.getUserId(),
 					exhEntity.getExhId()) :
 				mydiaryRepository.getMyDiaryListWithDateInSoloWithJoin(userEntity.getUserId(),
-					exhEntity.getExhId(), query.getDate());
+					exhEntity.getExhId(), query.getVisitDate());
 
 		for (Tuple tuple : userExhDiaryList) {
 			UserExhEntity userExh = tuple.get(0, UserExhEntity.class);
@@ -269,7 +269,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 				gatheringRepository.getMyDiaryListInGatheringWithJoin(userEntity.getUserId(),
 					exhEntity.getExhId()) :
 				gatheringRepository.getMyDiaryListWithDateInGatheringWithJoin(userEntity.getUserId(),
-					exhEntity.getExhId(), query.getDate(), query.getGatheringExhId());
+					exhEntity.getExhId(), query.getVisitDate(), query.getGatheringExhId());
 
 		for (Tuple tuple : gatherExhDiaryList) {
 			GatheringEntity gathering = tuple.get(0, GatheringEntity.class);
@@ -302,7 +302,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 			.writeDate(command.getWriteDate())
 			.saying(command.getSaying())
 			.thumbnail(uploadResult.getStoredPath())
-			.gatheringExhId(command.getGatheringExhId())
+			.gatherExhId(command.getGatherExhId())
 			.build());
 		gatheringDiaryRepository.save(saveEntity);
 	}

@@ -29,7 +29,7 @@ public class GatheringRepoCustomImpl implements GatheringRepoCustom {
 		List<Tuple> tuples = query
 			.select(gatheringDiary.rate.sum(), gatheringDiary.count(), exh)
 			.from(gatheringDiary)
-			.leftJoin(gatheringExh).on(gatheringDiary.gatheringExhId.eq(gatheringExh.gatheringExhId))
+			.leftJoin(gatheringExh).on(gatheringDiary.gatherExhId.eq(gatheringExh.gatherExhId))
 			.leftJoin(exh).on(gatheringExh.exhId.eq(exh.exhId))
 			.fetchJoin()
 			.where(gatheringDiary.userId.eq(userId))
@@ -57,7 +57,7 @@ public class GatheringRepoCustomImpl implements GatheringRepoCustom {
 		return query
 			.select(gathering, gatheringExh, gatheringDiary)
 			.from(gatheringDiary)
-			.leftJoin(gatheringExh).on(gatheringExh.gatheringExhId.eq(gatheringDiary.gatheringExhId))
+			.leftJoin(gatheringExh).on(gatheringExh.gatherExhId.eq(gatheringDiary.gatherExhId))
 			.leftJoin(gathering).on(gathering.gatherId.eq(gatheringExh.gatherId))
 			.fetchJoin()
 			.where(gatheringDiary.userId.eq(userId), gatheringExh.exhId.eq(exhId))
@@ -74,12 +74,12 @@ public class GatheringRepoCustomImpl implements GatheringRepoCustom {
 		return query
 			.select(gathering, gatheringExh, gatheringDiary)
 			.from(gatheringDiary)
-			.leftJoin(gatheringExh).on(gatheringExh.gatheringExhId.eq(gatheringDiary.gatheringExhId))
+			.leftJoin(gatheringExh).on(gatheringExh.gatherExhId.eq(gatheringDiary.gatherExhId))
 			.leftJoin(gathering).on(gathering.gatherId.eq(gatheringExh.gatherId))
 			.fetchJoin()
 			.where(gatheringDiary.userId.eq(userId), gatheringExh.exhId.eq(exhId),
 				visitDate == null ? gatheringExh.visitDate.isNull() : gatheringExh.visitDate.eq(visitDate),
-				gatheringExh.gatheringExhId.eq(gatheringExhId))
+				gatheringExh.gatherExhId.eq(gatheringExhId))
 			.fetch();
 	}
 }

@@ -25,8 +25,8 @@ import lombok.NoArgsConstructor;
 public class GatheringExhEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "gathering_exh_id", nullable = false)
-	private Long gatheringExhId;
+	@Column(name = "gather_exh_id", nullable = false)
+	private Long gatherExhId;
 	@Column(name = "visit_date")
 	private LocalDate visitDate;
 	@Column(name = "gather_id", nullable = false)
@@ -35,8 +35,8 @@ public class GatheringExhEntity {
 	private Long exhId;
 
 	@Builder
-	public GatheringExhEntity(Long gatheringExhId, LocalDate visitDate, Long gatherId, Long exhId) {
-		this.gatheringExhId = gatheringExhId;
+	public GatheringExhEntity(Long gatherExhId, LocalDate visitDate, Long gatherId, Long exhId) {
+		this.gatherExhId = gatherExhId;
 		this.visitDate = visitDate;
 		this.gatherId = gatherId;
 		this.exhId = exhId;
