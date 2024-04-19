@@ -17,4 +17,6 @@ public class ScheduleInfo {
 	private final LocalDate visitDate;
 	private final Long gatherId; // 개인일 경우 null
 	private final String gatherName; // 개인일 경우 null
+	private final Long userExhId;
+	private final Long gatherExhId;
 }

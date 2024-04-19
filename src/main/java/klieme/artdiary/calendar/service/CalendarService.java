@@ -124,6 +124,8 @@ public class CalendarService implements CalendarReadUseCase {
 				.visitDate(visitDate)
 				.gatherId(gathering != null ? gathering.getGatherId() : null)
 				.gatherName(gathering != null ? gathering.getGatherName() : null)
+				.userExhId(userExh != null ? userExh.getUserExhId() : null)
+				.gatherExhId(gatheringExh != null ? gatheringExh.getGatherExhId() : null)
 				.build());
 		}
 	}
