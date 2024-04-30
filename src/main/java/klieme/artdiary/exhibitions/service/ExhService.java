@@ -161,38 +161,11 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	@Override
 	public List<FindExhResult> getExhList(ExhListFindQuery query) throws IOException {
 		List<FindExhResult> results = new ArrayList<>();
-		List<ExhEntity> exhEntityList = exhRepository.findAll();
+		List<ExhEntity> exhEntityList = exhRepository.searchExhList(query.getSearchName(), query.getField(),
+			query.getPrice(), query.getState(), query.getDate());
 
-		if (query.getSearchName() != null) {
-			// searchName으로 exh 테이블에 검색 조회 (exhName, gallery)
-			for (ExhEntity exh : exhEntityList) {
-				if (exh.getExhName().contains(query.getSearchName())
-					|| exh.getGallery().contains(query.getSearchName())) {
-					results.add(getFindExhResult(exh));
-				}
-			}
-		} else if (query.getDate() != null) {
-			// date 날짜에 진행 중인 전시회 검색 (periodStart <= date and date <= periodEnd)
-			for (ExhEntity exh : exhEntityList) {
-				if (isProceedExh(exh, query.getDate())) {
-					results.add(getFindExhResult(exh));
-				}
-			}
-		} else if (query.getExhCategory() != null) {
-			// field or price or state로 전시회 검색 (field= and price = and state)
-			for (ExhEntity exh : exhEntityList) {
-				boolean field = checkField(query.getExhCategory().getField(), exh);
-				boolean price = checkPrice(query.getExhCategory().getPrice(), exh);
-				boolean state = checkState(query.getExhCategory().getState(), exh);
-				if (field && price && state) {
-					results.add(getFindExhResult(exh));
-				}
-			}
-		} else {
-			// all
-			for (ExhEntity exh : exhEntityList) {
-				results.add(getFindExhResult(exh));
-			}
+		for (ExhEntity exh : exhEntityList) {
+			results.add(getFindExhResult(exh));
 		}
 		return results;
 	}
