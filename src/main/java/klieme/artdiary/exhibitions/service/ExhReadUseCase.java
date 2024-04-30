@@ -34,16 +34,10 @@ public interface ExhReadUseCase {
 	@Builder
 	class ExhListFindQuery {
 		private final String searchName;
-		private final ExhCategory exhCategory;
+		private final ExhField field;
+		private final ExhPrice price;
+		private final ExhState state;
 		private final LocalDate date;
-
-		@Builder
-		@Getter
-		public static class ExhCategory {
-			private final ExhField field;
-			private final ExhPrice price;
-			private final ExhState state;
-		}
 	}
 
 	@EqualsAndHashCode

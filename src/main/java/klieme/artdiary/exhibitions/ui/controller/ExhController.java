@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -125,43 +126,31 @@ public class ExhController {
 
 	@GetMapping("")//-ing
 	public ResponseEntity<List<ExhView>> getExhList(
-		@RequestParam(name = "searchName", required = false) String searchName,
-		@RequestParam(name = "field", required = false) String field,
-		@RequestParam(name = "price", required = false) String price,
-		@RequestParam(name = "state", required = false) String state,
-		@RequestParam(name = "date", required = false) LocalDate date
+		@RequestParam(name = "searchName", required = false) String searchName, //검색 내용
+		@RequestParam(name = "field", required = false) String field, // 전시 분야
+		@RequestParam(name = "price", required = false) String price, // 가격
+		@RequestParam(name = "state", required = false) String state, // 전시 오픈 상태
+		@RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date // 날짜
 	) throws IOException {
 		log.info("[전시회 목록 조회(+전시회 검색, 좋아요 조회)]");
 
-		// 요청 파라미터 검증 => 조합: 1. (searchName) 2. (field, price, state) 3. (date)
-		if (!(searchName == null && field == null && price == null && state == null && date == null) &&
-			!((searchName == null && (field != null || price != null || state != null) && date == null)
-				|| ((searchName != null && !searchName.isBlank()) && field == null && price == null && state == null
-				&& date == null)
-				|| (searchName == null && field == null && price == null && state == null && date != null))) {
+		// string 자료형을 갖는 변수일 경우 빈 문자열인지 확인
+		if ((searchName != null && searchName.isBlank()) || (field != null && field.isBlank()) || (
+			price != null && price.isBlank()) || (state != null && state.isBlank()) || (state != null
+			&& date != null)) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
-		// field, state => 정해진 문자열이 들어왔는지 확인
+		// field, state, price 각각 정해진 값이 들어왔는지 확인
 		if ((field != null && ExhField.valueOfLabel(field) == null)
 			|| (state != null && ExhState.valueOfLabel(state) == null)
 			|| (price != null && ExhPrice.valueOfLabel(price) == null)) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
-		// 조합 2번 형태의 클래스 자료형을 만들어 사용
-		ExhReadUseCase.ExhListFindQuery.ExhCategory exhCategory;
-		if (field != null || price != null || state != null) {
-			exhCategory = ExhReadUseCase.ExhListFindQuery.ExhCategory.builder()
-				.field(ExhField.valueOfLabel(field))
-				.price(ExhPrice.valueOfLabel(price))
-				.state(ExhState.valueOfLabel(state))
-				.build();
-		} else {
-			exhCategory = null;
-		}
-		// 파라미터로 받은 데이터 service로 전달하기 위함.
 		var query = ExhReadUseCase.ExhListFindQuery.builder()
 			.searchName(searchName)
-			.exhCategory(exhCategory)
+			.field(ExhField.valueOfLabel(field))
+			.state(ExhState.valueOfLabel(state))
+			.price(ExhPrice.valueOfLabel(price))
 			.date(date)
 			.build();
 		// 비즈니스 로직 호출
