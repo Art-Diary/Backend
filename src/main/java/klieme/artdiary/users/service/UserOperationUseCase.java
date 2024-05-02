@@ -13,6 +13,8 @@ public interface UserOperationUseCase {
 
 	String createDummy(UserDummyCreateCommand command);
 
+	void oauthCreate(OAuthCreateCommand command);
+
 	UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) throws IOException;
 
 	UserReadUseCase.FindAlarmResult updateAlarm(UserAlarmUpdateCommand command);
@@ -33,6 +35,14 @@ public interface UserOperationUseCase {
 		private final Boolean alarm1;
 		private final Boolean alarm2;
 		private final Boolean alarm3;
+	}
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class OAuthCreateCommand {
+		private final String idToken;
 	}
 
 	@EqualsAndHashCode

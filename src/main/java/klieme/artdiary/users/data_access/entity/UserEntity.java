@@ -29,13 +29,13 @@ public class UserEntity {
 	private String email;
 	@Column(nullable = false)
 	private String nickname;
-	@Column(nullable = false)
+	@Column
 	private String profile;
 	@Column(name = "provider_type", nullable = false)
 	private String providerType;
 	@Column(name = "provider_id", nullable = false)
 	private String providerId;
-	@Column(name = "favorite_art", nullable = false)
+	@Column(name = "favorite_art")
 	private String favoriteArt;
 	@Column(nullable = false)
 	private Boolean alarm1;
@@ -67,6 +67,7 @@ public class UserEntity {
 			this.nickname = user.getNickname();
 		}
 		if (user.getProfile() != null) {
+			System.out.println(user.getProfile());
 			this.profile = user.getProfile();
 		}
 		if (user.getFavoriteArt() != null) {

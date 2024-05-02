@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import klieme.artdiary.users.service.UserOperationUseCase;
 import klieme.artdiary.users.service.UserReadUseCase;
 import klieme.artdiary.users.ui.request_body.DeleteReasonRequest;
+import klieme.artdiary.users.ui.request_body.OAuthGoogleRequest;
 import klieme.artdiary.users.ui.request_body.UserAlarmRequest;
 import klieme.artdiary.users.ui.request_body.UserNicknameRequest;
 import klieme.artdiary.users.ui.request_body.UserRequest;
@@ -75,6 +76,16 @@ public class UserController {
 			.alarm3(userRequest.getAlarm3())
 			.build();
 		System.out.println(userOperationUseCase.createDummy(command));
+	}
+
+	@PostMapping("/oauth/google")
+	public void oauthGoogle(@Valid @RequestBody OAuthGoogleRequest request) {
+		log.info("[새로운 사용자 추가 (Google)]");
+
+		var command = UserOperationUseCase.OAuthCreateCommand.builder()
+			.idToken(request.getIdToken())
+			.build();
+		userOperationUseCase.oauthCreate(command);
 	}
 
 	/**

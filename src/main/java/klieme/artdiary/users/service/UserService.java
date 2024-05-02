@@ -2,12 +2,25 @@ package klieme.artdiary.users.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.ImageTransfer;
@@ -31,16 +44,18 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final ReasonRepository reasonRepository;
 	private final ImageTransfer imageTransfer;
+	private final RestTemplate restTemplate;
 
 	@Autowired
 	public UserService(UserRepository userRepository, UserExhRepository userExhRepository,
 		GatheringDiaryRepository gatheringDiaryRepository, ReasonRepository reasonRepository,
-		ImageTransfer imageTransfer) {
+		ImageTransfer imageTransfer, RestTemplate restTemplate) {
 		this.userRepository = userRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.reasonRepository = reasonRepository;
 		this.imageTransfer = imageTransfer;
+		this.restTemplate = restTemplate;
 	}
 
 	@Override
@@ -86,6 +101,61 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			.build();
 		userRepository.save(entity);
 		return "complete";
+	}
+
+	@Override
+	public void oauthCreate(OAuthCreateCommand command) {
+		try {
+			Map<String, Object> googleData = getGoogleData(command.getIdToken());
+			System.out.println("google");
+			System.out.println(googleData.get("email").toString());
+			System.out.println(googleData.get("name").toString());
+			System.out.println(googleData.get("picture").toString());
+
+			// 있는지 확인
+			UserEntity entity = UserEntity.builder()
+				.email(googleData.get("email").toString())
+				.nickname(googleData.get("name").toString())
+				.profile(null)
+				.providerType("google")
+				.providerId("google")
+				.favoriteArt(null)
+				.alarm1(true)
+				.alarm2(true)
+				.alarm3(true)
+				.build();
+			userRepository.save(entity);
+			ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(ImageTransfer.UploadQuery.builder()
+				.type(ImageType.PROFILE)
+				.userId(entity.getUserId())
+				.url(googleData.get("picture").toString())
+				.build());
+			entity.updateUser(UserEntity.builder().profile(uploadResult.getStoredPath()).build());
+			userRepository.save(entity);
+		} catch (Exception e) {
+			System.out.println(e);
+			throw new ArtDiaryException(MessageType.UNAUTHORIZED);
+		}
+	}
+
+	private Map<String, Object> getGoogleData(String id_token) throws ParseException, JsonProcessingException {
+		HttpHeaders headers = new HttpHeaders();
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+		String googleApi = "https://oauth2.googleapis.com/tokeninfo";
+		String targetUrl = UriComponentsBuilder.fromHttpUrl(googleApi)
+			.queryParam("id_token", id_token)
+			.build()
+			.toUriString();
+
+		ResponseEntity<String> response = restTemplate.exchange(targetUrl, HttpMethod.GET, entity, String.class);
+
+		JSONParser parser = new JSONParser();
+		JSONObject jsonBody = (JSONObject)parser.parse(response.getBody());
+
+		Map<String, Object> body = new ObjectMapper().readValue(jsonBody.toString(), Map.class);
+
+		return body;
+		// return OAuth2Attribute.of("google", "sub", body);
 	}
 
 	@Override
