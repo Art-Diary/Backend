@@ -9,5 +9,6 @@ import klieme.artdiary.exhibitions.enums.ExhPrice;
 import klieme.artdiary.exhibitions.enums.ExhState;
 
 public interface ExhRepoCustom {
-	List<ExhEntity> searchExhList(String searchName, ExhField field, ExhPrice price, ExhState state, LocalDate date);
+	List<ExhEntity> searchExhList(String searchName, List<ExhField> fieldList, ExhPrice price, List<ExhState> stateList,
+		LocalDate date);
 }
