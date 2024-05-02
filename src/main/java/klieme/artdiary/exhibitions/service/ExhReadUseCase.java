@@ -34,9 +34,9 @@ public interface ExhReadUseCase {
 	@Builder
 	class ExhListFindQuery {
 		private final String searchName;
-		private final ExhField field;
+		private final List<ExhField> fieldList;
 		private final ExhPrice price;
-		private final ExhState state;
+		private final List<ExhState> stateList;
 		private final LocalDate date;
 	}
 

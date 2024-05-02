@@ -127,29 +127,45 @@ public class ExhController {
 	@GetMapping("")//-ing
 	public ResponseEntity<List<ExhView>> getExhList(
 		@RequestParam(name = "searchName", required = false) String searchName, //검색 내용
-		@RequestParam(name = "field", required = false) String field, // 전시 분야
+		@RequestParam(name = "field", required = false) String[] fieldList, // 전시 분야
 		@RequestParam(name = "price", required = false) String price, // 가격
-		@RequestParam(name = "state", required = false) String state, // 전시 오픈 상태
+		@RequestParam(name = "state", required = false) String[] stateList, // 전시 오픈 상태
 		@RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date // 날짜
 	) throws IOException {
 		log.info("[전시회 목록 조회(+전시회 검색, 좋아요 조회)]");
 
 		// string 자료형을 갖는 변수일 경우 빈 문자열인지 확인
-		if ((searchName != null && searchName.isBlank()) || (field != null && field.isBlank()) || (
-			price != null && price.isBlank()) || (state != null && state.isBlank()) || (state != null
+		if ((searchName != null && searchName.isBlank()) || (fieldList != null && fieldList.length == 0) || (
+			price != null && price.isBlank()) || (stateList != null && stateList.length == 0) || (stateList != null
 			&& date != null)) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		// field, state, price 각각 정해진 값이 들어왔는지 확인
-		if ((field != null && ExhField.valueOfLabel(field) == null)
-			|| (state != null && ExhState.valueOfLabel(state) == null)
-			|| (price != null && ExhPrice.valueOfLabel(price) == null)) {
+		List<ExhField> fields = new ArrayList<>();
+		List<ExhState> states = new ArrayList<>();
+		if (fieldList != null) {
+			for (String field : fieldList) {
+				if (ExhField.valueOfLabel(field) == null) {
+					throw new ArtDiaryException(MessageType.BAD_REQUEST);
+				}
+				fields.add(ExhField.valueOfLabel(field));
+			}
+		}
+		if (stateList != null) {
+			for (String state : stateList) {
+				if (ExhState.valueOfLabel(state) == null) {
+					throw new ArtDiaryException(MessageType.BAD_REQUEST);
+				}
+				states.add(ExhState.valueOfLabel(state));
+			}
+		}
+		if ((price != null && ExhPrice.valueOfLabel(price) == null)) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		var query = ExhReadUseCase.ExhListFindQuery.builder()
 			.searchName(searchName)
-			.field(ExhField.valueOfLabel(field))
-			.state(ExhState.valueOfLabel(state))
+			.fieldList(fields)
+			.stateList(states)
 			.price(ExhPrice.valueOfLabel(price))
 			.date(date)
 			.build();

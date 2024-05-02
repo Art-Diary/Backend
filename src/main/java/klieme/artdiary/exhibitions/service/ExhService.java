@@ -161,8 +161,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	@Override
 	public List<FindExhResult> getExhList(ExhListFindQuery query) throws IOException {
 		List<FindExhResult> results = new ArrayList<>();
-		List<ExhEntity> exhEntityList = exhRepository.searchExhList(query.getSearchName(), query.getField(),
-			query.getPrice(), query.getState(), query.getDate());
+		List<ExhEntity> exhEntityList = exhRepository.searchExhList(query.getSearchName(), query.getFieldList(),
+			query.getPrice(), query.getStateList(), query.getDate());
 
 		for (ExhEntity exh : exhEntityList) {
 			results.add(getFindExhResult(exh));

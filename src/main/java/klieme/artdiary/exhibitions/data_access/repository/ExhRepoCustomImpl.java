@@ -18,7 +18,8 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 	private final JPAQueryFactory query;
 
 	@Override
-	public List<ExhEntity> searchExhList(String searchName, ExhField field, ExhPrice price, ExhState state,
+	public List<ExhEntity> searchExhList(String searchName, List<ExhField> fieldList, ExhPrice price,
+		List<ExhState> stateList,
 		LocalDate date) {
 		QExhEntity exh = QExhEntity.exhEntity;
 		BooleanBuilder builder = new BooleanBuilder();
@@ -26,8 +27,17 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 		if (searchName != null) {
 			builder.and(exh.exhName.containsIgnoreCase(searchName).or(exh.gallery.containsIgnoreCase(searchName)));
 		}
-		if (field != null) {
-			builder.and(exh.art.eq(field.label()));
+		if (fieldList != null) {
+			BooleanBuilder fieldBuilder = new BooleanBuilder();
+
+			for (ExhField field : fieldList) {
+				if (field == ExhField.OTHER) { // 그 외일 경우 처리
+					fieldBuilder.or(exh.art.isNull());
+				} else {
+					fieldBuilder.or(exh.art.eq(field.label()));
+				}
+			}
+			builder.and(fieldBuilder);
 		}
 		if (price != null) {
 			if (price == ExhPrice.FREE) {
@@ -38,16 +48,28 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 				builder.and(exh.fee.loe(20000)); // fee <= 20000
 			}
 		}
-		if (state != null || date != null) {
+		if (stateList != null || date != null) {
 			LocalDate now = date != null ? date : LocalDate.now();
 
-			if (date != null || state == ExhState.PROCEED) {
+			if (date != null) {
 				builder.and(exh.exhPeriodStart.loe(now)); // start <= now
 				builder.and(exh.exhPeriodEnd.goe(now)); // end >= now
-			} else if (state == ExhState.BEFORE_START) {
-				builder.and(exh.exhPeriodStart.gt(now)); // start > now
 			} else {
-				builder.and(exh.exhPeriodEnd.lt(now)); // end < now
+				BooleanBuilder stateListBuilder = new BooleanBuilder();
+
+				for (ExhState state : stateList) {
+					if (state == ExhState.PROCEED) {
+						BooleanBuilder stateBuilder = new BooleanBuilder();
+						stateBuilder.and(exh.exhPeriodStart.loe(now)); // start <= now
+						stateBuilder.and(exh.exhPeriodEnd.goe(now)); // end >= now
+						stateListBuilder.or(stateBuilder);
+					} else if (state == ExhState.BEFORE_START) {
+						stateListBuilder.or(exh.exhPeriodStart.gt(now)); // start > now
+					} else {
+						stateListBuilder.or(exh.exhPeriodEnd.lt(now)); // end < now
+					}
+				}
+				builder.and(stateListBuilder);
 			}
 		}
 		return query.selectFrom(exh)
