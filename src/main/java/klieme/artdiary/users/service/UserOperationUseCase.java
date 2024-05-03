@@ -13,7 +13,7 @@ public interface UserOperationUseCase {
 
 	String createDummy(UserDummyCreateCommand command);
 
-	void oauthCreate(OAuthCreateCommand command);
+	UserReadUseCase.FindUserResult oauthCreate(OAuthCreateCommand command);
 
 	UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) throws IOException;
 

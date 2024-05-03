@@ -104,38 +104,49 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	}
 
 	@Override
-	public void oauthCreate(OAuthCreateCommand command) {
+	public FindUserResult oauthCreate(OAuthCreateCommand command) {
+		UserEntity entity;
+		String profile;
+
 		try {
 			Map<String, Object> googleData = getGoogleData(command.getIdToken());
-			System.out.println("google");
-			System.out.println(googleData.get("email").toString());
-			System.out.println(googleData.get("name").toString());
-			System.out.println(googleData.get("picture").toString());
-
+			String googleEmail = googleData.get("email").toString();
+			String googleNickname = googleData.get("name").toString();
+			String googlePicture = googleData.get("picture").toString();
 			// 있는지 확인
-			UserEntity entity = UserEntity.builder()
-				.email(googleData.get("email").toString())
-				.nickname(googleData.get("name").toString())
-				.profile(null)
-				.providerType("google")
-				.providerId("google")
-				.favoriteArt(null)
-				.alarm1(true)
-				.alarm2(true)
-				.alarm3(true)
-				.build();
-			userRepository.save(entity);
-			ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(ImageTransfer.UploadQuery.builder()
-				.type(ImageType.PROFILE)
-				.userId(entity.getUserId())
-				.url(googleData.get("picture").toString())
-				.build());
-			entity.updateUser(UserEntity.builder().profile(uploadResult.getStoredPath()).build());
-			userRepository.save(entity);
+			Optional<UserEntity> userEntity = userRepository.findByEmail(googleEmail);
+
+			if (userEntity.isPresent()) {
+				entity = userEntity.get();
+				profile = imageTransfer.downloadImage(entity.getProfile());
+			} else {
+				entity = UserEntity.builder()
+					.email(googleEmail)
+					.nickname(googleNickname)
+					.profile(null)
+					.providerType("google")
+					.providerId("google")
+					.favoriteArt(null)
+					.alarm1(true)
+					.alarm2(true)
+					.alarm3(true)
+					.build();
+				userRepository.save(entity);
+				ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(
+					ImageTransfer.UploadQuery.builder()
+						.type(ImageType.PROFILE)
+						.userId(entity.getUserId())
+						.url(googlePicture)
+						.build());
+				entity.updateUser(UserEntity.builder().profile(uploadResult.getStoredPath()).build());
+				userRepository.save(entity);
+				profile = uploadResult.getImageToString();
+			}
 		} catch (Exception e) {
 			System.out.println(e);
 			throw new ArtDiaryException(MessageType.UNAUTHORIZED);
 		}
+		return FindUserResult.findUserInfo(entity, profile);
 	}
 
 	private Map<String, Object> getGoogleData(String id_token) throws ParseException, JsonProcessingException {
@@ -155,7 +166,6 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		Map<String, Object> body = new ObjectMapper().readValue(jsonBody.toString(), Map.class);
 
 		return body;
-		// return OAuth2Attribute.of("google", "sub", body);
 	}
 
 	@Override

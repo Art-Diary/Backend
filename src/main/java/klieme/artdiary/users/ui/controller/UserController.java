@@ -79,13 +79,14 @@ public class UserController {
 	}
 
 	@PostMapping("/oauth/google")
-	public void oauthGoogle(@Valid @RequestBody OAuthGoogleRequest request) {
+	public ResponseEntity<UserView> oauthGoogle(@Valid @RequestBody OAuthGoogleRequest request) {
 		log.info("[새로운 사용자 추가 (Google)]");
 
 		var command = UserOperationUseCase.OAuthCreateCommand.builder()
 			.idToken(request.getIdToken())
 			.build();
-		userOperationUseCase.oauthCreate(command);
+		UserReadUseCase.FindUserResult result = userOperationUseCase.oauthCreate(command);
+		return ResponseEntity.ok(UserView.builder().result(result).build());
 	}
 
 	/**
