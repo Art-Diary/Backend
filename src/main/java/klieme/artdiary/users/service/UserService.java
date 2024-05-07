@@ -48,8 +48,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		UserEntity user = userRepository.findByUserId(getUserId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 		String profile = imageTransfer.downloadImage(user.getProfile());
-		FindUserResult result = FindUserResult.findUserInfo(user, profile);
-		return result;
+		return FindUserResult.findUserInfo(user, profile);
 	}
 
 	@Override

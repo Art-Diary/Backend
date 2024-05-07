@@ -1,6 +1,7 @@
 package klieme.artdiary.users.service;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import lombok.Builder;
@@ -33,7 +34,8 @@ public interface UserReadUseCase {
 				.nickname(user.getNickname())
 				.email(user.getEmail())
 				.profile(profile)
-				.favoriteArt(user.getFavoriteArt())
+				.favoriteArt(user.getFavoriteArt() == null || Objects.equals(user.getFavoriteArt(), ".") ? "그외" :
+					user.getFavoriteArt())
 				.alarm1(user.getAlarm1())
 				.alarm2(user.getAlarm2())
 				.alarm3(user.getAlarm3())
