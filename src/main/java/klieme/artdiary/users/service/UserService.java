@@ -48,8 +48,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		UserEntity user = userRepository.findByUserId(getUserId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 		String profile = imageTransfer.downloadImage(user.getProfile());
-		FindUserResult result = FindUserResult.findUserInfo(user, profile);
-		return result;
+		return FindUserResult.findUserInfo(user, profile);
 	}
 
 	@Override
@@ -72,20 +71,38 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Transactional
 	@Override
-	public String createDummy(UserDummyCreateCommand command) {
-		UserEntity entity = UserEntity.builder()
-			.email(command.getEmail())
-			.nickname(command.getNickname())
-			.profile(command.getProfile())
-			.providerType(command.getProviderType())
-			.providerId(command.getProviderId())
-			.favoriteArt(command.getFavoriteArt())
-			.alarm1(command.getAlarm1())
-			.alarm2(command.getAlarm2())
-			.alarm3(command.getAlarm3())
-			.build();
-		userRepository.save(entity);
-		return "complete";
+	public FindUserResult loginUser(UserCreateCommand command) throws IOException {
+		UserEntity userEntity;
+		String profile;
+		Optional<UserEntity> checkUser = userRepository.findByEmailAndProviderType(command.getEmail(),
+			command.getProviderType());
+
+		if (checkUser.isPresent()) {
+			userEntity = checkUser.get();
+			profile = imageTransfer.downloadImage(userEntity.getProfile());
+		} else {
+			ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(
+				ImageTransfer.UploadQuery.builder()
+					.type(ImageType.PROFILE)
+					.providerType(command.getProviderType())
+					.providerId(command.getProviderId())
+					.url(command.getProfile())
+					.build());
+			profile = uploadResult.getImageToString();
+			userEntity = UserEntity.builder()
+				.email(command.getEmail())
+				.nickname(command.getNickname())
+				.profile(uploadResult.getStoredPath())
+				.providerType(command.getProviderType())
+				.providerId(command.getProviderId())
+				.favoriteArt(null)
+				.alarm1(true)
+				.alarm2(true)
+				.alarm3(true)
+				.build();
+			userRepository.save(userEntity);
+		}
+		return FindUserResult.findUserInfo(userEntity, profile);
 	}
 
 	@Override

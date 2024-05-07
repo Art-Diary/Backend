@@ -1,11 +1,15 @@
 package klieme.artdiary.common;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Objects;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +50,10 @@ public class ImageTransfer {
 		private final Long soloDiaryId;
 		private final Long gatherId;
 		private final Long gatherDiaryId;
+		// for profile
+		private final String url;
+		private final String providerType;
+		private final String providerId;
 	}
 
 	@Getter
@@ -68,14 +76,22 @@ public class ImageTransfer {
 
 		// 타입 별 저장할 위치 결정
 		if (query.getType() == ImageType.PROFILE) {
-			defaultDir += ("/profile/" + getUserId());
+			defaultDir += ("/profile/" + (query.getUrl() != null ?
+				query.getProviderType() + '_' + query.getProviderId() : getUserId()));
 		} else if (query.getType() == ImageType.THUMBNAIL_SOLO) {
 			defaultDir += ("/thumbnail/solo/" + query.getSoloDiaryId());
 		} else if (query.getType() == ImageType.THUMBNAIL_GATHER) {
 			defaultDir += ("/thumbnail/gathering/" + query.getGatherId() + "/" + query.getGatherDiaryId());
 		}
 		// 이미지 저장 및 string 형으로 전환
-		if (imageFile == null) { // (update) 이미지를 null로 요청한 경우: 기존 사진 유지
+		if (query.getUrl() != null) {
+			URL url = new URL(query.getUrl());
+			BufferedImage img = ImageIO.read(url);
+			defaultDir += (".png");
+			File file = deleteImages(defaultDir);
+			ImageIO.write(img, "png", file); // 파일 저장
+			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
+		} else if (imageFile == null) { // (update) 이미지를 null로 요청한 경우: 기존 사진 유지
 			// 요청 image가 null인 경우 디비에 저장된 기존 사진이 존재하면 반환하고 아니면 기본 사진을 반환
 			FindUploadResult result = checkFiles(defaultDir);
 
@@ -181,6 +197,19 @@ public class ImageTransfer {
 			.imageToString(imageToString)
 			.storedPath(storedPath)
 			.build();
+	}
+
+	private File deleteImages(String storePath) {
+		File storeFile = new File(storePath);
+
+		if (!storeFile.exists()) {
+			try {
+				storeFile.mkdirs();
+			} catch (Exception e) {
+				e.getStackTrace();
+			}
+		}
+		return storeFile;
 	}
 
 	private Long getUserId() {
