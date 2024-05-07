@@ -2,25 +2,12 @@ package klieme.artdiary.users.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.ImageTransfer;
@@ -44,18 +31,16 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final ReasonRepository reasonRepository;
 	private final ImageTransfer imageTransfer;
-	private final RestTemplate restTemplate;
 
 	@Autowired
 	public UserService(UserRepository userRepository, UserExhRepository userExhRepository,
 		GatheringDiaryRepository gatheringDiaryRepository, ReasonRepository reasonRepository,
-		ImageTransfer imageTransfer, RestTemplate restTemplate) {
+		ImageTransfer imageTransfer) {
 		this.userRepository = userRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.reasonRepository = reasonRepository;
 		this.imageTransfer = imageTransfer;
-		this.restTemplate = restTemplate;
 	}
 
 	@Override
@@ -87,85 +72,38 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Transactional
 	@Override
-	public String createDummy(UserDummyCreateCommand command) {
-		UserEntity entity = UserEntity.builder()
-			.email(command.getEmail())
-			.nickname(command.getNickname())
-			.profile(command.getProfile())
-			.providerType(command.getProviderType())
-			.providerId(command.getProviderId())
-			.favoriteArt(command.getFavoriteArt())
-			.alarm1(command.getAlarm1())
-			.alarm2(command.getAlarm2())
-			.alarm3(command.getAlarm3())
-			.build();
-		userRepository.save(entity);
-		return "complete";
-	}
-
-	@Override
-	public FindUserResult oauthCreate(OAuthCreateCommand command) {
-		UserEntity entity;
+	public FindUserResult loginUser(UserCreateCommand command) throws IOException {
+		UserEntity userEntity;
 		String profile;
+		Optional<UserEntity> checkUser = userRepository.findByEmailAndProviderType(command.getEmail(),
+			command.getProviderType());
 
-		try {
-			Map<String, Object> googleData = getGoogleData(command.getIdToken());
-			String googleEmail = googleData.get("email").toString();
-			String googleNickname = googleData.get("name").toString();
-			String googlePicture = googleData.get("picture").toString();
-			// 있는지 확인
-			Optional<UserEntity> userEntity = userRepository.findByEmail(googleEmail);
-
-			if (userEntity.isPresent()) {
-				entity = userEntity.get();
-				profile = imageTransfer.downloadImage(entity.getProfile());
-			} else {
-				entity = UserEntity.builder()
-					.email(googleEmail)
-					.nickname(googleNickname)
-					.profile(null)
-					.providerType("google")
-					.providerId("google")
-					.favoriteArt(null)
-					.alarm1(true)
-					.alarm2(true)
-					.alarm3(true)
-					.build();
-				userRepository.save(entity);
-				ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(
-					ImageTransfer.UploadQuery.builder()
-						.type(ImageType.PROFILE)
-						.userId(entity.getUserId())
-						.url(googlePicture)
-						.build());
-				entity.updateUser(UserEntity.builder().profile(uploadResult.getStoredPath()).build());
-				userRepository.save(entity);
-				profile = uploadResult.getImageToString();
-			}
-		} catch (Exception e) {
-			System.out.println(e);
-			throw new ArtDiaryException(MessageType.UNAUTHORIZED);
+		if (checkUser.isPresent()) {
+			userEntity = checkUser.get();
+			profile = imageTransfer.downloadImage(userEntity.getProfile());
+		} else {
+			ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(
+				ImageTransfer.UploadQuery.builder()
+					.type(ImageType.PROFILE)
+					.providerType(command.getProviderType())
+					.providerId(command.getProviderId())
+					.url(command.getProfile())
+					.build());
+			profile = uploadResult.getImageToString();
+			userEntity = UserEntity.builder()
+				.email(command.getEmail())
+				.nickname(command.getNickname())
+				.profile(uploadResult.getStoredPath())
+				.providerType(command.getProviderType())
+				.providerId(command.getProviderId())
+				.favoriteArt(null)
+				.alarm1(true)
+				.alarm2(true)
+				.alarm3(true)
+				.build();
+			userRepository.save(userEntity);
 		}
-		return FindUserResult.findUserInfo(entity, profile);
-	}
-
-	private Map<String, Object> getGoogleData(String id_token) throws ParseException, JsonProcessingException {
-		HttpHeaders headers = new HttpHeaders();
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-		String googleApi = "https://oauth2.googleapis.com/tokeninfo";
-		String targetUrl = UriComponentsBuilder.fromHttpUrl(googleApi)
-			.queryParam("id_token", id_token)
-			.build()
-			.toUriString();
-
-		ResponseEntity<String> response = restTemplate.exchange(targetUrl, HttpMethod.GET, entity, String.class);
-
-		JSONParser parser = new JSONParser();
-		JSONObject jsonBody = (JSONObject)parser.parse(response.getBody());
-
-		Map<String, Object> body = new ObjectMapper().readValue(jsonBody.toString(), Map.class);
-
-		return body;
+		return FindUserResult.findUserInfo(userEntity, profile);
 	}
 
 	@Override

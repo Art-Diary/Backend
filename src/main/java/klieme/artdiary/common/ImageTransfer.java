@@ -50,8 +50,10 @@ public class ImageTransfer {
 		private final Long soloDiaryId;
 		private final Long gatherId;
 		private final Long gatherDiaryId;
+		// for profile
 		private final String url;
-		private final Long userId;
+		private final String providerType;
+		private final String providerId;
 	}
 
 	@Getter
@@ -74,7 +76,8 @@ public class ImageTransfer {
 
 		// 타입 별 저장할 위치 결정
 		if (query.getType() == ImageType.PROFILE) {
-			defaultDir += ("/profile/" + (query.getUrl() != null ? query.getUserId() : getUserId()));
+			defaultDir += ("/profile/" + (query.getUrl() != null ?
+				query.getProviderType() + '_' + query.getProviderId() : getUserId()));
 		} else if (query.getType() == ImageType.THUMBNAIL_SOLO) {
 			defaultDir += ("/thumbnail/solo/" + query.getSoloDiaryId());
 		} else if (query.getType() == ImageType.THUMBNAIL_GATHER) {
@@ -86,10 +89,6 @@ public class ImageTransfer {
 			BufferedImage img = ImageIO.read(url);
 			defaultDir += (".png");
 			File file = deleteImages(defaultDir);
-			// if (!checkDirAndFiles(defaultDir, imageToString)) {
-			// 	// 저장소에 저장
-			// 	imageFile.transferTo(new File(defaultDir));
-			// }
 			ImageIO.write(img, "png", file); // 파일 저장
 			imageToString = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(defaultDir)));
 		} else if (imageFile == null) { // (update) 이미지를 null로 요청한 경우: 기존 사진 유지
