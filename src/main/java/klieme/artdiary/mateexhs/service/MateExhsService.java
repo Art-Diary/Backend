@@ -2,9 +2,10 @@ package klieme.artdiary.mateexhs.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -66,60 +67,33 @@ public class MateExhsService implements MateExhsReadUseCase {
 
 	@Override
 	public List<FindMateExhsResult> getMateExhsList(MateExhsFindQuery query) throws IOException {
+		Long mateId = query.getMateId();
 		// 내 친구가 맞는지 확인 - exh_mate 확인
-		mateRepository.findByFromUserIdAndToUserId(getUserId(), query.getMateId())
+		mateRepository.findByFromUserIdAndToUserId(getUserId(), mateId)
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-		// 친구의 기록이 있는 전시회 조회
-		List<Long> checkExhs = new ArrayList<>(); // 같은 전시회지만 방문 날짜가 다른 경우의 중복을 없애기 위해 사용
-		HashMap<Long, Integer> countDiary = new HashMap<>(); // 전시회에 대한 기록 개수
+		// 1. 전시 메이트가 혼자 방문한 전시회에 대해 작성한 기록이 있는 경우
+		List<Map<String, Object>> myStoredExhList = mydiaryRepository.sumRateByUserExhId(mateId, true);
+		// 2. 전시 메이트가 모임 안에서 방문한 전시회에 대해 작성한 기록이 있는 경우
+		List<Map<String, Object>> myStoredGatherExhList = gatheringRepository.sumRateByGatherExhId(mateId, true);
+
+		//
+		HashMap<Long, Long> countDiary = new HashMap<>(); // 전시회에 대한 기록 개수
 		HashMap<Long, Double> sumDiaryRate = new HashMap<>(); // 전시회에 대한 기록 별점 합
-		// 1. userExh에서 친구가 작성한 기록이 있는 경우
-		List<UserExhEntity> mateExhEntities = userExhRepository.findByUserId(query.getMateId());
-		for (UserExhEntity mateExhEntity : mateExhEntities) {
-			List<MydiaryEntity> mateDiaryEntities = mydiaryRepository.findByUserExhId(mateExhEntity.getUserExhId());
+		HashMap<Long, ExhEntity> exhEntityHashMap = new HashMap<>(); // 전시회에 대한 기록 별점 합
 
-			countDiary.putIfAbsent(mateExhEntity.getExhId(), 0);
-			sumDiaryRate.putIfAbsent(mateExhEntity.getExhId(), 0.0);
-			for (MydiaryEntity mateDiaryEntity : mateDiaryEntities) {
-				Integer countExh = countDiary.get(mateExhEntity.getExhId());
-				Double sumExhRate = sumDiaryRate.get(mateExhEntity.getExhId());
-				countDiary.put(mateExhEntity.getExhId(), countExh + 1);
-				sumDiaryRate.put(mateExhEntity.getExhId(), sumExhRate + mateDiaryEntity.getRate());
-			}
-			// 전시회 중복 제거
-			if (!checkExhs.contains(mateExhEntity.getExhId())) {
-				checkExhs.add(mateExhEntity.getExhId());
-			}
-		}
-		// 2. gatheringDiary애서 userId를 통해 친구가 작성한 기록이 있는 경우
-		List<GatheringDiaryEntity> gatheringDiaryEntities = gatheringDiaryRepository.findByUserId(query.getMateId());
-		for (GatheringDiaryEntity gatheringDiary : gatheringDiaryEntities) {
-			Optional<GatheringExhEntity> gatheringExhEntity = gatheringExhRepository.findByGatherExhId(
-				gatheringDiary.getGatherExhId());
-			if (gatheringExhEntity.isEmpty()) {
-				continue;
-			}
-			int countExh = countDiary.get(gatheringExhEntity.get().getExhId()) == null ? 0 :
-				countDiary.get(gatheringExhEntity.get().getExhId());
-			Double sumExhRate = sumDiaryRate.get(gatheringExhEntity.get().getExhId()) == null ? 0.0 :
-				sumDiaryRate.get(gatheringExhEntity.get().getExhId());
-			countDiary.put(gatheringExhEntity.get().getExhId(), countExh + 1);
-			sumDiaryRate.put(gatheringExhEntity.get().getExhId(), sumExhRate + gatheringDiary.getRate());
-			// 전시회 중복 제거
-			if (!checkExhs.contains(gatheringExhEntity.get().getExhId())) {
-				checkExhs.add(gatheringExhEntity.get().getExhId());
-			}
-		}
-		// 반환 (친구가 작성한 글들의 평점?으로 구현함.)
+		// 중복 코드를 줄이기 위해 메서드로 분리
+		processExhibitionList(myStoredExhList, countDiary, sumDiaryRate, exhEntityHashMap);
+		processExhibitionList(myStoredGatherExhList, countDiary, sumDiaryRate, exhEntityHashMap);
+
+		List<Long> exhIds = new ArrayList<>(countDiary.keySet());
+		exhIds.sort(Comparator.naturalOrder());
+
 		List<FindMateExhsResult> result = new ArrayList<>();
-		for (Long exhId : checkExhs) {
-			Optional<ExhEntity> exh = exhRepository.findByExhId(exhId);
-			Double averageRate = countDiary.get(exhId) == 0 ? 0.0 : sumDiaryRate.get(exhId) / countDiary.get(exhId);
-
-			if (exh.isPresent()) {
-				String poster = imageTransfer.downloadImage(exh.get().getPoster());
-				result.add(FindMateExhsResult.findMateExhs(exh.get(), poster, averageRate));
-			}
+		for (Long exhId : exhIds) {
+			ExhEntity exh = exhEntityHashMap.get(exhId);
+			double averageRate = countDiary.get(exhId) == 0 ? 0.0 : sumDiaryRate.get(exhId) / countDiary.get(exhId);
+			String poster = imageTransfer.downloadImage(exh.getPoster());
+			result.add(FindMateExhsResult.findMateExhs(exh, poster, averageRate));
 		}
 		return result;
 	}
@@ -180,5 +154,25 @@ public class MateExhsService implements MateExhsReadUseCase {
 
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
+	}
+
+	// 중복 코드를 메서드로 분리
+	private void processExhibitionList(List<Map<String, Object>> exhibitionList, HashMap<Long, Long> countDiary,
+		HashMap<Long, Double> sumDiaryRate, HashMap<Long, ExhEntity> exhEntityHashMap) {
+		for (Map<String, Object> map : exhibitionList) {
+			ExhEntity exh = (ExhEntity)map.get("exhibition");
+			Long count = (Long)map.get("count");
+			Double sumOfRate = (Double)map.get("sumOfRate");
+
+			countDiary.putIfAbsent(exh.getExhId(), 0L);
+			sumDiaryRate.putIfAbsent(exh.getExhId(), 0.0);
+
+			Long countExh = countDiary.get(exh.getExhId());
+			Double sumExhRate = sumDiaryRate.get(exh.getExhId());
+
+			countDiary.put(exh.getExhId(), countExh + count);
+			sumDiaryRate.put(exh.getExhId(), sumExhRate + sumOfRate);
+			exhEntityHashMap.put(exh.getExhId(), exh);
+		}
 	}
 }

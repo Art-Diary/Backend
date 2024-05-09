@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -21,10 +22,15 @@ public class GatheringRepoCustomImpl implements GatheringRepoCustom {
 	private final JPAQueryFactory query;
 
 	@Override
-	public List<Map<String, Object>> sumRateByGatherExhId(Long userId) {
+	public List<Map<String, Object>> sumRateByGatherExhId(Long userId, Boolean withMate) {
 		QGatheringDiaryEntity gatheringDiary = QGatheringDiaryEntity.gatheringDiaryEntity;
 		QGatheringExhEntity gatheringExh = QGatheringExhEntity.gatheringExhEntity;
 		QExhEntity exh = QExhEntity.exhEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+
+		if (withMate) {
+			builder.and(gatheringDiary.diaryPrivate.eq(true));
+		}
 
 		List<Tuple> tuples = query
 			.select(gatheringDiary.rate.sum(), gatheringDiary.count(), exh)
@@ -32,7 +38,7 @@ public class GatheringRepoCustomImpl implements GatheringRepoCustom {
 			.leftJoin(gatheringExh).on(gatheringDiary.gatherExhId.eq(gatheringExh.gatherExhId))
 			.leftJoin(exh).on(gatheringExh.exhId.eq(exh.exhId))
 			.fetchJoin()
-			.where(gatheringDiary.userId.eq(userId))
+			.where(gatheringDiary.userId.eq(userId), builder)
 			.groupBy(gatheringExh.exhId)
 			.fetch();
 

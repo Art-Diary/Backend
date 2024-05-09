@@ -8,7 +8,7 @@ import com.querydsl.core.Tuple;
 
 public interface GatheringRepoCustom {
 
-	List<Map<String, Object>> sumRateByGatherExhId(Long userId);
+	List<Map<String, Object>> sumRateByGatherExhId(Long userId, Boolean withMate);
 
 	List<Tuple> getMyDiaryListInGatheringWithJoin(Long userId, Long exhId);
 
