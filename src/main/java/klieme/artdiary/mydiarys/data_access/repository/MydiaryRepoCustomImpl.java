@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -20,10 +21,15 @@ public class MydiaryRepoCustomImpl implements MydiaryRepoCustom {
 	private final JPAQueryFactory query;
 
 	@Override
-	public List<Map<String, Object>> sumRateByUserExhId(Long userId) {
+	public List<Map<String, Object>> sumRateByUserExhId(Long userId, Boolean withMate) {
 		QMydiaryEntity myDiary = QMydiaryEntity.mydiaryEntity;
 		QUserExhEntity userExh = QUserExhEntity.userExhEntity;
 		QExhEntity exh = QExhEntity.exhEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+
+		if (withMate) {
+			builder.and(myDiary.diaryPrivate.eq(true));
+		}
 
 		List<Tuple> tuples = query
 			.select(myDiary.rate.sum(), myDiary.count(), exh)
@@ -31,7 +37,7 @@ public class MydiaryRepoCustomImpl implements MydiaryRepoCustom {
 			.leftJoin(userExh).on(myDiary.userExhId.eq(userExh.userExhId))
 			.leftJoin(exh).on(userExh.exhId.eq(exh.exhId))
 			.fetchJoin()
-			.where(userExh.userId.eq(userId))
+			.where(userExh.userId.eq(userId), builder)
 			.groupBy(userExh.exhId)
 			.fetch();
 
