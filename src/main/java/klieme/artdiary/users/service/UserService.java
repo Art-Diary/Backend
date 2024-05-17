@@ -71,28 +71,16 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Transactional
 	@Override
-	public FindUserResult loginUser(UserCreateCommand command) throws IOException {
+	public FindUserResult loginUser(UserCreateCommand command) {
 		UserEntity userEntity;
-		String profile;
 		Optional<UserEntity> checkUser = userRepository.findByEmailAndProviderType(command.getEmail(),
 			command.getProviderType());
 
-		if (checkUser.isPresent()) {
-			userEntity = checkUser.get();
-			profile = imageTransfer.downloadImage(userEntity.getProfile());
-		} else {
-			ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(
-				ImageTransfer.UploadQuery.builder()
-					.type(ImageType.PROFILE)
-					.providerType(command.getProviderType())
-					.providerId(command.getProviderId())
-					.url(command.getProfile())
-					.build());
-			profile = uploadResult.getImageToString();
+		if (checkUser.isEmpty()) {
 			userEntity = UserEntity.builder()
 				.email(command.getEmail())
-				.nickname(command.getNickname())
-				.profile(uploadResult.getStoredPath())
+				.nickname(command.getProviderType() + "_" + command.getProviderId())
+				.profile(null)
 				.providerType(command.getProviderType())
 				.providerId(command.getProviderId())
 				.favoriteArt(null)
@@ -101,8 +89,11 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 				.alarm3(true)
 				.build();
 			userRepository.save(userEntity);
+		} else {
+			userEntity = checkUser.get();
 		}
-		return FindUserResult.findUserInfo(userEntity, profile);
+		return FindUserResult.findUserLoginInfo(userEntity,
+			!Objects.equals(userEntity.getNickname(), command.getProviderType() + "_" + command.getProviderId()));
 	}
 
 	@Override

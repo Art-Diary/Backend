@@ -19,6 +19,7 @@ public class UserView {
 	private final Boolean alarm1;
 	private final Boolean alarm2;
 	private final Boolean alarm3;
+	private final Boolean initInfo;
 
 	@Builder
 	public UserView(UserReadUseCase.FindUserResult result) {
@@ -30,5 +31,6 @@ public class UserView {
 		this.alarm1 = result.getAlarm1();
 		this.alarm2 = result.getAlarm2();
 		this.alarm3 = result.getAlarm3();
+		this.initInfo = result.getInitInfo();
 	}
 }

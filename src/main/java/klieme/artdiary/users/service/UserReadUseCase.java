@@ -27,6 +27,7 @@ public interface UserReadUseCase {
 		private final Boolean alarm1;
 		private final Boolean alarm2;
 		private final Boolean alarm3;
+		private final Boolean initInfo;
 
 		public static FindUserResult findUserInfo(UserEntity user, String profile) {
 			return FindUserResult.builder()
@@ -39,6 +40,14 @@ public interface UserReadUseCase {
 				.alarm1(user.getAlarm1())
 				.alarm2(user.getAlarm2())
 				.alarm3(user.getAlarm3())
+				.build();
+		}
+
+		public static FindUserResult findUserLoginInfo(UserEntity user, Boolean initInfo) {
+			return FindUserResult.builder()
+				.userId(user.getUserId())
+				.email(user.getEmail())
+				.initInfo(initInfo)
 				.build();
 		}
 	}

@@ -11,7 +11,7 @@ import lombok.ToString;
 
 public interface UserOperationUseCase {
 
-	UserReadUseCase.FindUserResult loginUser(UserCreateCommand command) throws IOException;
+	UserReadUseCase.FindUserResult loginUser(UserCreateCommand command);
 
 	UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) throws IOException;
 
@@ -25,14 +25,8 @@ public interface UserOperationUseCase {
 	@Builder
 	class UserCreateCommand {
 		private final String email;
-		private final String nickname;
-		private final String profile;
 		private final String providerType;
 		private final String providerId;
-		// private final String favoriteArt;
-		// private final Boolean alarm1;
-		// private final Boolean alarm2;
-		// private final Boolean alarm3;
 	}
 
 	@EqualsAndHashCode

@@ -14,19 +14,7 @@ public class UserRequest {
 	@Email
 	private String email;
 	@NotBlank
-	private String nickname;
-	@NotBlank
-	private String profile;
+	private String providerType;
 	@NotBlank
 	private String providerId;
-	// @NotBlank
-	// private String providerType;
-	// @NotBlank
-	// private String favoriteArt;
-	// @NotNull
-	// private Boolean alarm1;
-	// @NotNull
-	// private Boolean alarm2;
-	// @NotNull
-	// private Boolean alarm3;
 }

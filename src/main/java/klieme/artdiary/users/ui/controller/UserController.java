@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -61,21 +60,13 @@ public class UserController {
 	}
 
 	@PostMapping("")
-	public ResponseEntity<UserView> loginUser(
-		@Valid @RequestBody UserRequest userRequest,
-		@RequestParam(name = "providerType") String providerType) throws IOException {
-		log.info("[새로운 사용자 추가 (" + providerType + ")]");
+	public ResponseEntity<UserView> loginUser(@Valid @RequestBody UserRequest userRequest) {
+		log.info("[새로운 사용자 추가 (" + userRequest.getProviderType() + ")]");
 
 		var command = UserOperationUseCase.UserCreateCommand.builder()
 			.email(userRequest.getEmail())
-			.nickname(userRequest.getNickname())
-			.profile(userRequest.getProfile())
-			.providerType(providerType)
+			.providerType(userRequest.getProviderType())
 			.providerId(userRequest.getProviderId())
-			// .favoriteArt(userRequest.getFavoriteArt())
-			// .alarm1(userRequest.getAlarm1())
-			// .alarm2(userRequest.getAlarm2())
-			// .alarm3(userRequest.getAlarm3())
 			.build();
 		UserReadUseCase.FindUserResult result = userOperationUseCase.loginUser(command);
 		return ResponseEntity.ok(UserView.builder().result(result).build());
