@@ -71,7 +71,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Transactional
 	@Override
-	public FindUserResult loginUser(UserCreateCommand command) {
+	public FindUserResult loginUser(UserCreateCommand command) throws IOException {
 		UserEntity userEntity;
 		Optional<UserEntity> checkUser = userRepository.findByEmailAndProviderType(command.getEmail(),
 			command.getProviderType());
@@ -92,8 +92,12 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		} else {
 			userEntity = checkUser.get();
 		}
-		return FindUserResult.findUserLoginInfo(userEntity,
-			!Objects.equals(userEntity.getNickname(), command.getProviderType() + "_" + command.getProviderId()));
+
+		Boolean finishInit = !Objects.equals(userEntity.getNickname(),
+			command.getProviderType() + "_" + command.getProviderId());
+		String profile = finishInit ? imageTransfer.downloadImage(userEntity.getProfile()) : null;
+
+		return FindUserResult.findUserLoginInfo(userEntity, finishInit, profile);
 	}
 
 	@Override
