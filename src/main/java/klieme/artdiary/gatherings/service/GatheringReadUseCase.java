@@ -98,6 +98,7 @@ public interface GatheringReadUseCase {
 		private final String thumbnail;
 		private final LocalDate writeDate;
 		private final String saying;
+		private final Long userId;
 		private final String nickname; // 작성자
 		private final String gatherName;
 		private final LocalDate visitDate;
@@ -116,6 +117,7 @@ public interface GatheringReadUseCase {
 				.thumbnail(thumbnail)
 				.writeDate(gatheringDiary.getWriteDate())
 				.saying(gatheringDiary.getSaying())
+				.userId(user.getUserId())
 				.nickname(user.getNickname())
 				.gatherName(gathering.getGatherName())
 				.visitDate(gatheringExh.getVisitDate())
