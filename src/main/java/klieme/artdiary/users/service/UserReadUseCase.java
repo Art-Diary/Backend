@@ -43,11 +43,19 @@ public interface UserReadUseCase {
 				.build();
 		}
 
-		public static FindUserResult findUserLoginInfo(UserEntity user, Boolean initInfo) {
+		public static FindUserResult findUserLoginInfo(UserEntity user, Boolean initInfo, String profile) {
 			return FindUserResult.builder()
 				.userId(user.getUserId())
 				.email(user.getEmail())
 				.initInfo(initInfo)
+				.nickname(initInfo ? user.getNickname() : null)
+				.profile(initInfo ? profile : null)
+				.favoriteArt(
+					initInfo ? (user.getFavoriteArt() == null || Objects.equals(user.getFavoriteArt(), ".") ? "그외" :
+						user.getFavoriteArt()) : null)
+				.alarm1(initInfo ? user.getAlarm1() : null)
+				.alarm2(initInfo ? user.getAlarm2() : null)
+				.alarm3(initInfo ? user.getAlarm3() : null)
 				.build();
 		}
 	}

@@ -1,6 +1,7 @@
 package klieme.artdiary.common;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
@@ -27,8 +28,16 @@ public class UserIdFilter implements Filter {
 		ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest)servletRequest;
 
-		String userId = httpRequest.getHeader("userId");
-		System.out.println("userId: " + userId);
+		String userId = "-1";
+
+		if (!(Objects.equals(httpRequest.getRequestURI(), "/users") && Objects.equals(httpRequest.getMethod(),
+			"POST"))) {
+			userId = httpRequest.getHeader("userId");
+			// if (userId == null) {
+			// 	throw new ArtDiaryException(MessageType.UNAUTHORIZED);
+			// }
+			System.out.println("userId: " + userId);
+		}
 
 		userIdThreadLocal.set(Long.valueOf(userId));
 

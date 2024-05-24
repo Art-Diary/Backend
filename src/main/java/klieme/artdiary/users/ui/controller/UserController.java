@@ -60,7 +60,7 @@ public class UserController {
 	}
 
 	@PostMapping("")
-	public ResponseEntity<UserView> loginUser(@Valid @RequestBody UserRequest userRequest) {
+	public ResponseEntity<UserView> loginUser(@Valid @RequestBody UserRequest userRequest) throws IOException {
 		log.info("[새로운 사용자 추가 (" + userRequest.getProviderType() + ")]");
 
 		var command = UserOperationUseCase.UserCreateCommand.builder()
