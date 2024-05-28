@@ -42,6 +42,7 @@ public interface MydiaryReadUseCase {
 		private final String thumbnail;
 		private final LocalDate writeDate;
 		private final String saying;
+		private final Long userId;
 		private final String nickname;
 		private final String gatherName;
 		private final LocalDate visitDate;
@@ -60,6 +61,7 @@ public interface MydiaryReadUseCase {
 				.thumbnail(thumbnail)
 				.writeDate(diary.getWriteDate())
 				.saying(diary.getSaying())
+				.userId(user.getUserId())
 				.nickname(user.getNickname())
 				.visitDate(userExh.getVisitDate())
 				.exhName(exh.getExhName())
@@ -78,6 +80,7 @@ public interface MydiaryReadUseCase {
 				.thumbnail(thumbnail)
 				.writeDate(diary.getWriteDate())
 				.saying(diary.getSaying())
+				.userId(user.getUserId())
 				.nickname(user.getNickname())
 				.gatherName(gathering.getGatherName())
 				.visitDate(gatheringExh.getVisitDate())

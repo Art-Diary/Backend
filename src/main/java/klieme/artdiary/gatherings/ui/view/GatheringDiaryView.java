@@ -21,6 +21,7 @@ public class GatheringDiaryView {
 	private final String thumbnail;
 	private final LocalDate writeDate;
 	private final String saying;
+	private final Long userId;
 	private final String nickname; // 작성자
 	private final String gatherName;
 	private final LocalDate visitDate;
@@ -37,6 +38,7 @@ public class GatheringDiaryView {
 		this.thumbnail = result.getThumbnail();
 		this.writeDate = result.getWriteDate();
 		this.saying = result.getSaying();
+		this.userId = result.getUserId();
 		this.nickname = result.getNickname();
 		this.gatherName = result.getGatherName();
 		this.visitDate = result.getVisitDate();
