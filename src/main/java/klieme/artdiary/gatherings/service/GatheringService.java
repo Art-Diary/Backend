@@ -167,14 +167,12 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		// exh 전시회 존재 여부 확인
 		ExhEntity exh = exhRepository.findByExhId(query.getExhId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		// 모임에 속해 있는 사용자들
+		List<Long> userIdList = gatheringMemberId(query.getGatherId());
 		// gatherExh 테이블에서 gatherId & exhId 리스트 조회
 		List<GatheringExhEntity> gatheringExhEntities = gatheringExhRepository.findByGatherIdAndExhId(
 			query.getGatherId(),
 			query.getExhId());
-
-		if (gatheringExhEntities.isEmpty()) {
-			throw new ArtDiaryException(MessageType.NOT_FOUND);
-		}
 		// 반환 리스트
 		List<FindGatheringDiaryResult> results = new ArrayList<>();
 		// gatherDiary 테이블에서 gatherExhId로 다이어리 리스트 조회
@@ -189,7 +187,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 				UserEntity writer;
 
 				// 유저가 탈퇴하여 userId가 -null인 경우 고려
-				if (gatheringDiary.getUserId() == null) {
+				if (gatheringDiary.getUserId() == null || !userIdList.contains(gatheringDiary.getUserId())) {
 					writer = UserEntity.builder().nickname("전시 메이트").build();
 				} else {
 					writer = userRepository.findByUserId(gatheringDiary.getUserId())
@@ -335,6 +333,18 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		return results;
 	}
 
+	@Override
+	public void deleteMyGathering(Long gatherId) {
+
+		GatheringMateId deleteGatheringMateId = GatheringMateId.builder()
+			.gatherId(gatherId)
+			.userId(getUserId())
+			.build();
+		GatheringMateEntity deleteEntity = gatheringMateRepository.findByGatheringMateId(deleteGatheringMateId)
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		gatheringMateRepository.delete(deleteEntity);
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
@@ -361,6 +371,9 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			sumDiaryRate.putIfAbsent(gatheringExh.getExhId(), 0.0);
 			// 기록들의 별점 합과 개수 구하기
 			for (GatheringDiaryEntity gatheringDiary : gatheringDiaryEntities) {
+				if (!gatheringDiary.getDiaryPrivate()) {
+					continue;
+				}
 				Integer countExh = countDiary.get(gatheringExh.getExhId());
 				Double sumExhRate = sumDiaryRate.get(gatheringExh.getExhId());
 				countDiary.put(gatheringExh.getExhId(), countExh + 1);
@@ -378,15 +391,14 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		return results;
 	}
 
-	@Override
-	public void deleteMyGathering(Long gatherId) {
-
-		GatheringMateId deleteGatheringMateId = GatheringMateId.builder()
-			.gatherId(gatherId)
-			.userId(getUserId())
-			.build();
-		GatheringMateEntity deleteEntity = gatheringMateRepository.findByGatheringMateId(deleteGatheringMateId)
-			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-		gatheringMateRepository.delete(deleteEntity);
+	private List<Long> gatheringMemberId(Long gathering) {
+		// 모임에 속해 있는 사용자들
+		List<GatheringMateEntity> gatheringMateEntityList = gatheringMateRepository.findByGatheringMateIdGatherId(
+			gathering);
+		List<Long> userIdList = new ArrayList<>();
+		for (GatheringMateEntity entity : gatheringMateEntityList) {
+			userIdList.add(entity.getGatheringMateId().getUserId());
+		}
+		return userIdList;
 	}
 }

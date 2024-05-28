@@ -54,16 +54,21 @@ public class MydiaryRepoCustomImpl implements MydiaryRepoCustom {
 	}
 
 	@Override
-	public List<Tuple> getMyDiaryListInSoloWithJoin(Long userId, Long exhId) {
+	public List<Tuple> getMyDiaryListInSoloWithJoin(Long userId, Long exhId, Boolean isMate) {
 		QMydiaryEntity myDiary = QMydiaryEntity.mydiaryEntity;
 		QUserExhEntity userExh = QUserExhEntity.userExhEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+
+		if (isMate) {
+			builder.and(myDiary.diaryPrivate.eq(true));
+		}
 
 		return query
 			.select(userExh, myDiary)
 			.from(userExh)
 			.leftJoin(myDiary).on(myDiary.userExhId.eq(userExh.userExhId))
 			.fetchJoin()
-			.where(userExh.userId.eq(userId), userExh.exhId.eq(exhId))
+			.where(userExh.userId.eq(userId), userExh.exhId.eq(exhId), builder)
 			.fetch();
 	}
 
