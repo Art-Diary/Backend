@@ -10,7 +10,7 @@ public interface GatheringRepoCustom {
 
 	List<Map<String, Object>> sumRateByGatherExhId(Long userId, Boolean withMate);
 
-	List<Tuple> getMyDiaryListInGatheringWithJoin(Long userId, Long exhId);
+	List<Tuple> getMyDiaryListInGatheringWithJoin(Long userId, Long exhId, Boolean isMate);
 
 	List<Tuple> getMyDiaryListWithDateInGatheringWithJoin(Long userId, Long exhId, LocalDate visitDate,
 		Long gatherId);

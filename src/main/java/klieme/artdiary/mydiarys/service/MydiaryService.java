@@ -245,7 +245,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		List<Tuple> userExhDiaryList =
 			query == null || query.getForget() == null ?
 				mydiaryRepository.getMyDiaryListInSoloWithJoin(userEntity.getUserId(),
-					exhEntity.getExhId()) :
+					exhEntity.getExhId(), false) :
 				mydiaryRepository.getMyDiaryListWithDateInSoloWithJoin(userEntity.getUserId(),
 					exhEntity.getExhId(), query.getVisitDate());
 
@@ -267,7 +267,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 		List<Tuple> gatherExhDiaryList =
 			query == null || query.getForget() == null ?
 				gatheringRepository.getMyDiaryListInGatheringWithJoin(userEntity.getUserId(),
-					exhEntity.getExhId()) :
+					exhEntity.getExhId(), false) :
 				gatheringRepository.getMyDiaryListWithDateInGatheringWithJoin(userEntity.getUserId(),
 					exhEntity.getExhId(), query.getVisitDate(), query.getGatherId());
 

@@ -55,10 +55,15 @@ public class GatheringRepoCustomImpl implements GatheringRepoCustom {
 	}
 
 	@Override
-	public List<Tuple> getMyDiaryListInGatheringWithJoin(Long userId, Long exhId) {
+	public List<Tuple> getMyDiaryListInGatheringWithJoin(Long userId, Long exhId, Boolean isMate) {
 		QGatheringDiaryEntity gatheringDiary = QGatheringDiaryEntity.gatheringDiaryEntity;
 		QGatheringExhEntity gatheringExh = QGatheringExhEntity.gatheringExhEntity;
 		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+
+		if (isMate) {
+			builder.and(gatheringDiary.diaryPrivate.eq(true));
+		}
 
 		return query
 			.select(gathering, gatheringExh, gatheringDiary)
@@ -66,7 +71,7 @@ public class GatheringRepoCustomImpl implements GatheringRepoCustom {
 			.leftJoin(gatheringExh).on(gatheringExh.gatherExhId.eq(gatheringDiary.gatherExhId))
 			.leftJoin(gathering).on(gathering.gatherId.eq(gatheringExh.gatherId))
 			.fetchJoin()
-			.where(gatheringDiary.userId.eq(userId), gatheringExh.exhId.eq(exhId))
+			.where(gatheringDiary.userId.eq(userId), gatheringExh.exhId.eq(exhId), builder)
 			.fetch();
 	}
 
