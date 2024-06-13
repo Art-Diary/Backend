@@ -201,7 +201,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				user = UserEntity.builder().nickname("전시 메이트").build();
 			} else {
 				user = userRepository.findByUserId(userEntity.getUserId())
-					.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+					.orElseGet(() -> UserEntity.builder().nickname("전시 메이트").build());
 			}
 			for (MydiaryEntity diary : diaries) {
 				if (!diary.getDiaryPrivate()) {
@@ -231,7 +231,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 					user = UserEntity.builder().nickname("전시 메이트").build();
 				} else {
 					user = userRepository.findByUserId(gDiary.getUserId())
-						.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+						.orElseGet(() -> UserEntity.builder().nickname("전시 메이트").build());
 				}
 				results.add(FindDiaryResult.findGatheringDiary(gDiary, gatherEntity,
 					gatherName, user, exh, imageTransfer.downloadImage(exh.getPoster())));
