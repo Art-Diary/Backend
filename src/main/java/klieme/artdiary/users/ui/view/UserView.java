@@ -20,6 +20,7 @@ public class UserView {
 	private final Boolean alarm2;
 	private final Boolean alarm3;
 	private final Boolean initInfo;
+	private final String providerType;
 
 	@Builder
 	public UserView(UserReadUseCase.FindUserResult result) {
@@ -32,5 +33,6 @@ public class UserView {
 		this.alarm2 = result.getAlarm2();
 		this.alarm3 = result.getAlarm3();
 		this.initInfo = result.getInitInfo();
+		this.providerType = result.getProviderType();
 	}
 }
