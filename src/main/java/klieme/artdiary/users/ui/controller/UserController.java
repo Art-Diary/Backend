@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import klieme.artdiary.users.service.UserOperationUseCase;
 import klieme.artdiary.users.service.UserReadUseCase;
+import klieme.artdiary.users.ui.request_body.AlarmTokenRequest;
 import klieme.artdiary.users.ui.request_body.DeleteReasonRequest;
 import klieme.artdiary.users.ui.request_body.UserAlarmRequest;
 import klieme.artdiary.users.ui.request_body.UserNicknameRequest;
@@ -141,6 +142,17 @@ public class UserController {
 			.build();
 
 		userOperationUseCase.deleteUser(command);
+
+	}
+
+	@PatchMapping("/alarm-token")
+	public void setAlarmToken(@Valid @RequestBody AlarmTokenRequest request) {
+		log.info("[사용자 푸시 알림 토큰]");
+		var command = UserOperationUseCase.AlarmTokenUpdateCommand.builder()
+			.alarmToken(request.getAlarmToken())
+			.build();
+
+		userOperationUseCase.setAlarmToken(command);
 
 	}
 }

@@ -194,6 +194,15 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	}
 
+	@Override
+	@Transactional
+	public void setAlarmToken(AlarmTokenUpdateCommand command) {
+		UserEntity savedEntity = userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(
+			MessageType.NOT_FOUND));
+
+		savedEntity.updateUser(UserEntity.builder().alarmToken(command.getAlarmToken()).build());
+	}
+
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
 	}
