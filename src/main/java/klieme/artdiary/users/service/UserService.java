@@ -87,6 +87,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 				.alarm1(true)
 				.alarm2(true)
 				.alarm3(true)
+				.alarmToken(command.getAlarmToken())
 				.build();
 			userRepository.save(userEntity);
 		} else {

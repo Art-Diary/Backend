@@ -62,12 +62,13 @@ public class UserController {
 
 	@PostMapping("")
 	public ResponseEntity<UserView> loginUser(@Valid @RequestBody UserRequest userRequest) throws IOException {
-		log.info("[새로운 사용자 추가 (" + userRequest.getProviderType() + ")]");
+		log.info("[사용자 로그인 (" + userRequest.getProviderType() + ")]");
 
 		var command = UserOperationUseCase.UserCreateCommand.builder()
 			.email(userRequest.getEmail())
 			.providerType(userRequest.getProviderType())
 			.providerId(userRequest.getProviderId())
+			.alarmToken(userRequest.getAlarmToken())
 			.build();
 		UserReadUseCase.FindUserResult result = userOperationUseCase.loginUser(command);
 		return ResponseEntity.ok(UserView.builder().result(result).build());

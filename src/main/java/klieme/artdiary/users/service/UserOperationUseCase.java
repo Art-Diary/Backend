@@ -29,6 +29,7 @@ public interface UserOperationUseCase {
 		private final String email;
 		private final String providerType;
 		private final String providerId;
+		private final String alarmToken;
 	}
 
 	@EqualsAndHashCode

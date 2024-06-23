@@ -159,9 +159,11 @@ public class SendAlarmService {
 		HttpEntity<String> entity = new HttpEntity<>(message, headers);
 
 		String API_URL = FCM_API_URL;
-		ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.POST, entity, String.class);
-
-		// System.out.println(response.getStatusCode());
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.POST, entity, String.class);
+		} catch (Exception e) {
+			System.out.println("Wrong Token");
+		}
 	}
 
 	/**

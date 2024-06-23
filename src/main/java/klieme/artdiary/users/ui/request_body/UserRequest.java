@@ -17,4 +17,5 @@ public class UserRequest {
 	private String providerType;
 	@NotBlank
 	private String providerId;
+	private String alarmToken;
 }
