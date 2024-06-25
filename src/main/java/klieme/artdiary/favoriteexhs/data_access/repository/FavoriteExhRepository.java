@@ -10,7 +10,7 @@ import klieme.artdiary.favoriteexhs.data_access.entity.FavoriteExhEntity;
 import klieme.artdiary.favoriteexhs.data_access.entity.FavoriteExhId;
 
 @Repository
-public interface FavoriteExhRepository extends JpaRepository<FavoriteExhEntity, FavoriteExhId> {
+public interface FavoriteExhRepository extends JpaRepository<FavoriteExhEntity, FavoriteExhId>, FavoriteExhRepoCustom {
 	Optional<FavoriteExhEntity> findByFavoriteExhId(FavoriteExhId favoriteExhId);
 
 	List<FavoriteExhEntity> findByFavoriteExhIdUserId(Long userId);
