@@ -45,10 +45,13 @@ public class UserEntity {
 	private Boolean alarm3;
 	@Column(name = "refresh_token")
 	private String refreshToken;
+	@Column(name = "alarm_token")
+	private String alarmToken;
 
 	@Builder
 	public UserEntity(Long userId, String email, String nickname, String profile, String providerType,
-		String providerId, String favoriteArt, Boolean alarm1, Boolean alarm2, Boolean alarm3, String refreshToken) {
+		String providerId, String favoriteArt, Boolean alarm1, Boolean alarm2, Boolean alarm3, String refreshToken,
+		String alarmToken) {
 		this.userId = userId;
 		this.email = email;
 		this.nickname = nickname;
@@ -60,6 +63,7 @@ public class UserEntity {
 		this.alarm2 = alarm2;
 		this.alarm3 = alarm3;
 		this.refreshToken = refreshToken;
+		this.alarmToken = alarmToken;
 	}
 
 	public void updateUser(UserEntity user) {
@@ -81,6 +85,9 @@ public class UserEntity {
 		}
 		if (user.getAlarm3() != null) {
 			this.alarm3 = user.getAlarm3();
+		}
+		if (user.getAlarmToken() != null) {
+			this.alarmToken = user.getAlarmToken();
 		}
 	}
 }

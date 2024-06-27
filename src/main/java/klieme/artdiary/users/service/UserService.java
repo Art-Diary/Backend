@@ -87,6 +87,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 				.alarm1(true)
 				.alarm2(true)
 				.alarm3(true)
+				.alarmToken(command.getAlarmToken())
 				.build();
 			userRepository.save(userEntity);
 		} else {
@@ -192,6 +193,15 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		// - user테이블에서 사용자 삭제
 		userRepository.deleteById(getUserId());
 
+	}
+
+	@Override
+	@Transactional
+	public void setAlarmToken(AlarmTokenUpdateCommand command) {
+		UserEntity savedEntity = userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(
+			MessageType.NOT_FOUND));
+
+		savedEntity.updateUser(UserEntity.builder().alarmToken(command.getAlarmToken()).build());
 	}
 
 	private Long getUserId() {

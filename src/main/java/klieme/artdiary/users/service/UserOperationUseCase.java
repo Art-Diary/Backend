@@ -19,6 +19,8 @@ public interface UserOperationUseCase {
 
 	void deleteUser(DeleteReasonCommand command);
 
+	void setAlarmToken(AlarmTokenUpdateCommand command);
+
 	@EqualsAndHashCode
 	@Getter
 	@ToString
@@ -27,6 +29,7 @@ public interface UserOperationUseCase {
 		private final String email;
 		private final String providerType;
 		private final String providerId;
+		private final String alarmToken;
 	}
 
 	@EqualsAndHashCode
@@ -55,5 +58,13 @@ public interface UserOperationUseCase {
 	@Builder
 	class DeleteReasonCommand {
 		private final String reason;
+	}
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class AlarmTokenUpdateCommand {
+		private final String alarmToken;
 	}
 }

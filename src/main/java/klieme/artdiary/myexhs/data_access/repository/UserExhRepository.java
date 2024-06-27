@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import klieme.artdiary.myexhs.data_access.entity.UserExhEntity;
 
 @Repository
-public interface UserExhRepository extends JpaRepository<UserExhEntity, Long> {
+public interface UserExhRepository extends JpaRepository<UserExhEntity, Long>, UserExhRepoCustom {
 	List<UserExhEntity> findByUserIdAndExhId(Long userId, Long exhId);
 
 	//혜원 필요해서 추가
