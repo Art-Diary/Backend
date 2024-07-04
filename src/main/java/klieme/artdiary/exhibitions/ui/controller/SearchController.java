@@ -1,6 +1,12 @@
 package klieme.artdiary.exhibitions.ui.controller;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +16,8 @@ import jakarta.validation.Valid;
 import klieme.artdiary.exhibitions.service.SearchReadUseCase;
 import klieme.artdiary.exhibitions.ui.request_body.SearchContentsRequest;
 import klieme.artdiary.exhibitions.service.SearchOperationUseCase;
+import klieme.artdiary.exhibitions.ui.view.SearchContentView;
+import klieme.artdiary.favoriteexhs.ui.view.FavoriteExhView;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,34 +49,18 @@ public class SearchController {
 
 	}
 
-	// @GetMapping("")
-	// public ResponseEntity<SearchContentView> getSearchContents{
-	// 	//@PathVariable(name = "exhId") Long exhId) throws
-	// 	//IOException {
-	// 	log.info("[전시회 검색 기록 조회]");
-	//
-	//
-	// 	var query= SearchReadUseCase.FindSearchResult.builder()
-	// 		.searchContents(searhContents)
-	// 		.build();
-	// 	SearchReadUseCase.FindSearchResult result=searchReadUseCase.getSearchContents(query);
-	//
-	// 	return ResponseEntity.ok(SearchContentsView.builder().result(result).build());
-	//
-	// }
+	@GetMapping("")
+	public ResponseEntity<List<SearchContentView>> getSearchContentlist() throws IOException {
+		log.info("[전시회 검색 기록 조회]");
 
-	// @GetMapping("/{exhId}/date") // ResponseEntity<>
-	// public ResponseEntity<StoredDateView> getStoredDateOfExhs(
-	// 	@PathVariable(name = "exhId") Long exhId,
-	// 	@RequestParam(name = "gatherId", required = false) Long gatherId
-	// ) {
-	// 	log.info("[한 전시회에 대해 캘린더에 저장된 날짜 조회]");
-	// 	var query = ExhReadUseCase.StoredDateFindQuery.builder()
-	// 		.exhId(exhId)
-	// 		.gatherId(gatherId)
-	// 		.build();
-	// 	ExhReadUseCase.FindStoredDateResult result = exhReadUseCase.getStoredDateOfExhs(query);
-	//
-	// 	return ResponseEntity.ok(StoredDateView.builder().result(result).build());
-	// }
+		List<SearchReadUseCase.FindSearchResult> results = searchReadUseCase.getSearchContents();
+
+		List<SearchContentView> viewResult = new ArrayList<>();
+		for (SearchReadUseCase.FindSearchResult result : results) {
+			viewResult.add(SearchContentView.builder().result(result).build());
+		}
+
+		return ResponseEntity.ok(viewResult);
+	}
+
 }
