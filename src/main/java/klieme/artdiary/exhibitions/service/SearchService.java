@@ -1,5 +1,8 @@
 package klieme.artdiary.exhibitions.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,20 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 		}
 		searchRepository.save(newSearchContent);
 
+	}
+
+	@Override
+	public List<FindSearchResult> getSearchContents() throws IOException {
+
+		List<FindSearchResult> results = new ArrayList<>();
+
+		//userId로 해당 유저의 검색기록 가져오기
+		List<SearchEntity> sEntities = searchRepository.findByUserId(getUserId());
+		for (SearchEntity sEntity : sEntities) {
+			results.add(SearchReadUseCase.FindSearchResult.findSearchName(sEntity));
+
+		}
+		return results;
 	}
 
 	private Long getUserId() {
