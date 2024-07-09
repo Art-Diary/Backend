@@ -12,6 +12,9 @@ public interface SearchOperationUseCase {
 	void createSearchContent(
 		klieme.artdiary.exhibitions.service.SearchOperationUseCase.SearchContentCreateCommand command);
 
+	void deleteSearchContent(
+		klieme.artdiary.exhibitions.service.SearchOperationUseCase.SearchContentCreateCommand command);
+
 	@EqualsAndHashCode
 	@Builder
 	@Getter
