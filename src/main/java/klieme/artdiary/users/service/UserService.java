@@ -19,8 +19,11 @@ import klieme.artdiary.gatherings.data_access.repository.GatheringDiaryRepositor
 import klieme.artdiary.myexhs.data_access.entity.UserExhEntity;
 import klieme.artdiary.myexhs.data_access.repository.UserExhRepository;
 import klieme.artdiary.users.data_access.entity.ReasonEntity;
+import klieme.artdiary.users.data_access.entity.SocialLoginEntity;
+import klieme.artdiary.users.data_access.entity.SocialLoginId;
 import klieme.artdiary.users.data_access.entity.UserEntity;
 import klieme.artdiary.users.data_access.repository.ReasonRepository;
+import klieme.artdiary.users.data_access.repository.SocialLoginRepository;
 import klieme.artdiary.users.data_access.repository.UserRepository;
 
 @Service
@@ -30,16 +33,18 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	private final UserExhRepository userExhRepository;
 	private final GatheringDiaryRepository gatheringDiaryRepository;
 	private final ReasonRepository reasonRepository;
+	private final SocialLoginRepository socialLoginRepository;
 	private final ImageTransfer imageTransfer;
 
 	@Autowired
 	public UserService(UserRepository userRepository, UserExhRepository userExhRepository,
 		GatheringDiaryRepository gatheringDiaryRepository, ReasonRepository reasonRepository,
-		ImageTransfer imageTransfer) {
+		SocialLoginRepository socialLoginRepository, ImageTransfer imageTransfer) {
 		this.userRepository = userRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringDiaryRepository = gatheringDiaryRepository;
 		this.reasonRepository = reasonRepository;
+		this.socialLoginRepository = socialLoginRepository;
 		this.imageTransfer = imageTransfer;
 	}
 
@@ -71,27 +76,26 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Transactional
 	@Override
-	public FindUserResult loginUser(UserCreateCommand command) throws IOException {
-		UserEntity userEntity;
-		Optional<UserEntity> checkUser = userRepository.findByEmailAndProviderType(command.getEmail(),
-			command.getProviderType());
-
-		if (checkUser.isEmpty()) {
-			userEntity = UserEntity.builder()
-				.email(command.getEmail())
-				.nickname(command.getProviderType() + "_" + command.getProviderId())
-				.profile(null)
+	public FindUserResult socialLogin(Boolean forCheckEmail, Boolean wantUnite, UserCreateCommand command) throws
+		IOException {
+		// 재로그인 확인
+		Optional<SocialLoginEntity> socialLoginEntity = socialLoginRepository.findBySocialLoginId(
+			SocialLoginId.builder()
 				.providerType(command.getProviderType())
-				.providerId(command.getProviderId())
-				.favoriteArt(null)
-				.alarm1(true)
-				.alarm2(true)
-				.alarm3(true)
-				.alarmToken(command.getAlarmToken())
-				.build();
+				.providerUserId(command.getProviderId()).build());
+		UserEntity userEntity;
+
+		if (socialLoginEntity.isPresent()) {
+			// re
+			// update provider type
+			userEntity = userRepository.findByUserId(socialLoginEntity.get().getUserId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			userEntity.updateUser(UserEntity.builder().providerType(command.getProviderType()).build());
 			userRepository.save(userEntity);
 		} else {
-			userEntity = checkUser.get();
+			// init
+			userEntity = initLogin(forCheckEmail, wantUnite, command);
+			insertSocialLogin(command, userEntity);
 		}
 
 		Boolean finishInit = !Objects.equals(userEntity.getNickname(),
@@ -99,6 +103,29 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		String profile = finishInit ? imageTransfer.downloadImage(userEntity.getProfile()) : null;
 
 		return FindUserResult.findUserLoginInfo(userEntity, finishInit, profile);
+	}
+
+	private UserEntity initLogin(Boolean forCheckEmail, Boolean wantUnite, UserCreateCommand command) {
+		// 초기 로그인
+		if (forCheckEmail) {
+			Boolean isExistedEmail = userRepository.existsByEmail(command.getEmail());
+
+			if (isExistedEmail) {
+				// 409 에러
+				throw new ArtDiaryException(MessageType.CONFLICT);
+			}
+		}
+
+		UserEntity userEntity;
+
+		if (wantUnite) {
+			userEntity = userRepository.findByEmail(command.getEmail())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		} else {
+			// 새로운 계정 생성
+			userEntity = insertUser(command);
+		}
+		return userEntity;
 	}
 
 	@Override
@@ -206,5 +233,32 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	private Long getUserId() {
 		return UserIdFilter.getUserId();
+	}
+
+	private UserEntity insertUser(UserCreateCommand command) {
+		UserEntity newUser = UserEntity.builder()
+			.email(command.getEmail())
+			.nickname(command.getProviderType() + "_" + command.getProviderId())
+			.profile(null)
+			.favoriteArt(null)
+			.alarm1(true)
+			.alarm2(true)
+			.alarm3(true)
+			.alarmToken(command.getAlarmToken())
+			.providerType(command.getProviderType())
+			.build();
+		userRepository.save(newUser);
+		return newUser;
+	}
+
+	private void insertSocialLogin(UserCreateCommand command, UserEntity user) {
+		SocialLoginEntity newSocialLogin = SocialLoginEntity.builder()
+			.socialLoginId(SocialLoginId.builder()
+				.providerType(command.getProviderType())
+				.providerUserId(command.getProviderId())
+				.build())
+			.userId(user.getUserId())
+			.build();
+		socialLoginRepository.save(newSocialLogin);
 	}
 }

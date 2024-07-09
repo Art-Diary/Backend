@@ -60,6 +60,10 @@ public class UserController {
 		return ResponseEntity.ok(UserNicknameView.builder().nickname(result).build());
 	}
 
+	/**
+	 * 사용자 로그인
+	 * "/users"
+	 */
 	@PostMapping("")
 	public ResponseEntity<UserView> loginUser(@Valid @RequestBody UserRequest userRequest) throws IOException {
 		log.info("[사용자 로그인 (" + userRequest.getProviderType() + ")]");
@@ -70,7 +74,45 @@ public class UserController {
 			.providerId(userRequest.getProviderId())
 			.alarmToken(userRequest.getAlarmToken())
 			.build();
-		UserReadUseCase.FindUserResult result = userOperationUseCase.loginUser(command);
+		// UserReadUseCase.FindUserResult result = userOperationUseCase.socialLogin(false, true, command);
+		UserReadUseCase.FindUserResult result = userOperationUseCase.socialLogin(true, false, command);
+		return ResponseEntity.ok(UserView.builder().result(result).build());
+	}
+
+	/**
+	 * 동일한 이메일 소셜 로그인 통합 진행
+	 * "/users/unite"
+	 */
+	@PostMapping("/unite")
+	public ResponseEntity<UserView> uniteSocialLogin(@Valid @RequestBody UserRequest userRequest) throws IOException {
+		log.info("[동일한 이메일 소셜 로그인 통합 진행 (" + userRequest.getProviderType() + ")]");
+
+		var command = UserOperationUseCase.UserCreateCommand.builder()
+			.email(userRequest.getEmail())
+			.providerType(userRequest.getProviderType())
+			.providerId(userRequest.getProviderId())
+			.alarmToken(userRequest.getAlarmToken())
+			.build();
+		UserReadUseCase.FindUserResult result = userOperationUseCase.socialLogin(false, true, command);
+		return ResponseEntity.ok(UserView.builder().result(result).build());
+	}
+
+	/**
+	 * 동일한 이메일 소셜 로그인 분리
+	 * "/users/separate"
+	 */
+	@PostMapping("/separate")
+	public ResponseEntity<UserView> separateSocialLogin(@Valid @RequestBody UserRequest userRequest) throws
+		IOException {
+		log.info("[동일한 이메일 소셜 로그인 분리 (" + userRequest.getProviderType() + ")]");
+
+		var command = UserOperationUseCase.UserCreateCommand.builder()
+			.email(userRequest.getEmail())
+			.providerType(userRequest.getProviderType())
+			.providerId(userRequest.getProviderId())
+			.alarmToken(userRequest.getAlarmToken())
+			.build();
+		UserReadUseCase.FindUserResult result = userOperationUseCase.socialLogin(false, false, command);
 		return ResponseEntity.ok(UserView.builder().result(result).build());
 	}
 
