@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,6 +62,19 @@ public class SearchController {
 		}
 
 		return ResponseEntity.ok(viewResult);
+	}
+
+	@DeleteMapping("")
+	public void deleteSearchContent(@Valid @RequestBody SearchContentsRequest request) {
+		log.info("[전시회 검색 기록 삭제]");
+
+		var command = SearchOperationUseCase.SearchContentCreateCommand.builder()
+			.searchContent(request.getSearchContent())
+			.build();
+
+		//비즈니스 로직 호출
+		searchOperationUseCase.deleteSearchContent(command);
+
 	}
 
 }

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import klieme.artdiary.common.ArtDiaryException;
+import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
 import klieme.artdiary.exhibitions.data_access.entity.SearchEntity;
 import klieme.artdiary.exhibitions.data_access.repository.SearchRepository;
@@ -61,6 +63,20 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 
 		}
 		return results;
+	}
+
+	@Override
+	@Transactional
+	public void deleteSearchContent(SearchContentCreateCommand command) {
+
+		Long userId = getUserId();//해당 유저 아이디
+
+		//삭제할 데이터 찾기
+		SearchEntity entity = searchRepository.findBySearchNameAndUserId(
+			command.getSearchContent(), userId).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+
+		searchRepository.delete(entity);
+
 	}
 
 	private Long getUserId() {
