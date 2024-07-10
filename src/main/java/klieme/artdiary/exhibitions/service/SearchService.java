@@ -59,7 +59,7 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 		//userId로 해당 유저의 검색기록 가져오기
 		List<SearchEntity> sEntities = searchRepository.findByUserId(getUserId());
 		for (SearchEntity sEntity : sEntities) {
-			results.add(SearchReadUseCase.FindSearchResult.findSearchName(sEntity));
+			results.add(SearchReadUseCase.FindSearchResult.findSearchContents(sEntity));
 
 		}
 		return results;

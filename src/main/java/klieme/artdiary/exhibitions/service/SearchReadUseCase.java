@@ -15,10 +15,14 @@ public interface SearchReadUseCase {
 	@ToString
 	@Builder
 	class FindSearchResult {
+		private Long searchId;
 		private String searchContent;
 
-		public static FindSearchResult findSearchName(SearchEntity entity) {
-			return FindSearchResult.builder().searchContent(entity.getSearchName()).build();
+		public static FindSearchResult findSearchContents(SearchEntity entity) {
+			return FindSearchResult.builder()
+				.searchId(entity.getSearchId())
+				.searchContent(entity.getSearchName())
+				.build();
 		}
 
 	}
