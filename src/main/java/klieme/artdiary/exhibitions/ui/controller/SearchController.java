@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,16 +65,12 @@ public class SearchController {
 		return ResponseEntity.ok(viewResult);
 	}
 
-	@DeleteMapping("")
-	public void deleteSearchContent(@Valid @RequestBody SearchContentsRequest request) {
+	@DeleteMapping("/{searchId}")
+	public void deleteSearchContent(@PathVariable(name = "searchId") Long searchId) {
 		log.info("[전시회 검색 기록 삭제]");
 
-		var command = SearchOperationUseCase.SearchContentCreateCommand.builder()
-			.searchContent(request.getSearchContent())
-			.build();
-
 		//비즈니스 로직 호출
-		searchOperationUseCase.deleteSearchContent(command);
+		searchOperationUseCase.deleteSearchContent(searchId);
 
 	}
 

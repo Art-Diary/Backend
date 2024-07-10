@@ -67,13 +67,13 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 
 	@Override
 	@Transactional
-	public void deleteSearchContent(SearchContentCreateCommand command) {
+	public void deleteSearchContent(Long searchId) {
 
 		Long userId = getUserId();//해당 유저 아이디
 
 		//삭제할 데이터 찾기
-		SearchEntity entity = searchRepository.findBySearchNameAndUserId(
-			command.getSearchContent(), userId).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		SearchEntity entity = searchRepository.findBySearchIdAndUserId(
+			searchId, userId).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
 		searchRepository.delete(entity);
 
