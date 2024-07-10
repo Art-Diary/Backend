@@ -10,8 +10,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface UserOperationUseCase {
-
-	UserReadUseCase.FindUserResult loginUser(UserCreateCommand command) throws IOException;
+	UserReadUseCase.FindUserResult socialLogin(Boolean forCheckEmail, Boolean wantUnite,
+		UserCreateCommand command) throws IOException;
 
 	UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) throws IOException;
 

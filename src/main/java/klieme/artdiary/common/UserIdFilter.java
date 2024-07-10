@@ -31,6 +31,8 @@ public class UserIdFilter implements Filter {
 		String userId = "-1";
 
 		if (!(Objects.equals(httpRequest.getRequestURI(), "/users") && Objects.equals(httpRequest.getMethod(),
+			"POST")) && !(Objects.equals(httpRequest.getRequestURI(), "/users/unite") && Objects.equals(httpRequest.getMethod(),
+			"POST")) && !(Objects.equals(httpRequest.getRequestURI(), "/users/separate") && Objects.equals(httpRequest.getMethod(),
 			"POST"))) {
 			userId = httpRequest.getHeader("userId");
 			// if (userId == null) {

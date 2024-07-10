@@ -31,10 +31,6 @@ public class UserEntity {
 	private String nickname;
 	@Column
 	private String profile;
-	@Column(name = "provider_type", nullable = false)
-	private String providerType;
-	@Column(name = "provider_id", nullable = false)
-	private String providerId;
 	@Column(name = "favorite_art")
 	private String favoriteArt;
 	@Column(nullable = false)
@@ -47,23 +43,23 @@ public class UserEntity {
 	private String refreshToken;
 	@Column(name = "alarm_token")
 	private String alarmToken;
+	@Column(name = "provider_type", nullable = false)
+	private String providerType;
 
 	@Builder
-	public UserEntity(Long userId, String email, String nickname, String profile, String providerType,
-		String providerId, String favoriteArt, Boolean alarm1, Boolean alarm2, Boolean alarm3, String refreshToken,
-		String alarmToken) {
+	public UserEntity(Long userId, String email, String nickname, String profile, String favoriteArt, Boolean alarm1,
+		Boolean alarm2, Boolean alarm3, String refreshToken, String alarmToken, String providerType) {
 		this.userId = userId;
 		this.email = email;
 		this.nickname = nickname;
 		this.profile = profile;
-		this.providerType = providerType;
-		this.providerId = providerId;
 		this.favoriteArt = favoriteArt;
 		this.alarm1 = alarm1;
 		this.alarm2 = alarm2;
 		this.alarm3 = alarm3;
 		this.refreshToken = refreshToken;
 		this.alarmToken = alarmToken;
+		this.providerType = providerType;
 	}
 
 	public void updateUser(UserEntity user) {
@@ -88,6 +84,9 @@ public class UserEntity {
 		}
 		if (user.getAlarmToken() != null) {
 			this.alarmToken = user.getAlarmToken();
+		}
+		if (user.getProviderType() != null) {
+			this.providerType = user.getProviderType();
 		}
 	}
 }
