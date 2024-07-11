@@ -2,6 +2,8 @@ package klieme.artdiary.exhibitions.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +60,15 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 
 		//userId로 해당 유저의 검색기록 가져오기
 		List<SearchEntity> sEntities = searchRepository.findByUserId(getUserId());
+
+		//가장 최근 시간순으로 정렬
+		sEntities.sort(new Comparator<SearchEntity>() {
+			@Override
+			public int compare(SearchEntity e1, SearchEntity e2) {
+				return e2.getSearchTime().compareTo(e1.getSearchTime());
+			}
+		});
+
 		for (SearchEntity sEntity : sEntities) {
 			results.add(SearchReadUseCase.FindSearchResult.findSearchContents(sEntity));
 
