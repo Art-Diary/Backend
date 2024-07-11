@@ -23,13 +23,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.querydsl.core.Tuple;
 
-import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
-import klieme.artdiary.favoriteexhs.data_access.repository.FavoriteExhRepository;
-import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
-import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
-import klieme.artdiary.myexhs.data_access.entity.UserExhEntity;
-import klieme.artdiary.myexhs.data_access.repository.UserExhRepository;
-import klieme.artdiary.users.data_access.entity.UserEntity;
+import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
+import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
+import klieme.artdiary.gathering.data_access.entity.GatheringExhEntity;
+import klieme.artdiary.gathering.data_access.repository.GatheringExhRepository;
+import klieme.artdiary.solo.data_access.entity.UserExhEntity;
+import klieme.artdiary.solo.data_access.repository.UserExhRepository;
+import klieme.artdiary.user.data_access.entity.UserEntity;
 
 @Service
 public class SendAlarmService {

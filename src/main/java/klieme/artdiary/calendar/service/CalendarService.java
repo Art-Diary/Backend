@@ -15,17 +15,17 @@ import klieme.artdiary.calendar.enums.CalendarKind;
 import klieme.artdiary.calendar.info.ScheduleInfo;
 import klieme.artdiary.common.ImageTransfer;
 import klieme.artdiary.common.UserIdFilter;
-import klieme.artdiary.exhibitions.data_access.entity.ExhEntity;
-import klieme.artdiary.exhibitions.data_access.repository.ExhRepository;
-import klieme.artdiary.gatherings.data_access.entity.GatheringEntity;
-import klieme.artdiary.gatherings.data_access.entity.GatheringExhEntity;
-import klieme.artdiary.gatherings.data_access.entity.GatheringMateEntity;
-import klieme.artdiary.gatherings.data_access.entity.GatheringMateId;
-import klieme.artdiary.gatherings.data_access.repository.GatheringExhRepository;
-import klieme.artdiary.gatherings.data_access.repository.GatheringMateRepository;
-import klieme.artdiary.gatherings.data_access.repository.GatheringRepository;
-import klieme.artdiary.myexhs.data_access.entity.UserExhEntity;
-import klieme.artdiary.myexhs.data_access.repository.UserExhRepository;
+import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
+import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
+import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
+import klieme.artdiary.gathering.data_access.entity.GatheringExhEntity;
+import klieme.artdiary.gathering.data_access.entity.GatheringMateEntity;
+import klieme.artdiary.gathering.data_access.entity.GatheringMateId;
+import klieme.artdiary.gathering.data_access.repository.GatheringExhRepository;
+import klieme.artdiary.gathering.data_access.repository.GatheringMateRepository;
+import klieme.artdiary.gathering.data_access.repository.GatheringRepository;
+import klieme.artdiary.solo.data_access.entity.UserExhEntity;
+import klieme.artdiary.solo.data_access.repository.UserExhRepository;
 
 @Service
 public class CalendarService implements CalendarReadUseCase {
