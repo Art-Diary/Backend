@@ -1,0 +1,24 @@
+package klieme.artdiary.user.data_access.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import klieme.artdiary.user.data_access.entity.UserEntity;
+
+@Repository
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
+	Optional<UserEntity> findByUserId(Long userId);
+
+	Optional<UserEntity> findByUserIdAndNicknameContainingIgnoreCase(Long userId, String nickname);
+
+	List<UserEntity> findByNicknameContainingIgnoreCase(String nickname);
+
+	Optional<UserEntity> findByNickname(String nickname);
+
+	Boolean existsByEmail(String email);
+
+	Optional<UserEntity> findByEmail(String email);
+}
