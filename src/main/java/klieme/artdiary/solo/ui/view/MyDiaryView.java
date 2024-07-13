@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import klieme.artdiary.solo.service.MydiaryReadUseCase;
+import klieme.artdiary.solo.service.MyDiaryReadUseCase;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -12,7 +12,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MydiaryView {
+public class MyDiaryView {
 	private final Long diaryId;
 	private final String title;
 	private final Double rate;
@@ -30,7 +30,7 @@ public class MydiaryView {
 	private final Long gatherExhId;
 
 	@Builder
-	public MydiaryView(MydiaryReadUseCase.FindMyDiaryResult result) {
+	public MyDiaryView(MyDiaryReadUseCase.FindMyDiaryResult result) {
 		this.diaryId = result.getDiaryId();
 		this.title = result.getTitle();
 		this.rate = result.getRate();

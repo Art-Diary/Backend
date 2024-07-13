@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Setter
-public class MydiaryRequest {
+public class MyDiaryRequest {
 	@NotNull
 	private Long userExhId; // 개인 일정이 아닌 경우 -1
 	@NotNull

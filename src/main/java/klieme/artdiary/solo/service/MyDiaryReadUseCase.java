@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public interface MydiaryReadUseCase {
+public interface MyDiaryReadUseCase {
 	List<FindMyDiaryResult> getMyDiaries(MyDiariesFindQuery query) throws IOException;
 
 	@EqualsAndHashCode

@@ -33,7 +33,7 @@ import klieme.artdiary.user.data_access.entity.UserEntity;
 import klieme.artdiary.user.data_access.repository.UserRepository;
 
 @Service
-public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCase {
+public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCase {
 
 	private final MydiaryRepository mydiaryRepository;
 	private final UserExhRepository userExhRepository;
@@ -46,7 +46,7 @@ public class MydiaryService implements MydiaryOperationUseCase, MydiaryReadUseCa
 	private final ImageTransfer imageTransfer;
 
 	@Autowired
-	public MydiaryService(MydiaryRepository mydiaryRepository, UserExhRepository userExhRepository,
+	public MyDiaryService(MydiaryRepository mydiaryRepository, UserExhRepository userExhRepository,
 		GatheringExhRepository gatheringExhRepository, GatheringRepository gatheringRepository,
 		UserRepository userRepository, ExhRepository exhRepository, GatheringDiaryRepository gatheringDiaryRepository,
 		GatheringMateRepository gatheringMateRepository, ImageTransfer imageTransfer) {

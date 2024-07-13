@@ -8,9 +8,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public interface MyExhsOperationUseCase {
+public interface MyExhOperationUseCase {
 
-	List<MyExhsReadUseCase.FindMyStoredDateResult> addMyExhVisitDateDummy(AddMyExhVisitDateDummyCommand command);
+	List<MyExhReadUseCase.FindMyStoredDateResult> addMyExhVisitDateDummy(AddMyExhVisitDateDummyCommand command);
 
 	@EqualsAndHashCode
 	@Builder

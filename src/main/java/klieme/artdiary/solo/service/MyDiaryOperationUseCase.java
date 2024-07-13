@@ -11,12 +11,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public interface MydiaryOperationUseCase {
-	List<MydiaryReadUseCase.FindMyDiaryResult> createMyDiary(MyDiaryCreateUpdateCommand command) throws IOException;
+public interface MyDiaryOperationUseCase {
+	List<MyDiaryReadUseCase.FindMyDiaryResult> createMyDiary(MyDiaryCreateUpdateCommand command) throws IOException;
 
 	void deleteMyDiary(Long exhId, Boolean solo, Long diaryId);
 
-	List<MydiaryReadUseCase.FindMyDiaryResult> updateMyDiary(MyDiaryCreateUpdateCommand command) throws IOException;
+	List<MyDiaryReadUseCase.FindMyDiaryResult> updateMyDiary(MyDiaryCreateUpdateCommand command) throws IOException;
 
 	@EqualsAndHashCode
 	@Builder

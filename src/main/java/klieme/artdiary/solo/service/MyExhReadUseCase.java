@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public interface MyExhsReadUseCase {
+public interface MyExhReadUseCase {
 
 	List<FindMyExhsResult> getMyExhsList() throws IOException;
 
@@ -83,17 +83,39 @@ public interface MyExhsReadUseCase {
 	@Builder
 	class FindMyStoredDateResult {
 		private final Long exhId;
+		// "내 기록의 전시회 방문 날짜 추가"의 반환 데이터
+		private final Long exhVisitId;
+		private final LocalDate visitDate;// 혜원 추가
+		// 삭제
+		private final Long userExhId; // 모임일 경우엔 null 삭제
+
+		// "한 전시회에 대하여 캘린더에 저장된 날짜 조회"의 반환 데이터
 		private final Long gatherId; // 개인일 경우엔 null
-		// private final Long gatheringExhId; // 개인일 경우엔 null
 		private final String gatherName; // 개인일 경우엔 null
 		private final List<StoredDateInfo> dateInfoList;
-		private final Long userExhId; // 모임일 경우엔 null
-		private final LocalDate visitDate;// 혜원 추가
 
 		public static FindMyStoredDateResult findByMyStoredDateSolo(UserExhEntity userExh,
 			List<StoredDateInfo> dateInfoList) {
 			return FindMyStoredDateResult.builder()
 				.exhId(userExh.getExhId())
+				.dateInfoList(dateInfoList)
+				.build();
+		}
+
+		public static FindMyStoredDateResult findByMyStoredDateSoloTest(Long exhId,
+			List<StoredDateInfo> dateInfoList) {
+			return FindMyStoredDateResult.builder()
+				.exhId(exhId)
+				.dateInfoList(dateInfoList)
+				.build();
+		}
+
+		public static FindMyStoredDateResult findByMyStoredDateGatherTest(Long exhId,
+			GatheringEntity gathering, List<StoredDateInfo> dateInfoList) {
+			return FindMyStoredDateResult.builder()
+				.exhId(exhId)
+				.gatherId(gathering.getGatherId())
+				.gatherName(gathering.getGatherName())
 				.dateInfoList(dateInfoList)
 				.build();
 		}

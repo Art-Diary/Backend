@@ -2,7 +2,7 @@ package klieme.artdiary.solo.ui.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import klieme.artdiary.solo.service.MyExhsReadUseCase;
+import klieme.artdiary.solo.service.MyExhReadUseCase;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -10,14 +10,14 @@ import lombok.ToString;
 @Getter
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MyExhsView {
+public class MyExhView {
 	private final Long exhId;
 	private final String exhName;
 	private final String poster;
 	private final Double rate;
 
 	@Builder
-	public MyExhsView(MyExhsReadUseCase.FindMyExhsResult result) {
+	public MyExhView(MyExhReadUseCase.FindMyExhsResult result) {
 		this.exhId = result.getExhId();
 		this.exhName = result.getExhName();
 		this.poster = result.getPoster();
