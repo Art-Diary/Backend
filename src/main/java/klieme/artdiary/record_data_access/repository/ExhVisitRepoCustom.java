@@ -4,5 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ExhVisitRepoCustom {
-	List<Map<String, Object>>  getMyVisitedDateListOfExh(Long userId, Long exhId);
+	List<Map<String, Object>> getMyVisitedDateListOfExh(Long userId, Long exhId);
+
+	Boolean checkExhVisitByExhVisitId(Long exhVisitId, Long userId, Long exhId);
 }

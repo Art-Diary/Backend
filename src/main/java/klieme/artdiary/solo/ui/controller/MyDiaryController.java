@@ -25,8 +25,8 @@ import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.solo.service.MyDiaryOperationUseCase;
 import klieme.artdiary.solo.service.MyDiaryReadUseCase;
-import klieme.artdiary.solo.ui.request_body.MyDiaryUpdateRequest;
 import klieme.artdiary.solo.ui.request_body.MyDiaryRequest;
+import klieme.artdiary.solo.ui.request_body.MyDiaryUpdateRequest;
 import klieme.artdiary.solo.ui.view.MyDiaryView;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,15 +53,10 @@ public class MyDiaryController {
 		@Valid @ModelAttribute MyDiaryRequest request
 	) throws IOException {
 		log.info("[기록 추가]");
-		if (!((request.getUserExhId() == -1 && request.getGatherExhId() != -1)
-			|| (request.getUserExhId() != -1 && request.getGatherExhId() == -1))) {
-			throw new ArtDiaryException(MessageType.BAD_REQUEST);
-		}
 		// request body 데이터 받아오기
 		var command = MyDiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
 			.exhId(exhId)
-			.userExhId(request.getUserExhId())
-			.gatherExhId(request.getGatherExhId())
+			.exhVisitId(request.getExhVisitId())
 			.title(request.getTitle())
 			.rate(request.getRate())
 			.diaryPrivate(request.getDiaryPrivate())
@@ -94,23 +89,23 @@ public class MyDiaryController {
 		log.info("[기록 목록 조회]" + " forget: " + forget + " visitDate: " + visitDate + " gatherId: " + gatherId);
 
 		// request parameter 확인
-		// forget이 null이면 날짜를 적용하지 않은 api로 인식.
-		// forget이 null이 아니면 forget=true/false에 따라 date 값 확인
-		// forget이 true일 때 date 값이 null로 설정되어 '기억안남'으로 인식
-		// forget이 false일 때 date 값이 null이 아닌 날짜 값이 들어있어 요청한 날짜에 대한 api로 인식.
-		if (forget != null && ((forget && visitDate != null) || (!forget && visitDate == null))) {
-			throw new ArtDiaryException(MessageType.BAD_REQUEST);
-		}
-		// forget이 널일때 date나 gatheringExhId도 널이어야한다.
-		if (forget == null && (visitDate != null || gatherId != null)) {
+		// 1. 내 기록 조회: forget, visitDate, gatherId 없는 경우
+		// 2. 캘린더 조회
+		// 		- gatherId && visitdate
+		// 		- solo && visitdate
+		// 		- solo && forget=true
+		if (!((gatherId != null && visitDate != null)
+			|| (gatherId == null && visitDate != null)
+			|| (gatherId == null && forget != null && forget)
+			|| (gatherId == null && (forget == null || !forget) && visitDate == null))) {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 
 		var query = MyDiaryReadUseCase.MyDiariesFindQuery.builder()
 			.exhId(exhId)
-			.forget(forget)
-			.visitDate(forget == null ? null : visitDate)
-			.gatherId(forget == null ? null : gatherId)
+			.forget(forget != null && forget ? true : null)
+			.visitDate(visitDate)
+			.gatherId(gatherId)
 			.build();
 		// 비즈니스 로직 호출
 		List<MyDiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryReadUseCase.getMyDiaries(query);
@@ -125,11 +120,10 @@ public class MyDiaryController {
 
 	@DeleteMapping("/{diaryId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteDiary(@PathVariable(name = "exhId") Long exhId, @PathVariable(name = "diaryId") Long diaryId,
-		@RequestParam(name = "solo") Boolean solo) {
+	public void deleteDiary(@PathVariable(name = "exhId") Long exhId, @PathVariable(name = "diaryId") Long diaryId) {
 		log.info("[기록 삭제]");
 
-		mydiaryOperationUseCase.deleteMyDiary(exhId, solo, diaryId);
+		mydiaryOperationUseCase.deleteMyDiary(exhId, diaryId);
 
 	}
 
@@ -144,16 +138,11 @@ public class MyDiaryController {
 		@Valid @ModelAttribute MyDiaryUpdateRequest request
 	) throws IOException {
 		log.info("[기록 수정]");
-		if (!((request.getUserExhId() == -1 && request.getGatherExhId() != -1)
-			|| (request.getUserExhId() != -1 && request.getGatherExhId() == -1))) {
-			throw new ArtDiaryException(MessageType.BAD_REQUEST);
-		}
 		// request body 데이터 받아오기
 		var command = MyDiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
 			.exhId(exhId)
 			.diaryId(diaryId)
-			.userExhId(request.getUserExhId())
-			.gatherExhId(request.getGatherExhId())
+			.exhVisitId(request.getExhVisitId())
 			.title(request.getTitle())
 			.rate(request.getRate())
 			.diaryPrivate(request.getDiaryPrivate())

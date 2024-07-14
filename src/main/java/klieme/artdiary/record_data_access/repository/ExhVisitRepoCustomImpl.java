@@ -52,4 +52,26 @@ public class ExhVisitRepoCustomImpl implements ExhVisitRepoCustom {
 		}
 		return result;
 	}
+
+	@Override
+	public Boolean checkExhVisitByExhVisitId(Long exhVisitId, Long userId, Long exhId) {
+		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
+		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
+		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+		BooleanBuilder gatherBuilder = new BooleanBuilder();
+
+		gatherBuilder.and(exhVisit.gatherId.isNotNull());
+		gatherBuilder.and(gatheringMate.gatheringMateId.userId.eq(userId));
+		builder.or(gatherBuilder);
+		builder.or(exhVisit.userId.eq(userId));
+
+		return query.select(exhVisit, gathering)
+			.from(exhVisit)
+			.leftJoin(gatheringMate).on(exhVisit.gatherId.eq(gatheringMate.gatheringMateId.gatherId))
+			.leftJoin(gathering).on(gatheringMate.gatheringMateId.gatherId.eq(gathering.gatherId))
+			.fetchJoin()
+			.where(exhVisit.exhVisitId.eq(exhVisitId), exhVisit.exhId.eq(exhId), builder)
+			.fetchFirst() != null;
+	}
 }

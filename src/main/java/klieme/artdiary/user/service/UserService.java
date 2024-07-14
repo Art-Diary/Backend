@@ -142,10 +142,11 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			}
 		}
 		// 사용자 정보 업데이트
-		ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImage(ImageTransfer.UploadQuery.builder()
-			.type(ImageType.PROFILE)
-			.image(command.getProfile())
-			.build());
+		ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImageToStorage(
+			ImageTransfer.UploadQuery.builder()
+				.type(ImageType.PROFILE)
+				.image(command.getProfile())
+				.build());
 		// 사용자 정보 업데이트
 		savedEntity.updateUser(UserEntity.builder()
 			.nickname(command.getNickname())
