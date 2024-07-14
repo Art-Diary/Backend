@@ -17,9 +17,6 @@ import lombok.ToString;
 public class MyStoredDateView {
 	private final Long index;
 	private final Long exhId;
-	// 삭제
-	// private final Long gatheringExhId; // 개인일 경우엔 null
-	private final Long userExhId; // 모임일 경우엔 null
 	// "내 기록의 전시회 방문 날짜 추가"의 반환 데이터
 	private final Long exhVisitId;
 	private final LocalDate visitDate;
@@ -34,9 +31,7 @@ public class MyStoredDateView {
 		this.exhId = result.getExhId();
 		this.gatherId = result.getGatherId();
 		this.gatherName = result.getGatherName();
-		this.userExhId = result.getUserExhId(); // 삭제
 		this.exhVisitId = result.getExhVisitId();
-		// this.exhVisitId = result;
 		this.visitDate = result.getVisitDate();
 		this.dateInfoList = result.getDateInfoList();
 	}

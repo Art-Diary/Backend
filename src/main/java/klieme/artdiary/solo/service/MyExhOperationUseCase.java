@@ -10,15 +10,14 @@ import lombok.ToString;
 
 public interface MyExhOperationUseCase {
 
-	List<MyExhReadUseCase.FindMyStoredDateResult> addMyExhVisitDateDummy(AddMyExhVisitDateDummyCommand command);
+	List<MyExhReadUseCase.FindMyStoredDateResult> addMyExhVisitDate(AddMyExhVisitDateCommand command);
 
 	@EqualsAndHashCode
 	@Builder
 	@Getter
 	@ToString
-	class AddMyExhVisitDateDummyCommand {
+	class AddMyExhVisitDateCommand {
 		private final Long exhId;
-		//private final Long userExhId; //혜원 추가
 		private final LocalDate visitDate;// 혜원 추가
 
 	}

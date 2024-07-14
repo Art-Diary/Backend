@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -24,13 +25,20 @@ public class ExhVisitRepoCustomImpl implements ExhVisitRepoCustom {
 		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
 		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
 		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+		BooleanBuilder gatherBuilder = new BooleanBuilder();
+
+		gatherBuilder.and(exhVisit.gatherId.isNotNull());
+		gatherBuilder.and(gatheringMate.gatheringMateId.userId.eq(userId));
+		builder.or(gatherBuilder);
+		builder.or(exhVisit.userId.eq(userId));
 
 		List<Tuple> tuples = query.select(exhVisit, gathering)
 			.from(exhVisit)
 			.leftJoin(gatheringMate).on(exhVisit.gatherId.eq(gatheringMate.gatheringMateId.gatherId))
 			.leftJoin(gathering).on(gatheringMate.gatheringMateId.gatherId.eq(gathering.gatherId))
 			.fetchJoin()
-			.where(exhVisit.exhId.eq(exhId), exhVisit.gatherId.isNotNull().or(exhVisit.userId.eq(userId)))
+			.where(exhVisit.exhId.eq(exhId), builder)
 			.orderBy(exhVisit.gatherId.asc(), exhVisit.visitDate.asc())
 			.fetch();
 
@@ -45,15 +53,3 @@ public class ExhVisitRepoCustomImpl implements ExhVisitRepoCustom {
 		return result;
 	}
 }
-/**
- * select * from exh_visit as ev left join
- * (select gg.gather_id, user_id, gather_name from gathering_mate as gm left join gathering as gg on gm.gather_id=gg.gather_id) as gg
- * on ev.gather_id=gg.gather_id
- * where (ev.gather_id is not null and gg.user_id=3) or (ev.user_id=3)
- * ;
- *
- * select * from exh_visit as ev left join
- *  gathering_mate as gm on ev.gather_id=gm.gather_id left join gathering as gg on gm.gather_id=gg.gather_id
- * where (ev.gather_id is not null and gm.user_id=3) or (ev.user_id=3)
- * ;
- */

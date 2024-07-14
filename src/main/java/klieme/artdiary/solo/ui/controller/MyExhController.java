@@ -79,20 +79,18 @@ public class MyExhController {
 
 		log.info("[내 기록의 전시회 방문 날짜 추가]");
 
-		var command = MyExhOperationUseCase.AddMyExhVisitDateDummyCommand.builder()
+		var command = MyExhOperationUseCase.AddMyExhVisitDateCommand.builder()
 			.visitDate(addMyExhVisitDateRequest.getVisitDate())
 			.exhId(addMyExhVisitDateRequest.getExhId())
 			.build();
 
-		List<MyExhReadUseCase.FindMyStoredDateResult> results = myExhOperationUseCase.addMyExhVisitDateDummy(command);
+		List<MyExhReadUseCase.FindMyStoredDateResult> results = myExhOperationUseCase.addMyExhVisitDate(command);
 
 		List<MyStoredDateView> viewResult = new ArrayList<>();
 
 		for (MyExhReadUseCase.FindMyStoredDateResult result : results) {
 			viewResult.add(MyStoredDateView.builder().result(result).build());
 		}
-		return ResponseEntity.ok(viewResult);
-		//	System.out.println(MyExhsOperationUseCase.(command));
-		//return ResponseEntity.created(null).body(MyStoredDateView.builder().result(results).build());
+		return ResponseEntity.created(null).body(viewResult);
 	}
 }
