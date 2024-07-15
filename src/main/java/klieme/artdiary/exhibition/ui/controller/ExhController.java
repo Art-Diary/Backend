@@ -82,8 +82,10 @@ public class ExhController {
 			return ResponseEntity.created(null).body(StoredDateView.builder().result(result).build());
 		}
 	*/
+
+	//[here/hw]
 	@GetMapping("/{exhId}/date") // ResponseEntity<>
-	public ResponseEntity<StoredDateView> getStoredDateOfExhs(
+	public ResponseEntity<StoredDateView> getStoredDateOfExhsByGatherId(
 		@PathVariable(name = "exhId") Long exhId,
 		@RequestParam(name = "gatherId", required = false) Long gatherId
 	) {
@@ -92,7 +94,7 @@ public class ExhController {
 			.exhId(exhId)
 			.gatherId(gatherId)
 			.build();
-		ExhReadUseCase.FindStoredDateResult result = exhReadUseCase.getStoredDateOfExhs(query);
+		ExhReadUseCase.FindStoredDateResult result = exhReadUseCase.getStoredDateOfExhsByGatherId(query);
 
 		return ResponseEntity.ok(StoredDateView.builder().result(result).build());
 	}
@@ -107,6 +109,7 @@ public class ExhController {
 
 	}
 
+	//[here/hw]
 	@GetMapping("/{exhId}/diaries")
 	public ResponseEntity<List<AllDiaryOfExhIdView>> getAllOfExhIdDiaries(
 		@PathVariable(name = "exhId") Long exhId) throws

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibition.enums.ExhField;
 import klieme.artdiary.exhibition.enums.ExhPrice;
 import klieme.artdiary.exhibition.enums.ExhState;
+import klieme.artdiary.exhibition.info.StoredListOfDate;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhEntity;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhId;
 import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
@@ -30,10 +32,14 @@ import klieme.artdiary.gathering.data_access.repository.GatheringDiaryRepository
 import klieme.artdiary.gathering.data_access.repository.GatheringExhRepository;
 import klieme.artdiary.gathering.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.gathering.data_access.repository.GatheringRepository;
+import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
+import klieme.artdiary.record_data_access.repository.ExhVisitRepoCustom;
+import klieme.artdiary.record_data_access.repository.ExhVisitRepository;
 import klieme.artdiary.solo.data_access.entity.MydiaryEntity;
 import klieme.artdiary.solo.data_access.entity.UserExhEntity;
 import klieme.artdiary.solo.data_access.repository.MydiaryRepository;
 import klieme.artdiary.solo.data_access.repository.UserExhRepository;
+import klieme.artdiary.solo.info.StoredDateInfo;
 import klieme.artdiary.user.data_access.entity.UserEntity;
 import klieme.artdiary.user.data_access.repository.UserRepository;
 
@@ -50,13 +56,14 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	private final MydiaryRepository mydiaryRepository;
 	private final UserRepository userRepository;
 	private final ImageTransfer imageTransfer;
+	private final ExhVisitRepository exhVisitRepository;
 
 	@Autowired
 	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository,
 		GatheringMateRepository gatheringMateRepository, GatheringExhRepository gatheringExhRepository,
 		GatheringDiaryRepository gatheringDiaryRepository, GatheringRepository gatheringRepository,
 		FavoriteExhRepository favoriteExhRepository, MydiaryRepository mydiaryRepository,
-		UserRepository userRepository, ImageTransfer imageTransfer) {
+		UserRepository userRepository, ImageTransfer imageTransfer, ExhVisitRepository exhVisitRepository) {
 		this.exhRepository = exhRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
@@ -67,6 +74,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		this.mydiaryRepository = mydiaryRepository;
 		this.userRepository = userRepository;
 		this.imageTransfer = imageTransfer;
+		this.exhVisitRepository = exhVisitRepository;
 	}
 
 	@Transactional
@@ -119,8 +127,41 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			return FindStoredDateResult.findByStoredDate(command.getExhId(), command.getVisitDate(), null);
 		}
 	*/
+
+	//[here/hw]
 	@Override
-	public FindStoredDateResult getStoredDateOfExhs(StoredDateFindQuery query) {
+	public FindStoredDateResult getStoredDateOfExhsByGatherId(StoredDateFindQuery query) {
+
+		//NEW getStoredDateOfExhs
+		// userId: getUserId(), exhId: query.getExhId(), gatherId: query.getGatherId()
+		Long userId = getUserId();
+		List<StoredListOfDate> dateList = new ArrayList<>();
+
+		// 전시회 아이디 검증
+		exhRepository.findByExhId(query.getExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+
+		if (query.getGatherId() == null) {
+			//혼자 다녀온 전시회이면 ExhVisit 테이블에서 날짜리스트 가져오기
+			List<ExhVisitEntity> entities = exhVisitRepository.findByUserIdAndExhId(userId,
+				query.getExhId());
+
+			for (ExhVisitEntity entity : entities) {
+				if (entity.getVisitDate() == null) { // 날짜 모름일 때는 건너뜀.
+					continue;
+				}
+				dateList.add(StoredListOfDate.builder()
+					.exhVisitId(entity.getExhVisitId())
+					.visitDate(entity.getVisitDate())
+					.build());
+
+			}
+		}
+		return FindStoredDateResult.findByStoredDate(query.getExhId(), dateList);
+		//List<Map<String, Object>> myVisitedDateList = exhVisitRepository.getMyVisitedDateListOfExhByGatherId(userId,query.getGatherId(),
+		//			query.getExhId());
+
+		//바꾸기 전
+		/*
 		// userId: getUserId(), exhId: query.getExhId(), gatherId: query.getGatherId()
 		Long userId = getUserId();
 		List<LocalDate> dates = new ArrayList<>();
@@ -155,7 +196,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				dates.add(entity.getVisitDate());
 			}
 		}
-		return FindStoredDateResult.findByStoredDate(query.getExhId(), null, dates);
+		return FindStoredDateResult.findByStoredDate(query.getExhId(), null, dates);*/
 	}
 
 	@Override
@@ -185,8 +226,19 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		return FindExhResult.findByExh(entity, isFavoriteExh, imageTransfer.downloadImage(entity.getPoster()));
 	}
 
+	//[here/hw]
 	@Override
 	public List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId) throws IOException {
+
+		// Diary 테이블에서 기록 가져오기
+		// Diary 테이블의 writeId로 user 테이블에서 nickname 가져오기
+		// ExhVisit 테이블에서 gatherId가 null이 아니면 Gathering에서 gatherName 가져오기
+		// ExhVisit 테이블에서 visitDate 가져오기
+		// ExhVisit 테이블의 exhId로 Exhibition 테이블에서 exhName 가져오기
+
+		//유저가 탈퇴하여 userId가 null인 경우 고려
+
+		// 개인이 다녀온 전시 기록과 그룹으로 다녀온 전시 기록 테이블 나눴을 때, 코드
 		List<FindDiaryResult> results = new ArrayList<>();
 		//해당 exhId의 user_Exh에서 확인 후, solo_Diary에서 가져오기
 		ExhEntity exh = exhRepository.findByExhId(exhId)
