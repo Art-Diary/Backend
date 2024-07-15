@@ -2,6 +2,7 @@ package klieme.artdiary.gathering.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
@@ -104,7 +105,7 @@ public interface GatheringReadUseCase {
 		private final LocalDate visitDate;
 		private final String exhName;
 		private final Long exhVisitId;
-		private final LocalDate initDate;
+		private final LocalDateTime initDate;
 
 		public static FindGatheringDiaryResult findByGatheringDiary(DiaryEntity diary, ExhVisitEntity exhVisit,
 			GatheringEntity gathering, UserEntity user, ExhEntity exh, String thumbnail) {

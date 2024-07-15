@@ -7,12 +7,12 @@ import java.util.Map;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
 
 public interface DiaryRepoCustom {
-	List<Map<String, Object>> getMyDiarySumRateAndCount(Long userId);
+	List<Map<String, Object>> getMyDiarySumRateAndCount(Long userId, Boolean isMate);
 
-	List<Map<String, Object>> getGatherDiarySumRateAndCount(Long gatherId);
+	List<Map<String, Object>> getGatherDiarySumRateAndCount(Long userId, Long gatherId);
 
 	List<Map<String, Object>> getDiaryList(Long userId, Long exhId, Boolean isSolo, Long gatherId, Boolean isForget,
-		LocalDate visitDate);
+		LocalDate visitDate, Boolean isMate);
 
 	DiaryEntity getDiaryByDiaryIdAndWriterIdAndExhId(Long diaryId, Long writerId, Long exhId);
 

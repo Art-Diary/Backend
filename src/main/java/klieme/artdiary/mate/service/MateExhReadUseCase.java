@@ -2,21 +2,20 @@ package klieme.artdiary.mate.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
-import klieme.artdiary.gathering.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
-import klieme.artdiary.gathering.data_access.entity.GatheringExhEntity;
-import klieme.artdiary.solo.data_access.entity.MydiaryEntity;
-import klieme.artdiary.solo.data_access.entity.UserExhEntity;
+import klieme.artdiary.record_data_access.entity.DiaryEntity;
+import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.user.data_access.entity.UserEntity;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public interface MateExhsReadUseCase {
+public interface MateExhReadUseCase {
 	List<FindMateExhsResult> getMateExhsList(MateExhsFindQuery query) throws IOException;
 
 	List<FindMateDiaryResult> getMateDiaryList(MateDiaryFindQuery query) throws IOException;
@@ -49,7 +48,7 @@ public interface MateExhsReadUseCase {
 		private final Double rate; //별점 평균
 
 		@Builder
-		public static FindMateExhsResult findMateExhs(ExhEntity entity, String poster, Double rate) {
+		public static FindMateExhsResult findMateExhs(ExhEntity entity, Double rate, String poster) {
 			return FindMateExhsResult.builder()
 				.exhId(entity.getExhId())
 				.exhName(entity.getExhName())
@@ -77,14 +76,14 @@ public interface MateExhsReadUseCase {
 		private final String gatherName;
 		private final LocalDate visitDate;
 		private final String exhName;
-		private final Long userExhId;
-		private final Long gatherExhId;
+		private final Long exhVisitId;
+		private final LocalDateTime initDate;
 
 		@Builder
-		public static MateExhsReadUseCase.FindMateDiaryResult findMateSoloDiary(MydiaryEntity diary, UserEntity user,
-			UserExhEntity userExh, ExhEntity exh, String thumbnail) {
-			return MateExhsReadUseCase.FindMateDiaryResult.builder()
-				.diaryId(diary.getSoloDiaryId())
+		public static FindMateDiaryResult findMateDiary(DiaryEntity diary, ExhVisitEntity exhVisit, UserEntity user,
+			ExhEntity exh, GatheringEntity gathering, String thumbnail) {
+			return FindMateDiaryResult.builder()
+				.diaryId(diary.getDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
@@ -94,33 +93,12 @@ public interface MateExhsReadUseCase {
 				.saying(diary.getSaying())
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
-				.visitDate(userExh.getVisitDate())
+				.visitDate(exhVisit.getVisitDate())
 				.exhName(exh.getExhName())
-				.userExhId(userExh.getUserExhId())
+				.exhVisitId(exhVisit.getExhVisitId())
+				.initDate(diary.getInitDate())
+				.gatherName(gathering != null ? gathering.getGatherName() : null)
 				.build();
 		}
-
-		@Builder
-		public static MateExhsReadUseCase.FindMateDiaryResult findMateGatheringDiary(GatheringDiaryEntity diary,
-			UserEntity user, GatheringEntity gathering, GatheringExhEntity gatheringExh, ExhEntity exh,
-			String thumbnail) {
-			return MateExhsReadUseCase.FindMateDiaryResult.builder()
-				.diaryId(diary.getGatherDiaryId())
-				.title(diary.getTitle())
-				.rate(diary.getRate())
-				.diaryPrivate(diary.getDiaryPrivate())
-				.contents(diary.getContents())
-				.thumbnail(thumbnail)
-				.writeDate(diary.getWriteDate())
-				.saying(diary.getSaying())
-				.userId(user.getUserId())
-				.nickname(user.getNickname())
-				.gatherName(gathering.getGatherName())
-				.visitDate(gatheringExh.getVisitDate())
-				.exhName(exh.getExhName())
-				.gatherExhId(gatheringExh.getGatherExhId())
-				.build();
-		}
-
 	}
 }

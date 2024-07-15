@@ -1,6 +1,7 @@
 package klieme.artdiary.record_data_access.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -37,7 +38,7 @@ public class DiaryEntity {
 	private String contents;
 	private String thumbnail;
 	@Column(name = "init_date", nullable = false)
-	private LocalDate initDate;
+	private LocalDateTime initDate;
 	@Column(name = "write_date", nullable = false)
 	private LocalDate writeDate;
 	private String saying;
@@ -48,7 +49,7 @@ public class DiaryEntity {
 
 	@Builder
 	public DiaryEntity(Long diaryId, String title, Double rate, Boolean diaryPrivate, String contents,
-		String thumbnail, LocalDate initDate, LocalDate writeDate, String saying, Long writerId, Long exhVisitId) {
+		String thumbnail, LocalDateTime initDate, LocalDate writeDate, String saying, Long writerId, Long exhVisitId) {
 		this.diaryId = diaryId;
 		this.title = title;
 		this.rate = rate;
