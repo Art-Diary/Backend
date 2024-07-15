@@ -7,8 +7,7 @@ import java.util.stream.Stream;
 
 public enum ImageType {
 	PROFILE("프로필"),
-	THUMBNAIL_SOLO("기록 썸네일 솔로"),
-	THUMBNAIL_GATHER("기록 썸네일 모임");
+	THUMBNAIL("기록 썸네일");
 
 	private final String label;
 

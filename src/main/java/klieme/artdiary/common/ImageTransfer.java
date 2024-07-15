@@ -45,11 +45,10 @@ public class ImageTransfer {
 	@Getter
 	@Builder
 	public static class UploadQuery {
+		// for thumbnail
 		private final ImageType type;
 		private final MultipartFile image;
-		private final Long soloDiaryId;
-		private final Long gatherId;
-		private final Long gatherDiaryId;
+		private final Long diaryId;
 		// for profile
 		private final String url;
 		private final String providerType;
@@ -64,12 +63,12 @@ public class ImageTransfer {
 	}
 
 	/**
+	 * {NEW}
 	 * upload image to storage
-	 * /thumbnail/solo/{soloDiaryId}.png
-	 * /thumbnail/gathering/{gatherId}/{gatherDiaryId}.png
+	 * /thumbnail/{diaryId}.png
 	 * /profile/{userId}.png
 	 */
-	public FindUploadResult uploadImage(UploadQuery query) throws IOException {
+	public FindUploadResult uploadImageToStorage(UploadQuery query) throws IOException {
 		String defaultDir = RECORD_LOCAL_PATH;
 		String imageToString;
 		MultipartFile imageFile = query.getImage() != null && query.getImage().isEmpty() ? null : query.getImage();
@@ -78,10 +77,8 @@ public class ImageTransfer {
 		if (query.getType() == ImageType.PROFILE) {
 			defaultDir += ("/profile/" + (query.getUrl() != null ?
 				query.getProviderType() + '_' + query.getProviderId() : getUserId()));
-		} else if (query.getType() == ImageType.THUMBNAIL_SOLO) {
-			defaultDir += ("/thumbnail/solo/" + query.getSoloDiaryId());
-		} else if (query.getType() == ImageType.THUMBNAIL_GATHER) {
-			defaultDir += ("/thumbnail/gathering/" + query.getGatherId() + "/" + query.getGatherDiaryId());
+		} else if (query.getType() == ImageType.THUMBNAIL) {
+			defaultDir += ("/thumbnail/" + query.getDiaryId());
 		}
 		// 이미지 저장 및 string 형으로 전환
 		if (query.getUrl() != null) {

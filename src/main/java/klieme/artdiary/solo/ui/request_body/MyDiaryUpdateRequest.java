@@ -16,9 +16,7 @@ import lombok.Setter;
 @Setter
 public class MyDiaryUpdateRequest {
 	@NotNull
-	private Long userExhId; // 개인 일정이 아닌 경우 -1
-	@NotNull
-	private Long gatherExhId; // 모임이 아닐 경우 -1
+	private Long exhVisitId;
 	@NotBlank
 	private String title;
 	@NotNull

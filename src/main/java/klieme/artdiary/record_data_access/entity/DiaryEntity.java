@@ -36,6 +36,8 @@ public class DiaryEntity {
 	@Column(nullable = false)
 	private String contents;
 	private String thumbnail;
+	@Column(name = "init_date", nullable = false)
+	private LocalDate initDate;
 	@Column(name = "write_date", nullable = false)
 	private LocalDate writeDate;
 	private String saying;
@@ -46,16 +48,43 @@ public class DiaryEntity {
 
 	@Builder
 	public DiaryEntity(Long diaryId, String title, Double rate, Boolean diaryPrivate, String contents,
-		String thumbnail, LocalDate writeDate, String saying, Long writerId, Long exhVisitId) {
+		String thumbnail, LocalDate initDate, LocalDate writeDate, String saying, Long writerId, Long exhVisitId) {
 		this.diaryId = diaryId;
 		this.title = title;
 		this.rate = rate;
 		this.diaryPrivate = diaryPrivate;
 		this.contents = contents;
 		this.thumbnail = thumbnail;
+		this.initDate = initDate;
 		this.writeDate = writeDate;
 		this.saying = saying;
 		this.writerId = writerId;
 		this.exhVisitId = exhVisitId;
+	}
+
+	public void updateThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
+
+	public void updateDiary(DiaryEntity entity) {
+		if (entity.getTitle() != null) {
+			this.title = entity.getTitle();
+		}
+		if (entity.getRate() != null) {
+			this.rate = entity.getRate();
+		}
+		if (entity.getDiaryPrivate() != null) {
+			this.diaryPrivate = entity.getDiaryPrivate();
+		}
+		if (entity.getContents() != null) {
+			this.contents = entity.getContents();
+		}
+		if (entity.getWriteDate() != null) {
+			this.writeDate = entity.getWriteDate();
+		}
+		if (entity.getExhVisitId() != null) {
+			this.exhVisitId = entity.getExhVisitId();
+		}
+		this.saying = entity.getSaying();
 	}
 }

@@ -14,7 +14,7 @@ import lombok.ToString;
 public interface MyDiaryOperationUseCase {
 	List<MyDiaryReadUseCase.FindMyDiaryResult> createMyDiary(MyDiaryCreateUpdateCommand command) throws IOException;
 
-	void deleteMyDiary(Long exhId, Boolean solo, Long diaryId);
+	void deleteMyDiary(Long exhId, Long diaryId);
 
 	List<MyDiaryReadUseCase.FindMyDiaryResult> updateMyDiary(MyDiaryCreateUpdateCommand command) throws IOException;
 
@@ -25,8 +25,7 @@ public interface MyDiaryOperationUseCase {
 	class MyDiaryCreateUpdateCommand {
 		private final Long exhId;
 		private final Long diaryId; // update에서 사용
-		private final Long userExhId; // 개인 일정이 아닌 경우 -1
-		private final Long gatherExhId; // 모임이 아닐 경우 -1
+		private final Long exhVisitId; // 모임이 아닐 경우 -1
 		private final String title;
 		private final Double rate;
 		private final Boolean diaryPrivate;
