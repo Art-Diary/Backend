@@ -10,9 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import klieme.artdiary.common.ArtDiaryException;
-import klieme.artdiary.common.MessageType;
-import klieme.artdiary.common.UserIdFilter;
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.SearchEntity;
 import klieme.artdiary.exhibition.data_access.repository.SearchRepository;
 
@@ -53,7 +52,7 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 	}
 
 	@Override
-	public List<FindSearchResult> getSearchContents() throws IOException {
+	public List<FindSearchResult> getSearchContents() {
 
 		List<FindSearchResult> results = new ArrayList<>();
 
@@ -61,12 +60,7 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 		List<SearchEntity> sEntities = searchRepository.findByUserId(getUserId());
 
 		//가장 최근 시간순으로 정렬
-		sEntities.sort(new Comparator<SearchEntity>() {
-			@Override
-			public int compare(SearchEntity e1, SearchEntity e2) {
-				return e2.getSearchTime().compareTo(e1.getSearchTime());
-			}
-		});
+		sEntities.sort((e1, e2) -> e2.getSearchTime().compareTo(e1.getSearchTime()));
 
 		for (SearchEntity sEntity : sEntities) {
 			results.add(SearchReadUseCase.FindSearchResult.findSearchContents(sEntity));

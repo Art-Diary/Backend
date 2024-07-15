@@ -12,10 +12,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import klieme.artdiary.common.ArtDiaryException;
-import klieme.artdiary.common.ImageTransfer;
-import klieme.artdiary.common.MessageType;
-import klieme.artdiary.common.UserIdFilter;
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.image.ImageTransfer;
+import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;

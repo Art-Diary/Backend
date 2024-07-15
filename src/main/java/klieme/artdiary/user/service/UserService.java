@@ -9,11 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import klieme.artdiary.common.ArtDiaryException;
-import klieme.artdiary.common.ImageTransfer;
-import klieme.artdiary.common.ImageType;
-import klieme.artdiary.common.MessageType;
-import klieme.artdiary.common.UserIdFilter;
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.image.ImageTransfer;
+import klieme.artdiary.common.image.ImageType;
+import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.record_data_access.repository.DiaryRepository;
