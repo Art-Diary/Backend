@@ -16,4 +16,6 @@ public interface ExhVisitRepository extends JpaRepository<ExhVisitEntity, Long>,
 	Optional<ExhVisitEntity> findByUserIdAndExhIdAndVisitDate(Long userId, Long exhId, LocalDate visitDate);
 
 	Optional<ExhVisitEntity> findByGatherIdAndExhIdAndVisitDate(Long gatherId, Long exhId, LocalDate visitDate);
+
+	List<ExhVisitEntity> findByUserId(Long userId);
 }

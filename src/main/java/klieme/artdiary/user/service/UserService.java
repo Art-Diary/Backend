@@ -14,10 +14,10 @@ import klieme.artdiary.common.ImageTransfer;
 import klieme.artdiary.common.ImageType;
 import klieme.artdiary.common.MessageType;
 import klieme.artdiary.common.UserIdFilter;
-import klieme.artdiary.gathering.data_access.entity.GatheringDiaryEntity;
-import klieme.artdiary.gathering.data_access.repository.GatheringDiaryRepository;
-import klieme.artdiary.solo.data_access.entity.UserExhEntity;
-import klieme.artdiary.solo.data_access.repository.UserExhRepository;
+import klieme.artdiary.record_data_access.entity.DiaryEntity;
+import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
+import klieme.artdiary.record_data_access.repository.DiaryRepository;
+import klieme.artdiary.record_data_access.repository.ExhVisitRepository;
 import klieme.artdiary.user.data_access.entity.ReasonEntity;
 import klieme.artdiary.user.data_access.entity.SocialLoginEntity;
 import klieme.artdiary.user.data_access.entity.SocialLoginId;
@@ -30,19 +30,19 @@ import klieme.artdiary.user.data_access.repository.UserRepository;
 public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	private final UserRepository userRepository;
-	private final UserExhRepository userExhRepository;
-	private final GatheringDiaryRepository gatheringDiaryRepository;
+	private final ExhVisitRepository exhVisitRepository;
+	private final DiaryRepository diaryRepository;
 	private final ReasonRepository reasonRepository;
 	private final SocialLoginRepository socialLoginRepository;
 	private final ImageTransfer imageTransfer;
 
 	@Autowired
-	public UserService(UserRepository userRepository, UserExhRepository userExhRepository,
-		GatheringDiaryRepository gatheringDiaryRepository, ReasonRepository reasonRepository,
-		SocialLoginRepository socialLoginRepository, ImageTransfer imageTransfer) {
+	public UserService(UserRepository userRepository, ExhVisitRepository exhVisitRepository,
+		DiaryRepository diaryRepository, ReasonRepository reasonRepository, SocialLoginRepository socialLoginRepository,
+		ImageTransfer imageTransfer) {
 		this.userRepository = userRepository;
-		this.userExhRepository = userExhRepository;
-		this.gatheringDiaryRepository = gatheringDiaryRepository;
+		this.exhVisitRepository = exhVisitRepository;
+		this.diaryRepository = diaryRepository;
 		this.reasonRepository = reasonRepository;
 		this.socialLoginRepository = socialLoginRepository;
 		this.imageTransfer = imageTransfer;
@@ -198,29 +198,25 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	@Override
 	@Transactional
 	public void deleteUser(DeleteReasonCommand command) {
+		// - ExhVisit의 writerId와 Diary의 userId 값을 null로 변경
+		List<ExhVisitEntity> exhVisitList = exhVisitRepository.findByUserId(getUserId());
+		List<DiaryEntity> diaryList = diaryRepository.findByWriterId(getUserId());
 
-		//- UserExh, GatheringDiary 의 탈퇴 userId Null 로 변경.
-		// userExh에서 확인
-		List<UserExhEntity> userExhs = userExhRepository.findByUserId(getUserId());
-		for (UserExhEntity userExh : userExhs) {
-			userExh.updateUserId();
-			userExhRepository.save(userExh);
+		for (ExhVisitEntity exhVisit : exhVisitList) {
+			exhVisit.updateUserIdNull();
+			exhVisitRepository.save(exhVisit);
 		}
-		//GatheringDiary에서 확인
-		List<GatheringDiaryEntity> gDiaries = gatheringDiaryRepository.findByUserId(getUserId());
-		for (GatheringDiaryEntity gDiary : gDiaries) {
-			gDiary.updateUserId();
-			gatheringDiaryRepository.save(gDiary);
+		for (DiaryEntity diary : diaryList) {
+			diary.updateWriterIdNull();
+			diaryRepository.save(diary);
 		}
 
 		// - 탈퇴 이유 reason에 저장.
-		ReasonEntity reason = ReasonEntity.builder()
-			.reason(command.getReason()).build();
+		ReasonEntity reason = ReasonEntity.builder().reason(command.getReason()).build();
 		reasonRepository.save(reason);
 
-		// - user테이블에서 사용자 삭제
+		// - user 테이블에서 사용자 삭제
 		userRepository.deleteById(getUserId());
-
 	}
 
 	@Override
