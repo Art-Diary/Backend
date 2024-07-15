@@ -5,11 +5,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
-import klieme.artdiary.gathering.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
-import klieme.artdiary.gathering.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.gathering.info.ExhibitionInfo;
 import klieme.artdiary.gathering.info.MateInfo;
+import klieme.artdiary.record_data_access.entity.DiaryEntity;
+import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.user.data_access.entity.UserEntity;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -70,14 +70,14 @@ public interface GatheringReadUseCase {
 	@Getter
 	@ToString
 	@Builder
-	class FindGatheringExhsResult {
+	class FindGatheringExhResult {
 		private final Long exhId;
 		private final String exhName;
 		private final String poster;
 		private final Double rate;
 
-		public static FindGatheringExhsResult findByGatheringExhs(ExhEntity entity, String poster, Double rate) {
-			return FindGatheringExhsResult.builder()
+		public static FindGatheringExhResult findByGatheringExh(ExhEntity entity, String poster, Double rate) {
+			return FindGatheringExhResult.builder()
 				.exhId(entity.getExhId())
 				.exhName(entity.getExhName())
 				.poster(poster)
@@ -100,29 +100,30 @@ public interface GatheringReadUseCase {
 		private final String saying;
 		private final Long userId;
 		private final String nickname; // 작성자
-		private final String gatherName;
+		private final String gatherName; // 개인일 경우 null
 		private final LocalDate visitDate;
 		private final String exhName;
-		private final Long gatherExhId;
+		private final Long exhVisitId;
+		private final LocalDate initDate;
 
-		public static FindGatheringDiaryResult findByGatheringDiary(GatheringDiaryEntity gatheringDiary,
-			GatheringExhEntity gatheringExh, GatheringEntity gathering, UserEntity user, ExhEntity exh,
-			String thumbnail) {
+		public static FindGatheringDiaryResult findByGatheringDiary(DiaryEntity diary, ExhVisitEntity exhVisit,
+			GatheringEntity gathering, UserEntity user, ExhEntity exh, String thumbnail) {
 			return FindGatheringDiaryResult.builder()
-				.diaryId(gatheringDiary.getGatherDiaryId())
-				.title(gatheringDiary.getTitle())
-				.rate(gatheringDiary.getRate())
-				.diaryPrivate(gatheringDiary.getDiaryPrivate())
-				.contents(gatheringDiary.getContents())
+				.diaryId(diary.getDiaryId())
+				.title(diary.getTitle())
+				.rate(diary.getRate())
+				.diaryPrivate(diary.getDiaryPrivate())
+				.contents(diary.getContents())
 				.thumbnail(thumbnail)
-				.writeDate(gatheringDiary.getWriteDate())
-				.saying(gatheringDiary.getSaying())
+				.writeDate(diary.getWriteDate())
+				.saying(diary.getSaying())
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
 				.gatherName(gathering.getGatherName())
-				.visitDate(gatheringExh.getVisitDate())
+				.visitDate(exhVisit.getVisitDate())
 				.exhName(exh.getExhName())
-				.gatherExhId(gatheringDiary.getGatherExhId())
+				.exhVisitId(diary.getExhVisitId())
+				.initDate(diary.getInitDate())
 				.build();
 		}
 	}
