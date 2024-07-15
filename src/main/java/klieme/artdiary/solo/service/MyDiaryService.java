@@ -1,6 +1,7 @@
 package klieme.artdiary.solo.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -64,7 +65,7 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 			.rate(command.getRate())
 			.diaryPrivate(command.getDiaryPrivate())
 			.contents(command.getContents())
-			.initDate(command.getWriteDate())
+			.initDate(LocalDateTime.now())
 			.writeDate(command.getWriteDate())
 			.saying(command.getSaying())
 			.writerId(userEntity.getUserId())
@@ -152,20 +153,20 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 			if (query.getGatherId() != null && query.getVisitDate() != null) {
 				// 캘린더 조회: gatherId && visitdate
 				diaryList = diaryRepository.getDiaryList(userEntity.getUserId(), exhEntity.getExhId(), false,
-					query.getGatherId(), false, query.getVisitDate());
+					query.getGatherId(), false, query.getVisitDate(), false);
 			} else if (query.getGatherId() == null && query.getVisitDate() != null) {
 				// 캘린더 조회: solo && visitdate
 				diaryList = diaryRepository.getDiaryList(userEntity.getUserId(), exhEntity.getExhId(), true, null,
-					false, query.getVisitDate());
+					false, query.getVisitDate(), false);
 			} else if (query.getGatherId() == null && query.getForget() != null && query.getForget()) {
 				// 캘린더 조회: solo && forget=true
 				diaryList = diaryRepository.getDiaryList(userEntity.getUserId(), exhEntity.getExhId(), true, null, true,
-					null);
+					null, false);
 			}
 		} else {
 			// 1. 내 기록 조회: forget, visitDate, gatherId 없는 경우
 			diaryList = diaryRepository.getDiaryList(userEntity.getUserId(), exhEntity.getExhId(), null, null, false,
-				null);
+				null, false);
 		}
 		assert diaryList != null;
 		for (Map<String, Object> item : diaryList) {

@@ -44,7 +44,7 @@ public class MyExhService implements MyExhReadUseCase, MyExhOperationUseCase {
 	public List<MyExhReadUseCase.FindMyExhsResult> getMyExhsList() throws IOException {
 		Long userId = getUserId();
 		// 내가 작성한 전시회 기록들의 평점 구하기
-		List<Map<String, Object>> myDiarySumRateAndCountList = diaryRepository.getMyDiarySumRateAndCount(userId);
+		List<Map<String, Object>> myDiarySumRateAndCountList = diaryRepository.getMyDiarySumRateAndCount(userId, false);
 
 		List<MyExhReadUseCase.FindMyExhsResult> result = new ArrayList<>();
 

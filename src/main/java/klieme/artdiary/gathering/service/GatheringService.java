@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,7 +146,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		List<FindGatheringExhResult> result = new ArrayList<>();
 		// 모임이 갔다 온 각 전시회의 평점 구하기
 		List<Map<String, Object>> gatherDiarySumRateAndCountList = diaryRepository.getGatherDiarySumRateAndCount(
-			command.getGatherId());
+			getUserId(), command.getGatherId());
 
 		for (Map<String, Object> gatherDiarySumRateAndCount : gatherDiarySumRateAndCountList) {
 			// map
@@ -191,6 +192,10 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			UserEntity user = (UserEntity)item.get("userEntity");
 
 			if (diary != null && exhVisit != null) {
+				// 비공개이지만 내가 작성한 경우
+				if (!(diary.getDiaryPrivate() || Objects.equals(diary.getWriterId(), getUserId()))) {
+					continue;
+				}
 				String thumbnail = imageTransfer.downloadImage(diary.getThumbnail());
 
 				if (user == null) {
@@ -285,7 +290,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		// 2. gathering이 저장한 전시회 리스트(중복 제외)
 		// 모임이 갔다 온 각 전시회의 평점 구하기 (모임에서 작성한 글들의 평점?으로 구현함.)
 		List<Map<String, Object>> gatherDiarySumRateAndCountList = diaryRepository.getGatherDiarySumRateAndCount(
-			query.getGatherId());
+			getUserId(), query.getGatherId());
 
 		for (Map<String, Object> gatherDiarySumRateAndCount : gatherDiarySumRateAndCountList) {
 			// map
