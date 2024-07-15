@@ -1,5 +1,6 @@
 package klieme.artdiary.record_data_access.repository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,9 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import klieme.artdiary.calendar.enums.CalendarKind;
+import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
+import klieme.artdiary.exhibition.data_access.entity.QExhEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
 import klieme.artdiary.gathering.data_access.entity.QGatheringEntity;
 import klieme.artdiary.gathering.data_access.entity.QGatheringMateEntity;
@@ -73,5 +77,49 @@ public class ExhVisitRepoCustomImpl implements ExhVisitRepoCustom {
 			.fetchJoin()
 			.where(exhVisit.exhVisitId.eq(exhVisitId), exhVisit.exhId.eq(exhId), builder)
 			.fetchFirst() != null;
+	}
+
+	@Override
+	public List<Map<String, Object>> getVisitInfoForCalendar(CalendarKind kind, Long userId, Long gatherId,
+		LocalDate startDate, LocalDate endDate) {
+		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
+		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
+		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
+		QExhEntity exh = QExhEntity.exhEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+		BooleanBuilder gatherBuilder = new BooleanBuilder();
+
+		if (kind == CalendarKind.ALONE) { // 개인일 경우
+			builder.and(exhVisit.userId.eq(userId));
+		} else if (kind == CalendarKind.GATHER) { // 모임일 경우
+			builder.and(exhVisit.gatherId.eq(gatherId));
+			builder.and(gatheringMate.gatheringMateId.userId.eq(userId));
+		} else { // 전체일 경우
+			gatherBuilder.and(exhVisit.gatherId.isNotNull());
+			gatherBuilder.and(gatheringMate.gatheringMateId.userId.eq(userId));
+			builder.or(gatherBuilder);
+			builder.or(exhVisit.userId.eq(userId));
+		}
+
+		List<Tuple> tuples = query.select(exhVisit, gathering, exh)
+			.from(exhVisit)
+			.leftJoin(gatheringMate).on(exhVisit.gatherId.eq(gatheringMate.gatheringMateId.gatherId))
+			.leftJoin(gathering).on(gatheringMate.gatheringMateId.gatherId.eq(gathering.gatherId))
+			.leftJoin(exh).on(exhVisit.exhId.eq(exh.exhId))
+			.fetchJoin()
+			.where(builder, exhVisit.visitDate.goe(startDate), exhVisit.visitDate.loe(endDate))
+			.fetch();
+		// startDate <= visitDate && visitDate <= endDate
+
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("exhVisit", tuple.get(0, ExhVisitEntity.class));
+			row.put("gathering", tuple.get(1, GatheringEntity.class));
+			row.put("exhibition", tuple.get(2, ExhEntity.class));
+			result.add(row);
+		}
+		return result;
 	}
 }
