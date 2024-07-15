@@ -27,18 +27,22 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 	private final JPAQueryFactory query;
 
 	@Override
-	public List<Map<String, Object>> getMyDiarySumRateAndCount(Long userId) {
+	public List<Map<String, Object>> getMyDiarySumRateAndCount(Long userId, Boolean isMate) {
 		QDiaryEntity diary = QDiaryEntity.diaryEntity;
 		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
 		QExhEntity exh = QExhEntity.exhEntity;
+		BooleanBuilder builder = new BooleanBuilder();
 
+		if (isMate) {
+			builder.and(diary.diaryPrivate.eq(true));
+		}
 		List<Tuple> tuples = query
 			.select(diary.rate.sum(), diary.count(), exh)
 			.from(diary)
 			.leftJoin(exhVisit).on(diary.exhVisitId.eq(exhVisit.exhVisitId))
 			.leftJoin(exh).on(exhVisit.exhId.eq(exh.exhId))
 			.fetchJoin()
-			.where(diary.writerId.eq(userId))
+			.where(diary.writerId.eq(userId), builder)
 			.groupBy(exhVisit.exhId)
 			.orderBy(exh.exhId.asc())
 			.fetch();
@@ -56,10 +60,17 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 	}
 
 	@Override
-	public List<Map<String, Object>> getGatherDiarySumRateAndCount(Long gatherId) {
+	public List<Map<String, Object>> getGatherDiarySumRateAndCount(Long userId, Long gatherId) {
 		QDiaryEntity diary = QDiaryEntity.diaryEntity;
 		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
 		QExhEntity exh = QExhEntity.exhEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+		BooleanBuilder diaryBuilder = new BooleanBuilder();
+
+		builder.or(diary.diaryPrivate.eq(true));
+		diaryBuilder.and(diary.diaryPrivate.eq(false));
+		diaryBuilder.and(diary.writerId.eq(userId));
+		builder.or(diaryBuilder);
 
 		List<Tuple> tuples = query
 			.select(diary.rate.sum(), diary.count(), exh)
@@ -67,7 +78,7 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 			.leftJoin(diary).on(exhVisit.exhVisitId.eq(diary.exhVisitId))
 			.leftJoin(exh).on(exhVisit.exhId.eq(exh.exhId))
 			.fetchJoin()
-			.where(exhVisit.gatherId.eq(gatherId))
+			.where(exhVisit.gatherId.eq(gatherId), builder)
 			.groupBy(exhVisit.exhId)
 			.orderBy(exh.exhId.asc())
 			.fetch();
@@ -86,15 +97,15 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 
 	@Override
 	public List<Map<String, Object>> getDiaryList(Long userId, Long exhId, Boolean isSolo, Long gatherId,
-		Boolean isForget, LocalDate visitDate) {
+		Boolean isForget, LocalDate visitDate, Boolean isMate) {
 		QDiaryEntity diary = QDiaryEntity.diaryEntity;
 		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
 		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
 		BooleanBuilder builder = new BooleanBuilder();
 
-		// if (isMate) {
-		// 	builder.and(myDiary.diaryPrivate.eq(true));
-		// }
+		if (isMate) {
+			builder.and(diary.diaryPrivate.eq(true));
+		}
 		if (isSolo != null) {
 			if (isSolo) {
 				builder.and(exhVisit.userId.eq(userId));

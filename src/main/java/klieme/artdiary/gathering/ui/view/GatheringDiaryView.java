@@ -26,7 +26,7 @@ public class GatheringDiaryView {
 	private final String gatherName;
 	private final LocalDate visitDate;
 	private final String exhName;
-	private final Long visitExhId;
+	private final Long exhVisitId;
 
 	@Builder
 	public GatheringDiaryView(GatheringReadUseCase.FindGatheringDiaryResult result) {
@@ -43,6 +43,6 @@ public class GatheringDiaryView {
 		this.gatherName = result.getGatherName();
 		this.visitDate = result.getVisitDate();
 		this.exhName = result.getExhName();
-		this.visitExhId = result.getExhVisitId();
+		this.exhVisitId = result.getExhVisitId();
 	}
 }

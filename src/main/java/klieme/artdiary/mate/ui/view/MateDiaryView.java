@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import klieme.artdiary.mate.service.MateExhsReadUseCase;
+import klieme.artdiary.mate.service.MateExhReadUseCase;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -27,11 +27,10 @@ public class MateDiaryView {
 	private final String gatherName;
 	private final LocalDate visitDate;
 	private final String exhName;
-	private final Long userExhId;
-	private final Long gatherExhId;
+	private final Long exhVisitId;
 
 	@Builder
-	public MateDiaryView(MateExhsReadUseCase.FindMateDiaryResult result) {
+	public MateDiaryView(MateExhReadUseCase.FindMateDiaryResult result) {
 		this.diaryId = result.getDiaryId();
 		this.title = result.getTitle();
 		this.rate = result.getRate();
@@ -45,8 +44,7 @@ public class MateDiaryView {
 		this.gatherName = result.getGatherName();
 		this.visitDate = result.getVisitDate();
 		this.exhName = result.getExhName();
-		this.userExhId = result.getUserExhId();
-		this.gatherExhId = result.getGatherExhId();
+		this.exhVisitId = result.getExhVisitId();
 
 	}
 

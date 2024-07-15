@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import klieme.artdiary.mate.service.MateExhsReadUseCase;
+import klieme.artdiary.mate.service.MateExhReadUseCase;
 import klieme.artdiary.mate.ui.view.MateDiaryView;
 import klieme.artdiary.mate.ui.view.MateExhsView;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping(value = "/mates/{mateId}/exhibitions")
 public class MateExhsController {
-	private final MateExhsReadUseCase mateExhsReadUseCase;
+	private final MateExhReadUseCase mateExhReadUseCase;
 
 	@Autowired
-	public MateExhsController(MateExhsReadUseCase mateExhsReadUseCase) {
-		this.mateExhsReadUseCase = mateExhsReadUseCase;
+	public MateExhsController(MateExhReadUseCase mateExhReadUseCase) {
+		this.mateExhReadUseCase = mateExhReadUseCase;
 	}
 
 	/**
@@ -35,13 +35,13 @@ public class MateExhsController {
 	public ResponseEntity<List<MateExhsView>> getMateExhsList(@PathVariable(name = "mateId") Long mateId) throws
 		IOException {
 		log.info("[전시 메이트가 갔다온 전시회 목록]");
-		var query = MateExhsReadUseCase.MateExhsFindQuery.builder().mateId(mateId).build();
+		var query = MateExhReadUseCase.MateExhsFindQuery.builder().mateId(mateId).build();
 		// 비즈니스 로직 호출
-		List<MateExhsReadUseCase.FindMateExhsResult> results = mateExhsReadUseCase.getMateExhsList(query);
+		List<MateExhReadUseCase.FindMateExhsResult> results = mateExhReadUseCase.getMateExhsList(query);
 		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
 		List<MateExhsView> viewResult = new ArrayList<>();
 
-		for (MateExhsReadUseCase.FindMateExhsResult result : results) {
+		for (MateExhReadUseCase.FindMateExhsResult result : results) {
 			viewResult.add(MateExhsView.builder().result(result).build());
 		}
 		return ResponseEntity.ok(viewResult);
@@ -55,14 +55,14 @@ public class MateExhsController {
 	public ResponseEntity<List<MateDiaryView>> getMateDiaries(@PathVariable(name = "mateId") Long mateId,
 		@PathVariable(name = "exhId") Long exhId) throws IOException {
 		log.info("[전시 메이트의 전시회 기록 목록]");
-		var query = MateExhsReadUseCase.MateDiaryFindQuery.builder().mateId(mateId).exhId(exhId).build();
+		var query = MateExhReadUseCase.MateDiaryFindQuery.builder().mateId(mateId).exhId(exhId).build();
 
 		//비즈니스 로직
-		List<MateExhsReadUseCase.FindMateDiaryResult> results = mateExhsReadUseCase.getMateDiaryList(query);
+		List<MateExhReadUseCase.FindMateDiaryResult> results = mateExhReadUseCase.getMateDiaryList(query);
 
 		List<MateDiaryView> viewResult = new ArrayList<>();
 
-		for (MateExhsReadUseCase.FindMateDiaryResult result : results) {
+		for (MateExhReadUseCase.FindMateDiaryResult result : results) {
 			viewResult.add(MateDiaryView.builder().result(result).build());
 		}
 		return ResponseEntity.ok(viewResult);
