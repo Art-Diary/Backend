@@ -6,7 +6,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import klieme.artdiary.exhibition.data_access.entity.QExhEntity;
-import klieme.artdiary.myexhs.data_access.entity.QUserExhEntity;
+import klieme.artdiary.solo.data_access.entity.QUserExhEntity;
 import klieme.artdiary.user.data_access.entity.QUserEntity;
 import lombok.RequiredArgsConstructor;
 

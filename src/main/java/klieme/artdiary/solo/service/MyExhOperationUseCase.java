@@ -8,17 +8,16 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public interface MyExhsOperationUseCase {
+public interface MyExhOperationUseCase {
 
-	List<MyExhsReadUseCase.FindMyStoredDateResult> addMyExhVisitDateDummy(AddMyExhVisitDateDummyCommand command);
+	List<MyExhReadUseCase.FindMyStoredDateResult> addMyExhVisitDate(AddMyExhVisitDateCommand command);
 
 	@EqualsAndHashCode
 	@Builder
 	@Getter
 	@ToString
-	class AddMyExhVisitDateDummyCommand {
+	class AddMyExhVisitDateCommand {
 		private final Long exhId;
-		//private final Long userExhId; //혜원 추가
 		private final LocalDate visitDate;// 혜원 추가
 
 	}

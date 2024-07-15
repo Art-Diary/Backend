@@ -23,22 +23,22 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import klieme.artdiary.common.ArtDiaryException;
 import klieme.artdiary.common.MessageType;
-import klieme.artdiary.solo.service.MydiaryOperationUseCase;
-import klieme.artdiary.solo.service.MydiaryReadUseCase;
+import klieme.artdiary.solo.service.MyDiaryOperationUseCase;
+import klieme.artdiary.solo.service.MyDiaryReadUseCase;
 import klieme.artdiary.solo.ui.request_body.MyDiaryUpdateRequest;
-import klieme.artdiary.solo.ui.request_body.MydiaryRequest;
-import klieme.artdiary.solo.ui.view.MydiaryView;
+import klieme.artdiary.solo.ui.request_body.MyDiaryRequest;
+import klieme.artdiary.solo.ui.view.MyDiaryView;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping(value = "/myexhs/{exhId}/diaries")
-public class MydiaryController {
-	private final MydiaryOperationUseCase mydiaryOperationUseCase;
-	private final MydiaryReadUseCase mydiaryReadUseCase;
+public class MyDiaryController {
+	private final MyDiaryOperationUseCase mydiaryOperationUseCase;
+	private final MyDiaryReadUseCase mydiaryReadUseCase;
 
 	@Autowired
-	public MydiaryController(MydiaryOperationUseCase mydiaryOperationUseCase, MydiaryReadUseCase mydiaryReadUseCase) {
+	public MyDiaryController(MyDiaryOperationUseCase mydiaryOperationUseCase, MyDiaryReadUseCase mydiaryReadUseCase) {
 		this.mydiaryOperationUseCase = mydiaryOperationUseCase;
 		this.mydiaryReadUseCase = mydiaryReadUseCase;
 	}
@@ -48,9 +48,9 @@ public class MydiaryController {
 	 * "/myexhs/:exhId/diaries"
 	 */
 	@PostMapping("")
-	public ResponseEntity<List<MydiaryView>> createDiary(
+	public ResponseEntity<List<MyDiaryView>> createDiary(
 		@PathVariable(name = "exhId") Long exhId,
-		@Valid @ModelAttribute MydiaryRequest request
+		@Valid @ModelAttribute MyDiaryRequest request
 	) throws IOException {
 		log.info("[기록 추가]");
 		if (!((request.getUserExhId() == -1 && request.getGatherExhId() != -1)
@@ -58,7 +58,7 @@ public class MydiaryController {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		// request body 데이터 받아오기
-		var command = MydiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
+		var command = MyDiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
 			.exhId(exhId)
 			.userExhId(request.getUserExhId())
 			.gatherExhId(request.getGatherExhId())
@@ -71,12 +71,12 @@ public class MydiaryController {
 			.saying(request.getSaying())
 			.build();
 		// 비즈니스 로직 호출
-		List<MydiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryOperationUseCase.createMyDiary(command);
+		List<MyDiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryOperationUseCase.createMyDiary(command);
 		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
-		List<MydiaryView> results = new ArrayList<>();
+		List<MyDiaryView> results = new ArrayList<>();
 
-		for (MydiaryReadUseCase.FindMyDiaryResult myDiaryResult : myDiaryResults) {
-			results.add(MydiaryView.builder().result(myDiaryResult).build());
+		for (MyDiaryReadUseCase.FindMyDiaryResult myDiaryResult : myDiaryResults) {
+			results.add(MyDiaryView.builder().result(myDiaryResult).build());
 		}
 		return ResponseEntity.created(null).body(results);
 	}
@@ -86,7 +86,7 @@ public class MydiaryController {
 	 * "/myexhs/:exhId/diaries"
 	 */
 	@GetMapping("")
-	public ResponseEntity<List<MydiaryView>> getDiaries(@PathVariable(name = "exhId") Long exhId,
+	public ResponseEntity<List<MyDiaryView>> getDiaries(@PathVariable(name = "exhId") Long exhId,
 		@DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(name = "visitDate", required = false) LocalDate visitDate,
 		@RequestParam(name = "forget", required = false) Boolean forget,
 		@RequestParam(name = "gatherId", required = false) Long gatherId) throws IOException {
@@ -106,19 +106,19 @@ public class MydiaryController {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 
-		var query = MydiaryReadUseCase.MyDiariesFindQuery.builder()
+		var query = MyDiaryReadUseCase.MyDiariesFindQuery.builder()
 			.exhId(exhId)
 			.forget(forget)
 			.visitDate(forget == null ? null : visitDate)
 			.gatherId(forget == null ? null : gatherId)
 			.build();
 		// 비즈니스 로직 호출
-		List<MydiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryReadUseCase.getMyDiaries(query);
+		List<MyDiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryReadUseCase.getMyDiaries(query);
 		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
-		List<MydiaryView> results = new ArrayList<>();
+		List<MyDiaryView> results = new ArrayList<>();
 
-		for (MydiaryReadUseCase.FindMyDiaryResult myDiaryResult : myDiaryResults) {
-			results.add(MydiaryView.builder().result(myDiaryResult).build());
+		for (MyDiaryReadUseCase.FindMyDiaryResult myDiaryResult : myDiaryResults) {
+			results.add(MyDiaryView.builder().result(myDiaryResult).build());
 		}
 		return ResponseEntity.ok(results);
 	}
@@ -138,7 +138,7 @@ public class MydiaryController {
 	 * "/myexhs/:exhId/diaries/:diaryId"
 	 */
 	@PatchMapping("/{diaryId}")
-	public ResponseEntity<List<MydiaryView>> updateMyDiary(
+	public ResponseEntity<List<MyDiaryView>> updateMyDiary(
 		@PathVariable(name = "exhId") Long exhId,
 		@PathVariable(name = "diaryId") Long diaryId,
 		@Valid @ModelAttribute MyDiaryUpdateRequest request
@@ -149,7 +149,7 @@ public class MydiaryController {
 			throw new ArtDiaryException(MessageType.BAD_REQUEST);
 		}
 		// request body 데이터 받아오기
-		var command = MydiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
+		var command = MyDiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
 			.exhId(exhId)
 			.diaryId(diaryId)
 			.userExhId(request.getUserExhId())
@@ -163,12 +163,12 @@ public class MydiaryController {
 			.saying(request.getSaying())
 			.build();
 		// 비즈니스 로직 호출
-		List<MydiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryOperationUseCase.updateMyDiary(command);
+		List<MyDiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryOperationUseCase.updateMyDiary(command);
 		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
-		List<MydiaryView> results = new ArrayList<>();
+		List<MyDiaryView> results = new ArrayList<>();
 
-		for (MydiaryReadUseCase.FindMyDiaryResult myDiaryResult : myDiaryResults) {
-			results.add(MydiaryView.builder().result(myDiaryResult).build());
+		for (MyDiaryReadUseCase.FindMyDiaryResult myDiaryResult : myDiaryResults) {
+			results.add(MyDiaryView.builder().result(myDiaryResult).build());
 		}
 		return ResponseEntity.ok(results);
 	}

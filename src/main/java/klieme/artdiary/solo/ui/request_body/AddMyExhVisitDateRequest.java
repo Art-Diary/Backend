@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class AddMyExhsVisitDateRequest { //혜원 추가
+public class AddMyExhVisitDateRequest { //혜원 추가
 
 	@NotNull
 	public Long exhId;
