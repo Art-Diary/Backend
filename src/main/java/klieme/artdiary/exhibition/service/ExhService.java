@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import klieme.artdiary.gathering.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.gathering.data_access.repository.GatheringRepository;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.record_data_access.repository.ExhVisitRepoCustom;
+import klieme.artdiary.record_data_access.repository.ExhVisitRepoCustomImpl;
 import klieme.artdiary.record_data_access.repository.ExhVisitRepository;
 import klieme.artdiary.solo.data_access.entity.MydiaryEntity;
 import klieme.artdiary.solo.data_access.entity.UserExhEntity;
@@ -57,13 +59,15 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	private final UserRepository userRepository;
 	private final ImageTransfer imageTransfer;
 	private final ExhVisitRepository exhVisitRepository;
+	private final ExhVisitRepoCustomImpl exhVisitRepoCustom;
 
 	@Autowired
 	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository,
 		GatheringMateRepository gatheringMateRepository, GatheringExhRepository gatheringExhRepository,
 		GatheringDiaryRepository gatheringDiaryRepository, GatheringRepository gatheringRepository,
 		FavoriteExhRepository favoriteExhRepository, MydiaryRepository mydiaryRepository,
-		UserRepository userRepository, ImageTransfer imageTransfer, ExhVisitRepository exhVisitRepository) {
+		UserRepository userRepository, ImageTransfer imageTransfer, ExhVisitRepository exhVisitRepository,
+		ExhVisitRepoCustomImpl exhVisitRepoCustom) {
 		this.exhRepository = exhRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
@@ -75,6 +79,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		this.userRepository = userRepository;
 		this.imageTransfer = imageTransfer;
 		this.exhVisitRepository = exhVisitRepository;
+		this.exhVisitRepoCustom = exhVisitRepoCustom;
 	}
 
 	@Transactional
@@ -136,6 +141,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		// userId: getUserId(), exhId: query.getExhId(), gatherId: query.getGatherId()
 		Long userId = getUserId();
 		List<StoredListOfDate> dateList = new ArrayList<>();
+		FindStoredDateResult results;
 
 		// 전시회 아이디 검증
 		exhRepository.findByExhId(query.getExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
@@ -155,6 +161,38 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 					.build());
 
 			}
+
+		} else {
+			//그룹에서 다녀온 전시회
+			List<Map<String, Object>> entities = exhVisitRepoCustom.getGroupVisitedDateListOfExh(userId,
+				query.getGatherId(),
+				query.getExhId());
+
+			if (!entities.isEmpty()) {
+
+				ExhVisitEntity firstExhVisit = (ExhVisitEntity)entities.getFirst().get("exhVisit");
+				Long checkGatherId = firstExhVisit.getGatherId();
+
+				for (int i = 0; i < entities.size(); i++) {
+					ExhVisitEntity exhVisit = (ExhVisitEntity)entities.get(i).get("exhVisit");
+					GatheringEntity gathering = (GatheringEntity)entities.get(i).get("gathering");
+					ExhVisitEntity nextExhVisit =
+						i + 1 < entities.size() ? (ExhVisitEntity)entities.get(i + 1).get("exhVisit") :
+							null;
+					dateList.add(StoredListOfDate.builder()
+						.exhVisitId(exhVisit.getExhVisitId())
+						.visitDate(exhVisit.getVisitDate())
+						.build());
+
+					// if ((nextExhVisit != null && !Objects.equals(checkGatherId, nextExhVisit.getGatherId()))
+					// 	|| i == entities.size() - 1) {
+					//
+					// 	checkGatherId = nextExhVisit == null ? null : nextExhVisit.getGatherId();
+					// 	dateList = new ArrayList<>();
+					// }
+				}
+			}
+
 		}
 		return FindStoredDateResult.findByStoredDate(query.getExhId(), dateList);
 		//List<Map<String, Object>> myVisitedDateList = exhVisitRepository.getMyVisitedDateListOfExhByGatherId(userId,query.getGatherId(),

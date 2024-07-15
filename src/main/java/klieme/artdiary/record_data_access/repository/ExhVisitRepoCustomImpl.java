@@ -58,6 +58,39 @@ public class ExhVisitRepoCustomImpl implements ExhVisitRepoCustom {
 	}
 
 	@Override
+	public List<Map<String, Object>> getGroupVisitedDateListOfExh(Long userId, Long groupId, Long exhId) {
+		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
+		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
+		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
+		//BooleanBuilder builder = new BooleanBuilder();
+		BooleanBuilder gatherBuilder = new BooleanBuilder();
+
+		gatherBuilder.and(exhVisit.gatherId.isNotNull());
+		gatherBuilder.and(gatheringMate.gatheringMateId.userId.eq(userId));
+		// builder.or(gatherBuilder);
+		// builder.or(exhVisit.userId.eq(userId));
+
+		List<Tuple> tuples = query.select(exhVisit, gathering)
+			.from(exhVisit)
+			.leftJoin(gatheringMate).on(exhVisit.gatherId.eq(gatheringMate.gatheringMateId.gatherId))
+			.leftJoin(gathering).on(gatheringMate.gatheringMateId.gatherId.eq(gathering.gatherId))
+			.fetchJoin()
+			.where(exhVisit.exhId.eq(exhId), exhVisit.gatherId.eq(groupId), gatherBuilder)
+			.orderBy(exhVisit.gatherId.asc(), exhVisit.visitDate.asc())
+			.fetch();
+
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("exhVisit", tuple.get(0, ExhVisitEntity.class));
+			row.put("gathering", tuple.get(1, GatheringEntity.class));
+			result.add(row);
+		}
+		return result;
+	}
+
+	@Override
 	public Boolean checkExhVisitByExhVisitId(Long exhVisitId, Long userId, Long exhId) {
 		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
 		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
