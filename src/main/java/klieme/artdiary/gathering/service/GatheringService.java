@@ -192,6 +192,10 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 
 			if (diary != null && exhVisit != null) {
 				String thumbnail = imageTransfer.downloadImage(diary.getThumbnail());
+
+				if (user == null) {
+					user = UserEntity.builder().nickname("전시 메이트").build();
+				}
 				results.add(
 					FindGatheringDiaryResult.findByGatheringDiary(diary, exhVisit, gathering, user, exh, thumbnail));
 			}

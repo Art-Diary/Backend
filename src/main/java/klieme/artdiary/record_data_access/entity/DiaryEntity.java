@@ -66,6 +66,10 @@ public class DiaryEntity {
 		this.thumbnail = thumbnail;
 	}
 
+	public void updateWriterIdNull() {
+		this.writerId = null;
+	}
+
 	public void updateDiary(DiaryEntity entity) {
 		if (entity.getTitle() != null) {
 			this.title = entity.getTitle();

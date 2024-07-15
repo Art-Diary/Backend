@@ -44,4 +44,8 @@ public class ExhVisitEntity {
 		this.gatherId = gatherId;
 		this.exhId = exhId;
 	}
+
+	public void updateUserIdNull() {
+		this.userId = null;
+	}
 }
