@@ -89,12 +89,12 @@ public class GatheringController {
 			.visitDate(request.getVisitDate())
 			.build();
 		// 비즈니스 로직 호출
-		List<GatheringReadUseCase.FindGatheringExhsResult> results = gatheringOperationUseCase.addExhAboutGathering(
+		List<GatheringReadUseCase.FindGatheringExhResult> results = gatheringOperationUseCase.addExhAboutGathering(
 			command);
 		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
 		List<GatheringExhView> viewResult = new ArrayList<>();
 
-		for (GatheringReadUseCase.FindGatheringExhsResult result : results) {
+		for (GatheringReadUseCase.FindGatheringExhResult result : results) {
 			viewResult.add(GatheringExhView.builder().result(result).build());
 		}
 		return ResponseEntity.ok(viewResult);

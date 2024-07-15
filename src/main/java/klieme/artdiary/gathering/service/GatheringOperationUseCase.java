@@ -13,7 +13,7 @@ public interface GatheringOperationUseCase {
 
 	GatheringReadUseCase.FindGatheringResult createGathering(GatheringCreateCommand command);
 
-	List<GatheringReadUseCase.FindGatheringExhsResult> addExhAboutGathering(ExhGatheringCreateCommand command) throws
+	List<GatheringReadUseCase.FindGatheringExhResult> addExhAboutGathering(ExhGatheringCreateCommand command) throws
 		IOException;
 
 	List<GatheringReadUseCase.FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command) throws

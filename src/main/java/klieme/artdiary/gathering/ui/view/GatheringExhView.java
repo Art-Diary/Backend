@@ -17,7 +17,7 @@ public class GatheringExhView {
 	private final Double rate;
 
 	@Builder
-	public GatheringExhView(GatheringReadUseCase.FindGatheringExhsResult result) {
+	public GatheringExhView(GatheringReadUseCase.FindGatheringExhResult result) {
 		this.exhId = result.getExhId();
 		this.exhName = result.getExhName();
 		this.poster = result.getPoster();

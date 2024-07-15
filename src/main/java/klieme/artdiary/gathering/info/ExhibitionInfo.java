@@ -10,6 +10,5 @@ public class ExhibitionInfo {
 	private final String exhName;
 	private final String poster;
 	private final Double rate;
-	private final Long userExhId;
-	private final Long gatherExhId;
+	private final Long exhExhId;
 }
