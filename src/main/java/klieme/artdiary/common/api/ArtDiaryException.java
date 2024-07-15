@@ -1,4 +1,4 @@
-package klieme.artdiary.common;
+package klieme.artdiary.common.api;
 
 import org.springframework.http.HttpStatus;
 
