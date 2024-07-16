@@ -1,5 +1,7 @@
 package klieme.artdiary.gathering.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -365,7 +367,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 
 	private UserEntity getUser(Long userId) {

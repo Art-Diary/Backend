@@ -1,5 +1,7 @@
 package klieme.artdiary.mate.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +119,6 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 }

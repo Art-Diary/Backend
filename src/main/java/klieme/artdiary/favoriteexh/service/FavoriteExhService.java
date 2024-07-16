@@ -1,5 +1,7 @@
 package klieme.artdiary.favoriteexh.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +93,6 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 }

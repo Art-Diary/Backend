@@ -1,5 +1,7 @@
 package klieme.artdiary.solo.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -151,6 +153,6 @@ public class MyExhService implements MyExhReadUseCase, MyExhOperationUseCase {
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 }

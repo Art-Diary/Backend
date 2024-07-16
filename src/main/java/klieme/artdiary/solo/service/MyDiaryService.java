@@ -1,5 +1,7 @@
 package klieme.artdiary.solo.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -132,7 +134,7 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 
 	private UserEntity getUser() {

@@ -1,8 +1,8 @@
 package klieme.artdiary.exhibition.service;
 
-import java.io.IOException;
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,7 +84,7 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 
 }

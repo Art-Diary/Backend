@@ -1,5 +1,7 @@
 package klieme.artdiary.user.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -13,6 +15,7 @@ import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.image.ImageTransfer;
 import klieme.artdiary.common.image.ImageType;
 import klieme.artdiary.common.api.MessageType;
+import klieme.artdiary.common.jwt.TokenInfo;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.record_data_access.repository.DiaryRepository;
@@ -24,6 +27,7 @@ import klieme.artdiary.user.data_access.entity.UserEntity;
 import klieme.artdiary.user.data_access.repository.ReasonRepository;
 import klieme.artdiary.user.data_access.repository.SocialLoginRepository;
 import klieme.artdiary.user.data_access.repository.UserRepository;
+import klieme.artdiary.common.jwt.JwtUtil;
 
 @Service
 public class UserService implements UserOperationUseCase, UserReadUseCase {
@@ -34,17 +38,19 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	private final ReasonRepository reasonRepository;
 	private final SocialLoginRepository socialLoginRepository;
 	private final ImageTransfer imageTransfer;
+	private final JwtUtil jwtUtil;
 
 	@Autowired
 	public UserService(UserRepository userRepository, ExhVisitRepository exhVisitRepository,
 		DiaryRepository diaryRepository, ReasonRepository reasonRepository, SocialLoginRepository socialLoginRepository,
-		ImageTransfer imageTransfer) {
+		ImageTransfer imageTransfer, JwtUtil jwtUtil) {
 		this.userRepository = userRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
 		this.reasonRepository = reasonRepository;
 		this.socialLoginRepository = socialLoginRepository;
 		this.imageTransfer = imageTransfer;
+		this.jwtUtil = jwtUtil;
 	}
 
 	@Override
@@ -56,7 +62,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	}
 
 	@Override
-	public String verifyNickname(CreateNicknameCommand command) {
+	public String verifyNickname(VerifyNicknameQuery command) {
 
 		//기존 닉네임 가져오기 => contain 사용해서 바로 닉네임 찾는 쿼리 사용해도 될 것 같음. (by 채린)
 		List<UserEntity> userNicknameList = userRepository.findAll();
@@ -71,6 +77,18 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		//없으면 저장하기?
 
 		return command.getNickname();
+	}
+
+	@Transactional
+	@Override
+	public FindUserResult loginTester(Long userId) throws IOException {
+		UserEntity userEntity = userRepository.findByUserId(userId)
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		String profile = imageTransfer.downloadImage(userEntity.getProfile());
+		TokenInfo tokenInfo = jwtUtil.generateToken(userEntity.getUserId(), null);
+
+		userEntity.updateRefreshToken(tokenInfo.getRefreshToken());
+		return FindUserResult.findUserLoginInfo(userEntity, true, profile, tokenInfo.getAccessToken());
 	}
 
 	@Transactional
@@ -96,12 +114,14 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			userEntity = initLogin(forCheckEmail, wantUnite, command);
 			insertSocialLogin(command, userEntity);
 		}
+		TokenInfo tokenInfo = jwtUtil.generateToken(userEntity.getUserId(), null);
+		userEntity.updateRefreshToken(tokenInfo.getRefreshToken());
 
 		Boolean finishInit = !Objects.equals(userEntity.getNickname(),
 			command.getProviderType() + "_" + command.getProviderId());
 		String profile = finishInit ? imageTransfer.downloadImage(userEntity.getProfile()) : null;
 
-		return FindUserResult.findUserLoginInfo(userEntity, finishInit, profile);
+		return FindUserResult.findUserLoginInfo(userEntity, finishInit, profile, tokenInfo.getAccessToken());
 	}
 
 	private UserEntity initLogin(Boolean forCheckEmail, Boolean wantUnite, UserCreateCommand command) {
@@ -227,8 +247,28 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		savedEntity.updateUser(UserEntity.builder().alarmToken(command.getAlarmToken()).build());
 	}
 
+	@Override
+	public FindAccessTokenResult reissueAccessToken(ReissueAccessTokenQuery command) {
+		// access token 검증
+		if (!jwtUtil.validateToken(command.getAccessToken(), true)) {
+			throw new ArtDiaryException(MessageType.ReLogin);
+		}
+		// refresh token 검증
+		Long userId = jwtUtil.getUserId(command.getAccessToken());
+		UserEntity userEntity = userRepository.findByUserId(userId)
+			.orElseThrow(() -> new ArtDiaryException(MessageType.ReLogin));
+
+		if (!jwtUtil.validateToken(userEntity.getRefreshToken(), false)) {
+			throw new ArtDiaryException(MessageType.ReLogin);
+		}
+		// access token 발급
+		TokenInfo tokenInfo = jwtUtil.generateToken(userEntity.getUserId(), true);
+
+		return FindAccessTokenResult.findAccessToken(tokenInfo.getAccessToken());
+	}
+
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 
 	private UserEntity insertUser(UserCreateCommand command) {

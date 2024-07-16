@@ -1,5 +1,7 @@
 package klieme.artdiary.exhibition.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -240,7 +242,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 
 	private Boolean checkField(ExhField field, ExhEntity exh) {

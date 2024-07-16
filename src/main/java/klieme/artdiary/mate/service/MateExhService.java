@@ -1,5 +1,7 @@
 package klieme.artdiary.mate.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -101,6 +103,6 @@ public class MateExhService implements MateExhReadUseCase {
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 }

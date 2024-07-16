@@ -1,5 +1,7 @@
 package klieme.artdiary.calendar.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -63,7 +65,7 @@ public class CalendarService implements CalendarReadUseCase {
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 
 	private void dayOfVisitInfo(List<Map<String, Object>> visitInfo,
