@@ -1,7 +1,8 @@
 package klieme.artdiary.mate.service;
 
+import static klieme.artdiary.common.FormatDate.*;
+
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -69,12 +70,12 @@ public interface MateExhReadUseCase {
 		private final Boolean diaryPrivate;
 		private final String contents;
 		private final String thumbnail;
-		private final LocalDate writeDate;
+		private final String writeDate;
 		private final String saying;
 		private final Long userId;
 		private final String nickname;
 		private final String gatherName;
-		private final LocalDate visitDate;
+		private final String visitDate;
 		private final String exhName;
 		private final Long exhVisitId;
 		private final LocalDateTime initDate;
@@ -89,11 +90,11 @@ public interface MateExhReadUseCase {
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
 				.thumbnail(thumbnail)
-				.writeDate(diary.getWriteDate())
+				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
-				.visitDate(exhVisit.getVisitDate())
+				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.exhName(exh.getExhName())
 				.exhVisitId(exhVisit.getExhVisitId())
 				.initDate(diary.getInitDate())

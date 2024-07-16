@@ -1,6 +1,4 @@
 package klieme.artdiary.exhibition.ui.view;
-
-import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,8 +13,8 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StoredDateView {
 	private final Long exhId;
-	private final LocalDate visitDate;
-	private final List<LocalDate> dates;
+	private final String visitDate;
+	private final List<String> dates;
 
 	@Builder
 	public StoredDateView(ExhReadUseCase.FindStoredDateResult result) {

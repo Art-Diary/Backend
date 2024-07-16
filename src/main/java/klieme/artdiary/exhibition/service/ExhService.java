@@ -1,5 +1,6 @@
 package klieme.artdiary.exhibition.service;
 
+import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.io.IOException;
@@ -124,7 +125,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	public FindStoredDateResult getStoredDateOfExhs(StoredDateFindQuery query) {
 		// userId: getUserId(), exhId: query.getExhId(), gatherId: query.getGatherId()
 		Long userId = getUserId();
-		List<LocalDate> dates = new ArrayList<>();
+		List<String> dates = new ArrayList<>();
 
 		// 전시회 아이디 검증
 		exhRepository.findByExhId(query.getExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
@@ -136,7 +137,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				if (entity.getVisitDate() == null) { // 날짜 모름일 때는 건너뜀.
 					continue;
 				}
-				dates.add(entity.getVisitDate());
+				dates.add(changeDateFormat(entity.getVisitDate()));
 			}
 		} else {
 			// (목적) 한 전시회에 대한 캘린더에 저장된 특정 모임의 일정 날짜 조회 로직 구현
@@ -153,7 +154,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				if (entity.getVisitDate() == null) { // 날짜 모름일 때는 건너뜀.
 					continue;
 				}
-				dates.add(entity.getVisitDate());
+				dates.add(changeDateFormat(entity.getVisitDate()));
 			}
 		}
 		return FindStoredDateResult.findByStoredDate(query.getExhId(), null, dates);

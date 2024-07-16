@@ -1,7 +1,5 @@
 package klieme.artdiary.favoriteexh.ui.view;
 
-import java.time.LocalDate;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import klieme.artdiary.favoriteexh.service.FavoriteExhReadUseCase;
@@ -16,8 +14,8 @@ public class FavoriteExhView {
 	private final Long exhId;
 	private final String exhName;
 	private final String gallery;
-	private final LocalDate exhPeriodStart;
-	private final LocalDate exhPeriodEnd;
+	private final String exhPeriodStart;
+	private final String exhPeriodEnd;
 	private final String poster;
 	private final Boolean favoriteExh;
 
