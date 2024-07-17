@@ -20,6 +20,7 @@ public interface UserOperationUseCase {
 	void deleteUser(DeleteReasonCommand command);
 
 	void setAlarmToken(AlarmTokenUpdateCommand command);
+	UserReadUseCase.FindUserResult loginTester(Long userId) throws IOException;
 
 	@EqualsAndHashCode
 	@Getter

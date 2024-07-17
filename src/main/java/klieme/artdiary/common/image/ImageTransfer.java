@@ -1,4 +1,6 @@
-package klieme.artdiary.common;
+package klieme.artdiary.common.image;
+
+import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.api.MessageType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -210,6 +214,6 @@ public class ImageTransfer {
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 }

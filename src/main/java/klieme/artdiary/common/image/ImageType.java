@@ -1,4 +1,4 @@
-package klieme.artdiary.common;
+package klieme.artdiary.common.image;
 
 import java.util.Map;
 import java.util.function.Function;

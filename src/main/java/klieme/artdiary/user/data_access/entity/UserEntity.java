@@ -89,4 +89,8 @@ public class UserEntity {
 			this.providerType = user.getProviderType();
 		}
 	}
+
+	public void updateRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
 }

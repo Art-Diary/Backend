@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import klieme.artdiary.common.ArtDiaryException;
-import klieme.artdiary.common.MessageType;
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.enums.ExhField;
 import klieme.artdiary.exhibition.enums.ExhPrice;
 import klieme.artdiary.exhibition.enums.ExhState;

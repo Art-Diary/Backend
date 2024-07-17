@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import klieme.artdiary.calendar.enums.CalendarKind;
 import klieme.artdiary.calendar.service.CalendarReadUseCase;
 import klieme.artdiary.calendar.ui.view.CalendarView;
-import klieme.artdiary.common.ArtDiaryException;
-import klieme.artdiary.common.MessageType;
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.api.MessageType;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

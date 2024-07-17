@@ -1,5 +1,7 @@
 package klieme.artdiary.mate.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,10 +11,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import klieme.artdiary.common.ArtDiaryException;
-import klieme.artdiary.common.ImageTransfer;
-import klieme.artdiary.common.MessageType;
-import klieme.artdiary.common.UserIdFilter;
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.image.ImageTransfer;
+import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
@@ -102,6 +103,6 @@ public class MateExhService implements MateExhReadUseCase {
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 }

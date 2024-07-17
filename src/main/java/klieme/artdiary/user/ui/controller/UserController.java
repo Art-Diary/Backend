@@ -17,10 +17,13 @@ import klieme.artdiary.user.service.UserOperationUseCase;
 import klieme.artdiary.user.service.UserReadUseCase;
 import klieme.artdiary.user.ui.request_body.AlarmTokenRequest;
 import klieme.artdiary.user.ui.request_body.DeleteReasonRequest;
+import klieme.artdiary.user.ui.request_body.TesterRequest;
+import klieme.artdiary.user.ui.request_body.UpdateTokenRequest;
 import klieme.artdiary.user.ui.request_body.UserAlarmRequest;
 import klieme.artdiary.user.ui.request_body.UserNicknameRequest;
 import klieme.artdiary.user.ui.request_body.UserRequest;
 import klieme.artdiary.user.ui.request_body.UserUpdateRequest;
+import klieme.artdiary.user.ui.view.AccessTokenView;
 import klieme.artdiary.user.ui.view.UserAlarmView;
 import klieme.artdiary.user.ui.view.UserNicknameView;
 import klieme.artdiary.user.ui.view.UserView;
@@ -52,7 +55,7 @@ public class UserController {
 	public ResponseEntity<UserNicknameView> verifyNickname(@Valid @RequestBody UserNicknameRequest request) {
 		log.info("[닉네임 검사]");
 
-		var command = UserReadUseCase.CreateNicknameCommand.builder()
+		var command = UserReadUseCase.VerifyNicknameQuery.builder()
 			.nickname(request.getNickname())
 			.build();
 
@@ -74,8 +77,19 @@ public class UserController {
 			.providerId(userRequest.getProviderId())
 			.alarmToken(userRequest.getAlarmToken())
 			.build();
-		// UserReadUseCase.FindUserResult result = userOperationUseCase.socialLogin(false, true, command);
 		UserReadUseCase.FindUserResult result = userOperationUseCase.socialLogin(true, false, command);
+		return ResponseEntity.ok(UserView.builder().result(result).build());
+	}
+
+	/**
+	 * 테스터 사용자 로그인
+	 * "/users/test"
+	 */
+	@PostMapping("/test")
+	public ResponseEntity<UserView> loginUserTest(@Valid @RequestBody TesterRequest userRequest) throws IOException {
+		log.info("[테스터 사용자 로그인 (" + userRequest.getUserId() + ")]");
+
+		UserReadUseCase.FindUserResult result = userOperationUseCase.loginTester(userRequest.getUserId());
 		return ResponseEntity.ok(UserView.builder().result(result).build());
 	}
 
@@ -197,5 +211,16 @@ public class UserController {
 
 		userOperationUseCase.setAlarmToken(command);
 
+	}
+
+	@PostMapping("/reissue")
+	public ResponseEntity<AccessTokenView> reissueAccessToken(@Valid @RequestBody UpdateTokenRequest request) {
+		log.info("[access token 재발급]");
+		var command = UserReadUseCase.ReissueAccessTokenQuery.builder()
+			.accessToken(request.getAccessToken())
+			.build();
+
+		UserReadUseCase.FindAccessTokenResult result = userReadUseCase.reissueAccessToken(command);
+		return ResponseEntity.ok(AccessTokenView.builder().result(result).build());
 	}
 }
