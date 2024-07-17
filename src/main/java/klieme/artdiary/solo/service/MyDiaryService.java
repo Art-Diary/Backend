@@ -2,7 +2,6 @@ package klieme.artdiary.solo.service;
 
 import static klieme.artdiary.common.SecurityUtil.*;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import klieme.artdiary.common.api.ArtDiaryException;
-import klieme.artdiary.common.image.ImageTransfer;
-import klieme.artdiary.common.image.ImageType;
 import klieme.artdiary.common.api.MessageType;
+import klieme.artdiary.common.image.ImageType;
+import klieme.artdiary.common.image.S3ImageTransfer;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
@@ -34,21 +33,21 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 	private final ExhRepository exhRepository;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
-	private final ImageTransfer imageTransfer;
+	private final S3ImageTransfer s3ImageTransfer;
 
 	@Autowired
 	public MyDiaryService(UserRepository userRepository, ExhRepository exhRepository,
-		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository, ImageTransfer imageTransfer) {
+		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository, S3ImageTransfer s3ImageTransfer) {
 		this.userRepository = userRepository;
 		this.exhRepository = exhRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
-		this.imageTransfer = imageTransfer;
+		this.s3ImageTransfer = s3ImageTransfer;
 	}
 
 	@Transactional
 	@Override
-	public List<FindMyDiaryResult> createMyDiary(MyDiaryCreateUpdateCommand command) throws IOException {
+	public List<FindMyDiaryResult> createMyDiary(MyDiaryCreateUpdateCommand command) {
 		// user 데이터
 		UserEntity userEntity = getUser();
 		// exh 데이터
@@ -79,7 +78,7 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 	}
 
 	@Override
-	public List<FindMyDiaryResult> getMyDiaries(MyDiariesFindQuery query) throws IOException {
+	public List<FindMyDiaryResult> getMyDiaries(MyDiariesFindQuery query) {
 		// user 데이터
 		UserEntity userEntity = getUser();
 		// exh 데이터
@@ -102,7 +101,7 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 
 	@Transactional
 	@Override
-	public List<FindMyDiaryResult> updateMyDiary(MyDiaryCreateUpdateCommand command) throws IOException {
+	public List<FindMyDiaryResult> updateMyDiary(MyDiaryCreateUpdateCommand command) {
 		// user 데이터
 		UserEntity userEntity = getUser();
 		// exh 데이터
@@ -142,7 +141,7 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 	}
 
 	private List<FindMyDiaryResult> getMyDiaryList(UserEntity userEntity, ExhEntity exhEntity,
-		MyDiariesFindQuery query) throws IOException {
+		MyDiariesFindQuery query) {
 		List<FindMyDiaryResult> results = new ArrayList<>();
 		List<Map<String, Object>> diaryList = null;
 
@@ -176,24 +175,23 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 			GatheringEntity gathering = (GatheringEntity)item.get("gatheringEntity");
 
 			if (diary != null && exhVisit != null) {
-				String thumbnail = imageTransfer.downloadImage(diary.getThumbnail());
 				results.add(
-					FindMyDiaryResult.findByMyDiary(userEntity, exhEntity, thumbnail, exhVisit, diary, gathering));
+					FindMyDiaryResult.findByMyDiary(userEntity, exhEntity, exhVisit, diary, gathering));
 			}
 		}
 		results.sort(Comparator.comparing(FindMyDiaryResult::getInitDate));
 		return results;
 	}
 
-	private void saveThumbnail(MultipartFile inputThumbnail, DiaryEntity saveEntity) throws IOException {
+	private void saveThumbnail(MultipartFile inputThumbnail, DiaryEntity saveEntity) {
 		// 사진 업로드
-		ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImageToStorage(
-			ImageTransfer.UploadQuery.builder()
+		String uploadImageUrl = s3ImageTransfer.uploadImageToStorage(
+			S3ImageTransfer.UploadQuery.builder()
 				.type(ImageType.THUMBNAIL)
 				.image(inputThumbnail)
 				.diaryId(saveEntity.getDiaryId())
 				.build());
 
-		saveEntity.updateThumbnail(uploadResult.getStoredPath());
+		saveEntity.updateThumbnail(uploadImageUrl);
 	}
 }

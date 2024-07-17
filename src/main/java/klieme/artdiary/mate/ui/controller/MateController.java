@@ -1,6 +1,5 @@
 package klieme.artdiary.mate.ui.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class MateController {
 	 * "/mates"
 	 */
 	@GetMapping("")
-	public ResponseEntity<List<MateView>> getMateList() throws IOException {
+	public ResponseEntity<List<MateView>> getMateList() {
 		log.info("[전시 메이트 목록 조회]");
 		// 비즈니스 로직 호출
 		List<MateReadUseCase.FindMateResult> mateList = mateReadUseCase.getMateList();
@@ -56,7 +55,7 @@ public class MateController {
 	 * "/mates"
 	 */
 	@PostMapping("")
-	public ResponseEntity<List<MateView>> addNewMate(@Valid @RequestBody MateRequest mateRequest) throws IOException {
+	public ResponseEntity<List<MateView>> addNewMate(@Valid @RequestBody MateRequest mateRequest) {
 		log.info("[전시 메이트 추가]");
 
 		var command = MateOperationUseCase.AddMyMateCreateDummy.builder()
@@ -79,7 +78,7 @@ public class MateController {
 	 */
 	@GetMapping("/search")
 	public ResponseEntity<List<MateView>> searchNewMate(
-		@RequestParam(name = "nickname", required = false) String nickname) throws IOException {
+		@RequestParam(name = "nickname", required = false) String nickname) {
 		log.info("[전시 메이트 추가할 때 닉네임 검색]");
 
 		List<MateView> results = new ArrayList<>();

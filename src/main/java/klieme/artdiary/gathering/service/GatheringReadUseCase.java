@@ -2,7 +2,6 @@ package klieme.artdiary.gathering.service;
 
 import static klieme.artdiary.common.FormatDate.*;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,11 +21,11 @@ public interface GatheringReadUseCase {
 
 	List<FindGatheringResult> getGatheringList();
 
-	List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query) throws IOException;
+	List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query);
 
-	FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query) throws IOException;
+	FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query);
 
-	List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query) throws IOException;
+	List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query);
 
 	@EqualsAndHashCode
 	@Getter
@@ -78,11 +77,11 @@ public interface GatheringReadUseCase {
 		private final String poster;
 		private final Double rate;
 
-		public static FindGatheringExhResult findByGatheringExh(ExhEntity entity, String poster, Double rate) {
+		public static FindGatheringExhResult findByGatheringExh(ExhEntity entity, Double rate) {
 			return FindGatheringExhResult.builder()
 				.exhId(entity.getExhId())
 				.exhName(entity.getExhName())
-				.poster(poster)
+				.poster(entity.getPoster())
 				.rate(rate)
 				.build();
 		}
@@ -109,14 +108,14 @@ public interface GatheringReadUseCase {
 		private final LocalDateTime initDate;
 
 		public static FindGatheringDiaryResult findByGatheringDiary(DiaryEntity diary, ExhVisitEntity exhVisit,
-			GatheringEntity gathering, UserEntity user, ExhEntity exh, String thumbnail) {
+			GatheringEntity gathering, UserEntity user, ExhEntity exh) {
 			return FindGatheringDiaryResult.builder()
 				.diaryId(diary.getDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(thumbnail)
+				.thumbnail(diary.getThumbnail())
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())
@@ -139,11 +138,11 @@ public interface GatheringReadUseCase {
 		private final String profile;
 		private final String favoriteArt;
 
-		public static FindGatheringMatesResult findByGatheringMates(UserEntity user, String profile) {
+		public static FindGatheringMatesResult findByGatheringMates(UserEntity user) {
 			return FindGatheringMatesResult.builder()
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
-				.profile(profile)
+				.profile(user.getProfile())
 				.favoriteArt(user.getFavoriteArt())
 				.build();
 		}

@@ -2,7 +2,6 @@ package klieme.artdiary.mate.service;
 
 import static klieme.artdiary.common.FormatDate.*;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,9 +16,9 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface MateExhReadUseCase {
-	List<FindMateExhsResult> getMateExhsList(MateExhsFindQuery query) throws IOException;
+	List<FindMateExhsResult> getMateExhsList(MateExhsFindQuery query);
 
-	List<FindMateDiaryResult> getMateDiaryList(MateDiaryFindQuery query) throws IOException;
+	List<FindMateDiaryResult> getMateDiaryList(MateDiaryFindQuery query);
 
 	@EqualsAndHashCode
 	@Getter
@@ -49,11 +48,11 @@ public interface MateExhReadUseCase {
 		private final Double rate; //별점 평균
 
 		@Builder
-		public static FindMateExhsResult findMateExhs(ExhEntity entity, Double rate, String poster) {
+		public static FindMateExhsResult findMateExhs(ExhEntity entity, Double rate) {
 			return FindMateExhsResult.builder()
 				.exhId(entity.getExhId())
 				.exhName(entity.getExhName())
-				.poster(poster)
+				.poster(entity.getPoster())
 				.rate(rate)
 				.build();
 		}
@@ -82,14 +81,14 @@ public interface MateExhReadUseCase {
 
 		@Builder
 		public static FindMateDiaryResult findMateDiary(DiaryEntity diary, ExhVisitEntity exhVisit, UserEntity user,
-			ExhEntity exh, GatheringEntity gathering, String thumbnail) {
+			ExhEntity exh, GatheringEntity gathering) {
 			return FindMateDiaryResult.builder()
 				.diaryId(diary.getDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(thumbnail)
+				.thumbnail(diary.getThumbnail())
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())
