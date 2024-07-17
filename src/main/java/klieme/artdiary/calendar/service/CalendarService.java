@@ -1,5 +1,6 @@
 package klieme.artdiary.calendar.service;
 
+import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.io.IOException;
@@ -85,10 +86,10 @@ public class CalendarService implements CalendarReadUseCase {
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
-				.exhPeriodStart(exh.getExhPeriodStart())
-				.exhPeriodEnd(exh.getExhPeriodEnd())
+				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
+				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
 				.poster(poster)
-				.visitDate(exhVisit.getVisitDate())
+				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.exhVisitId(exhVisit.getExhVisitId())
 				.gatherId(gathering != null ? gathering.getGatherId() : null)
 				.gatherName(gathering != null ? gathering.getGatherName() : null)

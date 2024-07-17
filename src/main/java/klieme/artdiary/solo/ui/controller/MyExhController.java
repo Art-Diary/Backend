@@ -84,6 +84,8 @@ public class MyExhController {
 			.exhId(addMyExhVisitDateRequest.getExhId())
 			.build();
 
+		System.out.println(addMyExhVisitDateRequest.getVisitDate());
+
 		List<MyExhReadUseCase.FindMyStoredDateResult> results = myExhOperationUseCase.addMyExhVisitDate(command);
 
 		List<MyStoredDateView> viewResult = new ArrayList<>();

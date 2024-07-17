@@ -65,12 +65,10 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
 		QExhEntity exh = QExhEntity.exhEntity;
 		BooleanBuilder builder = new BooleanBuilder();
-		BooleanBuilder diaryBuilder = new BooleanBuilder();
 
+		builder.or(diary.diaryId.isNull());
 		builder.or(diary.diaryPrivate.eq(true));
-		diaryBuilder.and(diary.diaryPrivate.eq(false));
-		diaryBuilder.and(diary.writerId.eq(userId));
-		builder.or(diaryBuilder);
+		builder.or(diary.writerId.eq(userId));
 
 		List<Tuple> tuples = query
 			.select(diary.rate.sum(), diary.count(), exh)

@@ -1,5 +1,6 @@
 package klieme.artdiary.solo.service;
 
+import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.io.IOException;
@@ -87,7 +88,7 @@ public class MyExhService implements MyExhReadUseCase, MyExhOperationUseCase {
 
 				dateInfoList.add(StoredDateInfo.builder()
 					.exhVisitId(exhVisit.getExhVisitId())
-					.visitDate(exhVisit.getVisitDate())
+					.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 					.build());
 				if ((nextExhVisit != null && !Objects.equals(checkGatherId, nextExhVisit.getGatherId()))
 					|| i == myVisitedDateList.size() - 1) {
