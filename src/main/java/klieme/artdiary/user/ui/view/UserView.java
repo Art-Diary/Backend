@@ -14,13 +14,14 @@ public class UserView {
 	private final Long userId;
 	private final String nickname;
 	private final String email;
-	private final String profile;
-	private final String favoriteArt; //⇒ profile: byte로 변환된 이미지가 string 형식으로 전달됨.
+	private final String profile; //⇒ profile: byte로 변환된 이미지가 string 형식으로 전달됨.
+	private final String favoriteArt;
 	private final Boolean alarm1;
 	private final Boolean alarm2;
 	private final Boolean alarm3;
 	private final Boolean initInfo;
 	private final String providerType;
+	private final String accessToken;
 
 	@Builder
 	public UserView(UserReadUseCase.FindUserResult result) {
@@ -34,5 +35,6 @@ public class UserView {
 		this.alarm3 = result.getAlarm3();
 		this.initInfo = result.getInitInfo();
 		this.providerType = result.getProviderType();
+		this.accessToken = result.getAccessToken();
 	}
 }

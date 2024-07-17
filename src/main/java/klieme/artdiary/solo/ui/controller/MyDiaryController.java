@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import klieme.artdiary.common.ArtDiaryException;
-import klieme.artdiary.common.MessageType;
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.solo.service.MyDiaryOperationUseCase;
 import klieme.artdiary.solo.service.MyDiaryReadUseCase;
 import klieme.artdiary.solo.ui.request_body.MyDiaryRequest;

@@ -13,7 +13,25 @@ public interface UserReadUseCase {
 
 	FindUserResult getUserInfo() throws IOException;
 
-	String verifyNickname(UserReadUseCase.CreateNicknameCommand command);
+	String verifyNickname(VerifyNicknameQuery command);
+
+	FindAccessTokenResult reissueAccessToken(ReissueAccessTokenQuery command);
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class VerifyNicknameQuery {
+		private final String nickname;
+	}
+
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	@Builder
+	class ReissueAccessTokenQuery {
+		private final String accessToken;
+	}
 
 	@Getter
 	@ToString
@@ -29,6 +47,7 @@ public interface UserReadUseCase {
 		private final Boolean alarm3;
 		private final Boolean initInfo;
 		private final String providerType;
+		private final String accessToken;
 
 		public static FindUserResult findUserInfo(UserEntity user, String profile) {
 			return FindUserResult.builder()
@@ -45,7 +64,8 @@ public interface UserReadUseCase {
 				.build();
 		}
 
-		public static FindUserResult findUserLoginInfo(UserEntity user, Boolean initInfo, String profile) {
+		public static FindUserResult findUserLoginInfo(UserEntity user, Boolean initInfo, String profile,
+			String accessToken) {
 			return FindUserResult.builder()
 				.userId(user.getUserId())
 				.email(user.getEmail())
@@ -59,6 +79,7 @@ public interface UserReadUseCase {
 				.alarm2(initInfo ? user.getAlarm2() : null)
 				.alarm3(initInfo ? user.getAlarm3() : null)
 				.providerType(user.getProviderType())
+				.accessToken(accessToken)
 				.build();
 		}
 	}
@@ -93,11 +114,17 @@ public interface UserReadUseCase {
 		}
 	}
 
-	@EqualsAndHashCode
 	@Getter
 	@ToString
 	@Builder
-	class CreateNicknameCommand {
-		private final String nickname;
+	class FindAccessTokenResult {
+		private final String accessToken;
+
+		@Builder
+		public static FindAccessTokenResult findAccessToken(String accessToken) {
+			return FindAccessTokenResult.builder()
+				.accessToken(accessToken)
+				.build();
+		}
 	}
 }

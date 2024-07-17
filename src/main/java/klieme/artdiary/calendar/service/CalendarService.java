@@ -1,5 +1,7 @@
 package klieme.artdiary.calendar.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,8 +14,7 @@ import org.springframework.stereotype.Service;
 
 import klieme.artdiary.calendar.enums.CalendarKind;
 import klieme.artdiary.calendar.info.ScheduleInfo;
-import klieme.artdiary.common.ImageTransfer;
-import klieme.artdiary.common.UserIdFilter;
+import klieme.artdiary.common.image.ImageTransfer;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
@@ -64,7 +65,7 @@ public class CalendarService implements CalendarReadUseCase {
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 
 	private void dayOfVisitInfo(List<Map<String, Object>> visitInfo,

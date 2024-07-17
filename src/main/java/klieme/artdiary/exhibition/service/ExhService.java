@@ -1,5 +1,7 @@
 package klieme.artdiary.exhibition.service;
 
+import static klieme.artdiary.common.SecurityUtil.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -10,10 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import klieme.artdiary.common.ArtDiaryException;
-import klieme.artdiary.common.ImageTransfer;
-import klieme.artdiary.common.MessageType;
-import klieme.artdiary.common.UserIdFilter;
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.image.ImageTransfer;
+import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibition.enums.ExhField;
@@ -241,7 +242,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	private Long getUserId() {
-		return UserIdFilter.getUserId();
+		return getCurrentUserId();
 	}
 
 	private Boolean checkField(ExhField field, ExhEntity exh) {
