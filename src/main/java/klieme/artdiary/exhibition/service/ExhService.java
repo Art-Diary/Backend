@@ -60,15 +60,13 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	private final UserRepository userRepository;
 	private final ImageTransfer imageTransfer;
 	private final ExhVisitRepository exhVisitRepository;
-	private final ExhVisitRepoCustomImpl exhVisitRepoCustom;
 
 	@Autowired
 	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository,
 		GatheringMateRepository gatheringMateRepository, GatheringExhRepository gatheringExhRepository,
 		GatheringDiaryRepository gatheringDiaryRepository, GatheringRepository gatheringRepository,
 		FavoriteExhRepository favoriteExhRepository, MydiaryRepository mydiaryRepository,
-		UserRepository userRepository, ImageTransfer imageTransfer, ExhVisitRepository exhVisitRepository,
-		ExhVisitRepoCustomImpl exhVisitRepoCustom) {
+		UserRepository userRepository, ImageTransfer imageTransfer, ExhVisitRepository exhVisitRepository) {
 		this.exhRepository = exhRepository;
 		this.userExhRepository = userExhRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
@@ -80,7 +78,6 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		this.userRepository = userRepository;
 		this.imageTransfer = imageTransfer;
 		this.exhVisitRepository = exhVisitRepository;
-		this.exhVisitRepoCustom = exhVisitRepoCustom;
 	}
 
 	@Transactional
@@ -142,100 +139,34 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		// userId: getUserId(), exhId: query.getExhId(), gatherId: query.getGatherId()
 		Long userId = getUserId();
 		List<StoredListOfDate> dateList = new ArrayList<>();
-		FindStoredDateResult results;
+		List<ExhVisitEntity> entities;
 
 		// 전시회 아이디 검증
 		exhRepository.findByExhId(query.getExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
 		if (query.getGatherId() == null) {
 			//혼자 다녀온 전시회이면 ExhVisit 테이블에서 날짜리스트 가져오기
-			List<ExhVisitEntity> entities = exhVisitRepository.findByUserIdAndExhId(userId,
+			entities = exhVisitRepository.findByUserIdAndExhId(userId,
 				query.getExhId());
-
-			for (ExhVisitEntity entity : entities) {
-				if (entity.getVisitDate() == null) { // 날짜 모름일 때는 건너뜀.
-					continue;
-				}
-				dateList.add(StoredListOfDate.builder()
-					.exhVisitId(entity.getExhVisitId())
-					.visitDate(entity.getVisitDate())
-					.build());
-
-			}
 
 		} else {
 			//그룹에서 다녀온 전시회
-			List<Map<String, Object>> entities = exhVisitRepoCustom.getGroupVisitedDateListOfExh(userId,
+			entities = exhVisitRepository.getGroupVisitedDateListOfExh(userId,
 				query.getGatherId(),
 				query.getExhId());
-
-			if (!entities.isEmpty()) {
-
-				ExhVisitEntity firstExhVisit = (ExhVisitEntity)entities.getFirst().get("exhVisit");
-				Long checkGatherId = firstExhVisit.getGatherId();
-
-				for (int i = 0; i < entities.size(); i++) {
-					ExhVisitEntity exhVisit = (ExhVisitEntity)entities.get(i).get("exhVisit");
-					GatheringEntity gathering = (GatheringEntity)entities.get(i).get("gathering");
-					ExhVisitEntity nextExhVisit =
-						i + 1 < entities.size() ? (ExhVisitEntity)entities.get(i + 1).get("exhVisit") :
-							null;
-					dateList.add(StoredListOfDate.builder()
-						.exhVisitId(exhVisit.getExhVisitId())
-						.visitDate(exhVisit.getVisitDate())
-						.build());
-
-					// if ((nextExhVisit != null && !Objects.equals(checkGatherId, nextExhVisit.getGatherId()))
-					// 	|| i == entities.size() - 1) {
-					//
-					// 	checkGatherId = nextExhVisit == null ? null : nextExhVisit.getGatherId();
-					// 	dateList = new ArrayList<>();
-					// }
-				}
+		}
+		for (ExhVisitEntity entity : entities) {
+			if (entity.getVisitDate() == null) { // 날짜 모름일 때는 건너뜀.
+				continue;
 			}
+			dateList.add(StoredListOfDate.builder()
+				.exhVisitId(entity.getExhVisitId())
+				.visitDate(entity.getVisitDate())
+				.build());
 
 		}
 		return FindStoredDateResult.findByStoredDate(query.getExhId(), dateList);
-		//List<Map<String, Object>> myVisitedDateList = exhVisitRepository.getMyVisitedDateListOfExhByGatherId(userId,query.getGatherId(),
-		//			query.getExhId());
 
-		//바꾸기 전
-		/*
-		// userId: getUserId(), exhId: query.getExhId(), gatherId: query.getGatherId()
-		Long userId = getUserId();
-		List<LocalDate> dates = new ArrayList<>();
-
-		// 전시회 아이디 검증
-		exhRepository.findByExhId(query.getExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-
-		if (query.getGatherId() == null) {
-			// (목적) 한 전시회에 대한 캘린더에 저장된 개인의 일정 날짜 조회 로직 구현
-			List<UserExhEntity> entities = userExhRepository.findByUserIdAndExhId(userId, query.getExhId());
-			for (UserExhEntity entity : entities) {
-				if (entity.getVisitDate() == null) { // 날짜 모름일 때는 건너뜀.
-					continue;
-				}
-				dates.add(entity.getVisitDate());
-			}
-		} else {
-			// (목적) 한 전시회에 대한 캘린더에 저장된 특정 모임의 일정 날짜 조회 로직 구현
-			// gatherId와 userId로 유저가 모임에 포함되어있는지 확인 => gathering_mate 엔티티 필요
-			gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
-					.userId(userId)
-					.gatherId(query.getGatherId())
-					.build())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			// 확인됐으면 gatherId로 전시회 exhId에 대해 저장된 날짜 가져오기 => gatheringExh 엔티티 필요
-			List<GatheringExhEntity> entities = gatheringExhRepository.findByGatherIdAndExhId(query.getGatherId(),
-				query.getExhId());
-			for (GatheringExhEntity entity : entities) {
-				if (entity.getVisitDate() == null) { // 날짜 모름일 때는 건너뜀.
-					continue;
-				}
-				dates.add(entity.getVisitDate());
-			}
-		}
-		return FindStoredDateResult.findByStoredDate(query.getExhId(), null, dates);*/
 	}
 
 	@Override
