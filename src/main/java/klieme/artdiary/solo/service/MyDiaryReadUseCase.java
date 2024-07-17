@@ -1,5 +1,7 @@
 package klieme.artdiary.solo.service;
 
+import static klieme.artdiary.common.FormatDate.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,16 +43,17 @@ public interface MyDiaryReadUseCase {
 		private final String contents;
 		private final String thumbnail;
 		private final LocalDateTime initDate;
-		private final LocalDate writeDate;
+		private final String writeDate;
 		private final String saying;
 		private final Long userId;
 		private final String nickname;
 		private final String gatherName;
-		private final LocalDate visitDate;
+		private final String visitDate;
 		private final String exhName;
 
 		public static FindMyDiaryResult findByMyDiary(UserEntity user, ExhEntity exh, String thumbnail,
 			ExhVisitEntity exhVisit, DiaryEntity diary, GatheringEntity gathering) {
+
 			return FindMyDiaryResult.builder()
 				.diaryId(diary.getDiaryId())
 				.title(diary.getTitle())
@@ -59,11 +62,11 @@ public interface MyDiaryReadUseCase {
 				.contents(diary.getContents())
 				.thumbnail(thumbnail)
 				.initDate(diary.getInitDate())
-				.writeDate(diary.getWriteDate())
+				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
-				.visitDate(exhVisit.getVisitDate())
+				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.exhName(exh.getExhName())
 				.exhVisitId(exhVisit.getExhVisitId())
 				.gatherName(gathering != null ? gathering.getGatherName() : null)

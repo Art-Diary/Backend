@@ -1,7 +1,8 @@
 package klieme.artdiary.solo.service;
 
+import static klieme.artdiary.common.FormatDate.*;
+
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
@@ -84,7 +85,7 @@ public interface MyExhReadUseCase {
 		private final Long exhId;
 		// "내 기록의 전시회 방문 날짜 추가"의 반환 데이터
 		private final Long exhVisitId;
-		private final LocalDate visitDate;// 혜원 추가
+		private final String visitDate;// 혜원 추가
 		// "한 전시회에 대하여 캘린더에 저장된 날짜 조회"의 반환 데이터
 		private final Long gatherId; // 개인일 경우엔 null
 		private final String gatherName; // 개인일 경우엔 null
@@ -112,7 +113,7 @@ public interface MyExhReadUseCase {
 			return FindMyStoredDateResult.builder()
 				.exhId(exhVisit.getExhId())
 				.exhVisitId(exhVisit.getExhVisitId())
-				.visitDate(exhVisit.getVisitDate())
+				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.build();
 		}
 

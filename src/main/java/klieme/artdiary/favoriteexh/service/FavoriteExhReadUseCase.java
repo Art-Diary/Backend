@@ -1,7 +1,8 @@
 package klieme.artdiary.favoriteexh.service;
 
+import static klieme.artdiary.common.FormatDate.*;
+
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
@@ -21,8 +22,8 @@ public interface FavoriteExhReadUseCase {
 		private final Long exhId;
 		private final String exhName;
 		private final String gallery;
-		private final LocalDate exhPeriodStart;
-		private final LocalDate exhPeriodEnd;
+		private final String exhPeriodStart;
+		private final String exhPeriodEnd;
 		private final String poster;
 		private final Boolean favoriteExh;
 
@@ -37,8 +38,8 @@ public interface FavoriteExhReadUseCase {
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
-				.exhPeriodStart(exh.getExhPeriodStart())
-				.exhPeriodEnd(exh.getExhPeriodEnd())
+				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
+				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
 				.poster(poster)
 				.favoriteExh(true)
 				.build();

@@ -1,6 +1,4 @@
 package klieme.artdiary.exhibition.ui.view;
-
-import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -1,7 +1,5 @@
 package klieme.artdiary.gathering.ui.view;
 
-import java.time.LocalDate;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import klieme.artdiary.gathering.service.GatheringReadUseCase;
@@ -19,12 +17,12 @@ public class GatheringDiaryView {
 	private final Boolean diaryPrivate;
 	private final String contents;
 	private final String thumbnail;
-	private final LocalDate writeDate;
+	private final String writeDate;
 	private final String saying;
 	private final Long userId;
 	private final String nickname; // 작성자
 	private final String gatherName;
-	private final LocalDate visitDate;
+	private final String visitDate;
 	private final String exhName;
 	private final Long exhVisitId;
 

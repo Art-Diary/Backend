@@ -1,5 +1,7 @@
 package klieme.artdiary.exhibition.service;
 
+import static klieme.artdiary.common.FormatDate.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -72,8 +74,8 @@ public interface ExhReadUseCase {
 		private final Long exhId;
 		private final String exhName;
 		private final String gallery;
-		private final LocalDate exhPeriodStart;
-		private final LocalDate exhPeriodEnd;
+		private final String exhPeriodStart;
+		private final String exhPeriodEnd;
 		private final String poster;
 		private final Boolean favoriteExh;
 		private final String painter;
@@ -104,8 +106,8 @@ public interface ExhReadUseCase {
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
-				.exhPeriodStart(exh.getExhPeriodStart())
-				.exhPeriodEnd(exh.getExhPeriodEnd())
+				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
+				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
 				.poster(poster)
 				.favoriteExh(favoriteExh)
 				.painter(exh.getPainter())
@@ -121,8 +123,8 @@ public interface ExhReadUseCase {
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
-				.exhPeriodStart(exh.getExhPeriodStart())
-				.exhPeriodEnd(exh.getExhPeriodEnd())
+				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
+				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
 				.poster(poster)
 				.favoriteExh(isFavoriteExh)
 				.build();
@@ -139,12 +141,12 @@ public interface ExhReadUseCase {
 		private final Boolean diaryPrivate;
 		private final String contents;
 		private final String thumbnail;
-		private final LocalDate writeDate;
+		private final String writeDate;
 		private final String saying;
 		private final Long userId;
 		private final String nickname; // 작성자
 		private final String gatherName; //일단 개인일정인 경우 null로, findSoloDiary에서 없음.
-		private final LocalDate visitDate;
+		private final String visitDate;
 		private final String exhName;
 		private final Long userExhId; // 개인 일정이 아닌 경우 null
 		private final Long gatherExhId; // 모임이 아닐 경우 null
@@ -158,11 +160,11 @@ public interface ExhReadUseCase {
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
 				.thumbnail(thumbnail)
-				.writeDate(diary.getWriteDate())
+				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
-				.visitDate(userexh.getVisitDate())
+				.visitDate(changeDateFormat(userexh.getVisitDate()))
 				.exhName(exh.getExhName())
 				.userExhId(userexh.getUserExhId())
 				.build();
@@ -177,12 +179,12 @@ public interface ExhReadUseCase {
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
 				.thumbnail(thumbnail)
-				.writeDate(diary.getWriteDate())
+				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
 				.gatherName(gather.getGatherName())
-				.visitDate(gatherexh.getVisitDate())
+				.visitDate(changeDateFormat(gatherexh.getVisitDate()))
 				.exhName(exh.getExhName())
 				.gatherExhId(gatherexh.getGatherExhId())
 				.build();
