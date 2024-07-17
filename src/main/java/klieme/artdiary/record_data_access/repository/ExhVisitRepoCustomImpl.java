@@ -58,6 +58,23 @@ public class ExhVisitRepoCustomImpl implements ExhVisitRepoCustom {
 	}
 
 	@Override
+	public List<ExhVisitEntity> getGroupVisitedDateListOfExh(Long userId, Long groupId, Long exhId) {
+		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
+		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
+
+		List<ExhVisitEntity> entities = query.select(exhVisit)
+			.from(exhVisit)
+			.leftJoin(gatheringMate).on(exhVisit.gatherId.eq(gatheringMate.gatheringMateId.gatherId))
+			.fetchJoin()
+			.where(exhVisit.exhId.eq(exhId), exhVisit.gatherId.eq(groupId),
+				gatheringMate.gatheringMateId.userId.eq(userId))
+			.orderBy(exhVisit.gatherId.asc(), exhVisit.visitDate.asc())
+			.fetch();
+
+		return entities;
+	}
+
+	@Override
 	public Boolean checkExhVisitByExhVisitId(Long exhVisitId, Long userId, Long exhId) {
 		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
 		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;

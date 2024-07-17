@@ -8,6 +8,7 @@ import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.enums.ExhField;
 import klieme.artdiary.exhibition.enums.ExhPrice;
 import klieme.artdiary.exhibition.enums.ExhState;
+import klieme.artdiary.exhibition.info.StoredListOfDate;
 import klieme.artdiary.gathering.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringExhEntity;
@@ -20,7 +21,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface ExhReadUseCase {
-	FindStoredDateResult getStoredDateOfExhs(StoredDateFindQuery query);
+	FindStoredDateResult getStoredDateOfExhsByGatherId(StoredDateFindQuery query);
 
 	List<FindExhResult> getExhList(ExhListFindQuery query) throws IOException;
 
@@ -54,13 +55,11 @@ public interface ExhReadUseCase {
 	@Builder
 	class FindStoredDateResult {
 		private final Long exhId;
-		private final LocalDate visitDate; // 단일 데이터일 때 사용
-		private final List<LocalDate> dates; // 리스트 데이터일 떄 사용
+		private final List<StoredListOfDate> dates;
 
-		public static FindStoredDateResult findByStoredDate(Long exhId, LocalDate visitDate, List<LocalDate> dates) {
+		public static FindStoredDateResult findByStoredDate(Long exhId, List<StoredListOfDate> dates) {
 			return FindStoredDateResult.builder()
 				.exhId(exhId)
-				.visitDate(visitDate)
 				.dates(dates)
 				.build();
 		}

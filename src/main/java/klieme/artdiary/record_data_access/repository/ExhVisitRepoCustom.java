@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import klieme.artdiary.calendar.enums.CalendarKind;
+import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 
 public interface ExhVisitRepoCustom {
 	List<Map<String, Object>> getMyVisitedDateListOfExh(Long userId, Long exhId);
+
+	List<ExhVisitEntity> getGroupVisitedDateListOfExh(Long userId, Long groupId, Long exhId);
 
 	Boolean checkExhVisitByExhVisitId(Long exhVisitId, Long userId, Long exhId);
 
