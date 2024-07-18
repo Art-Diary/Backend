@@ -190,6 +190,7 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 				.type(ImageType.THUMBNAIL)
 				.image(inputThumbnail)
 				.diaryId(saveEntity.getDiaryId())
+				.prevImagePath(saveEntity.getThumbnail())
 				.build());
 
 		saveEntity.updateThumbnail(uploadImageUrl);

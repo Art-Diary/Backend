@@ -160,6 +160,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			S3ImageTransfer.UploadQuery.builder()
 				.type(ImageType.PROFILE)
 				.image(command.getProfile())
+				.prevImagePath(savedEntity.getProfile())
 				.build());
 		// 사용자 정보 업데이트
 		savedEntity.updateUser(UserEntity.builder()
