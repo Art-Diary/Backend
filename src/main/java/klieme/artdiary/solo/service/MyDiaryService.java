@@ -118,11 +118,17 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 		DiaryEntity diaryEntity = diaryRepository.findByDiaryId(command.getDiaryId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
+		String changedContents = s3ImageTransfer.uploadContentImagesToStorage(
+			S3ImageTransfer.UploadContentImagesQuery.builder()
+				.images(command.getFiles())
+				.diaryId(diaryEntity.getDiaryId())
+				.contents(command.getContents())
+				.build());
 		diaryEntity.updateDiary(DiaryEntity.builder()
 			.title(command.getTitle())
 			.rate(command.getRate())
 			.diaryPrivate(command.getDiaryPrivate())
-			.contents(command.getContents())
+			.contents(changedContents)
 			.writeDate(command.getWriteDate())
 			.saying(command.getSaying())
 			.exhVisitId(command.getExhVisitId())

@@ -4,13 +4,17 @@ import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -43,29 +47,69 @@ public class S3ImageTransfer {
 	 * /thumbnail/{diaryId}.png
 	 */
 	public String uploadImageToStorage(UploadQuery query) {
-		try {
-			MultipartFile file = query.getImage();
+		MultipartFile file = query.getImage();
 
-			if (file == null) {
-				return null;
+		if (file == null) {
+			return null;
+		}
+		String fileName;
+
+		// 타입 별 저장할 위치 결정
+		if (query.getType() == ImageType.PROFILE) {
+			fileName = "profile/" + getUserId() + "_";
+		} else {
+			fileName = "thumbnail/" + query.getDiaryId() + "_";
+		}
+		// 업데이트 할 때 이전 사진 삭제
+		if (query.getPrevImagePath() != null) {
+			deleteFile(query.getPrevImagePath(), fileName);
+		}
+		fileName += file.getOriginalFilename();
+		return updateFile(file, fileName);
+	}
+
+	@Getter
+	@Builder
+	public static class UploadContentImagesQuery {
+		private final MultipartFile[] images;
+		private final Long diaryId;
+		private final String contents;
+	}
+
+	public String uploadContentImagesToStorage(UploadContentImagesQuery query) {
+		MultipartFile[] images = query.getImages();
+
+		if (images == null || images.length == 0) {
+			return query.getContents();
+		}
+		String fileDir = "diary/" + query.getDiaryId() + "/";
+
+		// 모두 지우기
+		deleteFolder(fileDir);
+		// store images
+		String contents = query.getContents();
+		for (MultipartFile image : images) {
+			String fileName = fileDir + image.getOriginalFilename();
+
+			String s3ImageUrl = updateFile(image, fileName);
+
+			if (s3ImageUrl == null) {
+				continue;
 			}
-			String fileName;
+			contents = contents.replaceAll(Objects.requireNonNull(image.getOriginalFilename()), s3ImageUrl);
+		}
+		return contents;
+
+	}
+
+	private String updateFile(MultipartFile file, String fileName) {
+		try {
 			ObjectMetadata metadata = new ObjectMetadata();
 
-			// 타입 별 저장할 위치 결정
-			if (query.getType() == ImageType.PROFILE) {
-				fileName = "profile/" + getUserId() + "_";
-			} else {
-				fileName = "thumbnail/" + query.getDiaryId() + "_";
-			}
-			// 업데이트 할 때 이전 사진 삭제
-			if (query.getPrevImagePath() != null) {
-				checkSameName(query.getPrevImagePath(), fileName);
-			}
-			fileName += file.getOriginalFilename();
 			metadata.setContentType(file.getContentType());
 			metadata.setContentLength(file.getSize());
 			amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+
 			return amazonS3Client.getUrl(bucket, fileName).toString();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -73,7 +117,19 @@ public class S3ImageTransfer {
 		}
 	}
 
-	private void checkSameName(String fileName, String target) {
+	private void deleteFolder(String fileDir) {
+		ListObjectsV2Result result = amazonS3Client.listObjectsV2(bucket, fileDir);
+		List<S3ObjectSummary> objects = result.getObjectSummaries();
+
+		for (S3ObjectSummary os : objects) {
+			System.out.println(os.getKey());
+			String key = os.getKey();
+
+			amazonS3Client.deleteObject(bucket, key);
+		}
+	}
+
+	private void deleteFile(String fileName, String target) {
 		URL url = amazonS3Client.getUrl(bucket, fileName.substring(fileName.indexOf(target)));
 		String key = url.getPath().substring(1);
 
