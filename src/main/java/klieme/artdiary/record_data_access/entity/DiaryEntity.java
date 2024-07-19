@@ -90,6 +90,8 @@ public class DiaryEntity {
 		if (entity.getExhVisitId() != null) {
 			this.exhVisitId = entity.getExhVisitId();
 		}
-		this.saying = entity.getSaying();
+		if (entity.getSaying() != null) {
+			this.saying = entity.getSaying().isEmpty() ? null : entity.getSaying();
+		}
 	}
 }

@@ -64,6 +64,7 @@ public class MyDiaryController {
 			.thumbnail(request.getThumbnail())
 			.writeDate(request.getWriteDate())
 			.saying(request.getSaying())
+			.files(request.getFiles())
 			.build();
 		// 비즈니스 로직 호출
 		List<MyDiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryOperationUseCase.createMyDiary(command);
