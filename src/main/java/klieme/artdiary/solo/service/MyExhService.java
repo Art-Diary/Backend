@@ -3,7 +3,6 @@ package klieme.artdiary.solo.service;
 import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.api.ArtDiaryException;
-import klieme.artdiary.common.image.ImageTransfer;
 import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
@@ -31,19 +29,17 @@ public class MyExhService implements MyExhReadUseCase, MyExhOperationUseCase {
 	private final ExhRepository exhRepository;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
-	private final ImageTransfer imageTransfer;
 
 	@Autowired
 	public MyExhService(ExhRepository exhRepository, ExhVisitRepository exhVisitRepository,
-		DiaryRepository diaryRepository, ImageTransfer imageTransfer) {
+		DiaryRepository diaryRepository) {
 		this.exhRepository = exhRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
-		this.imageTransfer = imageTransfer;
 	}
 
 	@Override
-	public List<MyExhReadUseCase.FindMyExhsResult> getMyExhsList() throws IOException {
+	public List<MyExhReadUseCase.FindMyExhsResult> getMyExhsList() {
 		Long userId = getUserId();
 		// 내가 작성한 전시회 기록들의 평점 구하기
 		List<Map<String, Object>> myDiarySumRateAndCountList = diaryRepository.getMyDiarySumRateAndCount(userId, false);
@@ -57,9 +53,8 @@ public class MyExhService implements MyExhReadUseCase, MyExhOperationUseCase {
 			ExhEntity exh = (ExhEntity)myDiarySumRateAndCount.get("exhibition");
 			// averageRate & poster
 			double averageRate = sumOfRate / countOfDiary;
-			String poster = imageTransfer.downloadImage(exh.getPoster());
 
-			result.add(MyExhReadUseCase.FindMyExhsResult.findMyExhs(exh, averageRate, poster));
+			result.add(MyExhReadUseCase.FindMyExhsResult.findMyExhs(exh, averageRate));
 		}
 		return result;
 	}

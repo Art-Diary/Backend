@@ -2,7 +2,6 @@ package klieme.artdiary.user.service;
 
 import static klieme.artdiary.common.SecurityUtil.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -12,9 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.api.ArtDiaryException;
-import klieme.artdiary.common.image.ImageTransfer;
-import klieme.artdiary.common.image.ImageType;
 import klieme.artdiary.common.api.MessageType;
+import klieme.artdiary.common.image.ImageType;
+import klieme.artdiary.common.image.S3ImageTransfer;
+import klieme.artdiary.common.jwt.JwtUtil;
 import klieme.artdiary.common.jwt.TokenInfo;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
@@ -27,7 +27,6 @@ import klieme.artdiary.user.data_access.entity.UserEntity;
 import klieme.artdiary.user.data_access.repository.ReasonRepository;
 import klieme.artdiary.user.data_access.repository.SocialLoginRepository;
 import klieme.artdiary.user.data_access.repository.UserRepository;
-import klieme.artdiary.common.jwt.JwtUtil;
 
 @Service
 public class UserService implements UserOperationUseCase, UserReadUseCase {
@@ -37,28 +36,27 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	private final DiaryRepository diaryRepository;
 	private final ReasonRepository reasonRepository;
 	private final SocialLoginRepository socialLoginRepository;
-	private final ImageTransfer imageTransfer;
 	private final JwtUtil jwtUtil;
+	private final S3ImageTransfer s3ImageTransfer;
 
 	@Autowired
 	public UserService(UserRepository userRepository, ExhVisitRepository exhVisitRepository,
 		DiaryRepository diaryRepository, ReasonRepository reasonRepository, SocialLoginRepository socialLoginRepository,
-		ImageTransfer imageTransfer, JwtUtil jwtUtil) {
+		JwtUtil jwtUtil, S3ImageTransfer s3ImageTransfer) {
 		this.userRepository = userRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
 		this.reasonRepository = reasonRepository;
 		this.socialLoginRepository = socialLoginRepository;
-		this.imageTransfer = imageTransfer;
 		this.jwtUtil = jwtUtil;
+		this.s3ImageTransfer = s3ImageTransfer;
 	}
 
 	@Override
-	public FindUserResult getUserInfo() throws IOException {
+	public FindUserResult getUserInfo() {
 		UserEntity user = userRepository.findByUserId(getUserId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-		String profile = imageTransfer.downloadImage(user.getProfile());
-		return FindUserResult.findUserInfo(user, profile);
+		return FindUserResult.findUserInfo(user);
 	}
 
 	@Override
@@ -81,20 +79,18 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Transactional
 	@Override
-	public FindUserResult loginTester(Long userId) throws IOException {
+	public FindUserResult loginTester(Long userId) {
 		UserEntity userEntity = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-		String profile = imageTransfer.downloadImage(userEntity.getProfile());
 		TokenInfo tokenInfo = jwtUtil.generateToken(userEntity.getUserId(), null);
 
 		userEntity.updateRefreshToken(tokenInfo.getRefreshToken());
-		return FindUserResult.findUserLoginInfo(userEntity, true, profile, tokenInfo.getAccessToken());
+		return FindUserResult.findUserLoginInfo(userEntity, true, tokenInfo.getAccessToken());
 	}
 
 	@Transactional
 	@Override
-	public FindUserResult socialLogin(Boolean forCheckEmail, Boolean wantUnite, UserCreateCommand command) throws
-		IOException {
+	public FindUserResult socialLogin(Boolean forCheckEmail, Boolean wantUnite, UserCreateCommand command) {
 		// 재로그인 확인
 		Optional<SocialLoginEntity> socialLoginEntity = socialLoginRepository.findBySocialLoginId(
 			SocialLoginId.builder()
@@ -119,9 +115,8 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 		Boolean finishInit = !Objects.equals(userEntity.getNickname(),
 			command.getProviderType() + "_" + command.getProviderId());
-		String profile = finishInit ? imageTransfer.downloadImage(userEntity.getProfile()) : null;
 
-		return FindUserResult.findUserLoginInfo(userEntity, finishInit, profile, tokenInfo.getAccessToken());
+		return FindUserResult.findUserLoginInfo(userEntity, finishInit, tokenInfo.getAccessToken());
 	}
 
 	private UserEntity initLogin(Boolean forCheckEmail, Boolean wantUnite, UserCreateCommand command) {
@@ -149,7 +144,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 
 	@Override
 	@Transactional
-	public FindUserResult updateUser(UserUpdateCommand command) throws IOException {
+	public FindUserResult updateUser(UserUpdateCommand command) {
 		UserEntity savedEntity = userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(
 			MessageType.NOT_FOUND));
 		// 닉네임 중복 확인
@@ -161,19 +156,20 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			}
 		}
 		// 사용자 정보 업데이트
-		ImageTransfer.FindUploadResult uploadResult = imageTransfer.uploadImageToStorage(
-			ImageTransfer.UploadQuery.builder()
+		String uploadImageUrl = s3ImageTransfer.uploadImageToStorage(
+			S3ImageTransfer.UploadQuery.builder()
 				.type(ImageType.PROFILE)
 				.image(command.getProfile())
+				.prevImagePath(savedEntity.getProfile())
 				.build());
 		// 사용자 정보 업데이트
 		savedEntity.updateUser(UserEntity.builder()
 			.nickname(command.getNickname())
-			.profile(uploadResult.getStoredPath())
+			.profile(uploadImageUrl)
 			.favoriteArt(command.getFavoriteArt())
 			.build());
 		userRepository.save(savedEntity);
-		return FindUserResult.findUserInfo(savedEntity, uploadResult.getImageToString());
+		return FindUserResult.findUserInfo(savedEntity);
 	}
 
 	@Override

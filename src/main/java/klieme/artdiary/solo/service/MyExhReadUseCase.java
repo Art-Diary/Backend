@@ -40,12 +40,11 @@ public interface MyExhReadUseCase {
 		//	public boolean equals;
 
 		@Builder
-		public static FindMyExhsResult findMyExhs(ExhEntity entity,
-			double rate, String poster) {//MydiaryEntity,GroupDiaryEntity 둘다 사용하기 위해
+		public static FindMyExhsResult findMyExhs(ExhEntity entity, double rate) {
 			return FindMyExhsResult.builder()
 				.exhId(entity.getExhId())
 				.exhName(entity.getExhName())
-				.poster(poster)
+				.poster(entity.getPoster())
 				.rate(rate)
 				.build();
 		}

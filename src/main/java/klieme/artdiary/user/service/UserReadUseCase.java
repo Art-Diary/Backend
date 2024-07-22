@@ -1,6 +1,5 @@
 package klieme.artdiary.user.service;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import klieme.artdiary.user.data_access.entity.UserEntity;
@@ -11,7 +10,7 @@ import lombok.ToString;
 
 public interface UserReadUseCase {
 
-	FindUserResult getUserInfo() throws IOException;
+	FindUserResult getUserInfo();
 
 	String verifyNickname(VerifyNicknameQuery command);
 
@@ -49,12 +48,12 @@ public interface UserReadUseCase {
 		private final String providerType;
 		private final String accessToken;
 
-		public static FindUserResult findUserInfo(UserEntity user, String profile) {
+		public static FindUserResult findUserInfo(UserEntity user) {
 			return FindUserResult.builder()
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
 				.email(user.getEmail())
-				.profile(profile)
+				.profile(user.getProfile())
 				.favoriteArt(user.getFavoriteArt() == null || Objects.equals(user.getFavoriteArt(), ".") ? "그외" :
 					user.getFavoriteArt())
 				.alarm1(user.getAlarm1())
@@ -64,14 +63,13 @@ public interface UserReadUseCase {
 				.build();
 		}
 
-		public static FindUserResult findUserLoginInfo(UserEntity user, Boolean initInfo, String profile,
-			String accessToken) {
+		public static FindUserResult findUserLoginInfo(UserEntity user, Boolean initInfo, String accessToken) {
 			return FindUserResult.builder()
 				.userId(user.getUserId())
 				.email(user.getEmail())
 				.initInfo(initInfo)
 				.nickname(initInfo ? user.getNickname() : null)
-				.profile(initInfo ? profile : null)
+				.profile(initInfo ? user.getProfile() : null)
 				.favoriteArt(
 					initInfo ? (user.getFavoriteArt() == null || Objects.equals(user.getFavoriteArt(), ".") ? "그외" :
 						user.getFavoriteArt()) : null)

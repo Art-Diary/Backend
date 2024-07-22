@@ -2,7 +2,6 @@ package klieme.artdiary.exhibition.service;
 
 import static klieme.artdiary.common.FormatDate.*;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -25,11 +24,11 @@ import lombok.ToString;
 public interface ExhReadUseCase {
 	FindStoredDateResult getStoredDateOfExhsByGatherId(StoredDateFindQuery query);
 
-	List<FindExhResult> getExhList(ExhListFindQuery query) throws IOException;
+	List<FindExhResult> getExhList(ExhListFindQuery query);
 
-	FindExhResult getExhDetailInfo(Long exhId) throws IOException;
+	FindExhResult getExhDetailInfo(Long exhId);
 
-	List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId) throws IOException;
+	List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId);
 
 	@EqualsAndHashCode
 	@Getter
@@ -101,14 +100,14 @@ public interface ExhReadUseCase {
 					.build();
 			}
 	*/
-		public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh, String poster) {
+		public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh) {
 			return FindExhResult.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
 				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
 				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
-				.poster(poster)
+				.poster(exh.getPoster())
 				.favoriteExh(favoriteExh)
 				.painter(exh.getPainter())
 				.fee(exh.getFee())
@@ -118,14 +117,14 @@ public interface ExhReadUseCase {
 				.build();
 		}
 
-		public static FindExhResult findByExhForList(ExhEntity exh, Boolean isFavoriteExh, String poster) {
+		public static FindExhResult findByExhForList(ExhEntity exh, Boolean isFavoriteExh) {
 			return FindExhResult.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
 				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
 				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
-				.poster(poster)
+				.poster(exh.getPoster())
 				.favoriteExh(isFavoriteExh)
 				.build();
 		}
@@ -152,14 +151,14 @@ public interface ExhReadUseCase {
 		private final Long gatherExhId; // 모임이 아닐 경우 null
 
 		public static FindDiaryResult findSoloDiary(MydiaryEntity diary, UserExhEntity userexh, UserEntity user,
-			ExhEntity exh, String thumbnail) {
+			ExhEntity exh) {
 			return FindDiaryResult.builder()
 				.diaryId(diary.getSoloDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(thumbnail)
+				.thumbnail(diary.getThumbnail())
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())
@@ -171,14 +170,14 @@ public interface ExhReadUseCase {
 		}
 
 		public static FindDiaryResult findGatheringDiary(GatheringDiaryEntity diary, GatheringExhEntity gatherexh,
-			GatheringEntity gather, UserEntity user, ExhEntity exh, String thumbnail) {
+			GatheringEntity gather, UserEntity user, ExhEntity exh) {
 			return FindDiaryResult.builder()
 				.diaryId(diary.getGatherDiaryId())
 				.title(diary.getTitle())
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(thumbnail)
+				.thumbnail(diary.getThumbnail())
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())

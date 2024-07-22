@@ -1,7 +1,5 @@
 package klieme.artdiary.user.ui.controller;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +42,7 @@ public class UserController {
 	}
 
 	@GetMapping("")
-	public ResponseEntity<UserView> getUserInfo() throws IOException {
+	public ResponseEntity<UserView> getUserInfo() {
 		log.info("[사용자 정보 조회]");
 
 		UserReadUseCase.FindUserResult result = userReadUseCase.getUserInfo();
@@ -68,7 +66,7 @@ public class UserController {
 	 * "/users"
 	 */
 	@PostMapping("")
-	public ResponseEntity<UserView> loginUser(@Valid @RequestBody UserRequest userRequest) throws IOException {
+	public ResponseEntity<UserView> loginUser(@Valid @RequestBody UserRequest userRequest) {
 		log.info("[사용자 로그인 (" + userRequest.getProviderType() + ")]");
 
 		var command = UserOperationUseCase.UserCreateCommand.builder()
@@ -86,7 +84,7 @@ public class UserController {
 	 * "/users/test"
 	 */
 	@PostMapping("/test")
-	public ResponseEntity<UserView> loginUserTest(@Valid @RequestBody TesterRequest userRequest) throws IOException {
+	public ResponseEntity<UserView> loginUserTest(@Valid @RequestBody TesterRequest userRequest) {
 		log.info("[테스터 사용자 로그인 (" + userRequest.getUserId() + ")]");
 
 		UserReadUseCase.FindUserResult result = userOperationUseCase.loginTester(userRequest.getUserId());
@@ -98,7 +96,7 @@ public class UserController {
 	 * "/users/unite"
 	 */
 	@PostMapping("/unite")
-	public ResponseEntity<UserView> uniteSocialLogin(@Valid @RequestBody UserRequest userRequest) throws IOException {
+	public ResponseEntity<UserView> uniteSocialLogin(@Valid @RequestBody UserRequest userRequest) {
 		log.info("[동일한 이메일 소셜 로그인 통합 진행 (" + userRequest.getProviderType() + ")]");
 
 		var command = UserOperationUseCase.UserCreateCommand.builder()
@@ -116,8 +114,7 @@ public class UserController {
 	 * "/users/separate"
 	 */
 	@PostMapping("/separate")
-	public ResponseEntity<UserView> separateSocialLogin(@Valid @RequestBody UserRequest userRequest) throws
-		IOException {
+	public ResponseEntity<UserView> separateSocialLogin(@Valid @RequestBody UserRequest userRequest) {
 		log.info("[동일한 이메일 소셜 로그인 분리 (" + userRequest.getProviderType() + ")]");
 
 		var command = UserOperationUseCase.UserCreateCommand.builder()
@@ -135,7 +132,7 @@ public class UserController {
 	 * "/users"
 	 */
 	@PatchMapping("")
-	public ResponseEntity<UserView> updateUser(@Valid @ModelAttribute UserUpdateRequest request) throws IOException {
+	public ResponseEntity<UserView> updateUser(@Valid @ModelAttribute UserUpdateRequest request) {
 		log.info("[사용자 프로필 설정]");
 		var command = UserOperationUseCase.UserUpdateCommand.builder()
 			.nickname(request.getNickname())

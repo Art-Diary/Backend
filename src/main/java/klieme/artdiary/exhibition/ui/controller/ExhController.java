@@ -1,6 +1,5 @@
 package klieme.artdiary.exhibition.ui.controller;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +99,7 @@ public class ExhController {
 	}
 
 	@GetMapping("/{exhId}")
-	public ResponseEntity<ExhView> getExhDetailInfo(@PathVariable(name = "exhId") Long exhId) throws IOException {
+	public ResponseEntity<ExhView> getExhDetailInfo(@PathVariable(name = "exhId") Long exhId) {
 		log.info("[전시회 상세 정보 조회]");
 
 		ExhReadUseCase.FindExhResult result = exhReadUseCase.getExhDetailInfo(exhId);
@@ -111,9 +110,7 @@ public class ExhController {
 
 	//[here/hw]
 	@GetMapping("/{exhId}/diaries")
-	public ResponseEntity<List<AllDiaryOfExhIdView>> getAllOfExhIdDiaries(
-		@PathVariable(name = "exhId") Long exhId) throws
-		IOException {
+	public ResponseEntity<List<AllDiaryOfExhIdView>> getAllOfExhIdDiaries(@PathVariable(name = "exhId") Long exhId) {
 		log.info("[전시회 상세 정보 중 기록 조회]");
 
 		List<ExhReadUseCase.FindDiaryResult> diaryResults = exhReadUseCase.getAllOfExhIdDiaries(exhId);
@@ -134,7 +131,7 @@ public class ExhController {
 		@RequestParam(name = "price", required = false) String price, // 가격
 		@RequestParam(name = "state", required = false) String[] stateList, // 전시 오픈 상태
 		@RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date // 날짜
-	) throws IOException {
+	) {
 		log.info("[전시회 목록 조회(+전시회 검색, 좋아요 조회)]");
 
 		// string 자료형을 갖는 변수일 경우 빈 문자열인지 확인
