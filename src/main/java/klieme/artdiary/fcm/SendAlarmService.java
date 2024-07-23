@@ -29,8 +29,10 @@ import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.record_data_access.repository.ExhVisitRepository;
 import klieme.artdiary.user.data_access.entity.UserEntity;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class SendAlarmService {
 
 	private final FavoriteExhRepository favoriteExhRepository;
@@ -54,6 +56,7 @@ public class SendAlarmService {
 	 * - 캘린더에 저장한 전시회? -> 방문 날짜에 맞춰서 알림?
 	 * */
 	public void sendMessageAboutExh() {
+		log.info("[알림 보내기]");
 		List<FcmSendDto> fcmSendDtoList = new ArrayList<>();
 		// 좋아요 누른 전시회의 시작일과 종료일 알림
 		aboutFavorite(fcmSendDtoList);
