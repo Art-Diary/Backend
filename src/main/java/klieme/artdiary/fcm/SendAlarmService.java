@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,29 +26,26 @@ import com.querydsl.core.Tuple;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
-import klieme.artdiary.gathering.data_access.entity.GatheringExhEntity;
-import klieme.artdiary.gathering.data_access.repository.GatheringExhRepository;
-import klieme.artdiary.solo.data_access.entity.UserExhEntity;
-import klieme.artdiary.solo.data_access.repository.UserExhRepository;
+import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
+import klieme.artdiary.record_data_access.repository.ExhVisitRepository;
 import klieme.artdiary.user.data_access.entity.UserEntity;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class SendAlarmService {
 
 	private final FavoriteExhRepository favoriteExhRepository;
-	private final UserExhRepository userExhRepository;
-	private final GatheringExhRepository gatheringExhRepository;
+	private final ExhVisitRepository exhVisitRepository;
 	@Value("${fcm.api.url}")
 	private String FCM_API_URL;
 	@Value("${firebase.config.path}")
 	private String FIREBASE_CONFIG_PATH;
 
 	@Autowired
-	public SendAlarmService(FavoriteExhRepository favoriteExhRepository, UserExhRepository userExhRepository,
-		GatheringExhRepository gatheringExhRepository) {
+	public SendAlarmService(FavoriteExhRepository favoriteExhRepository, ExhVisitRepository exhVisitRepository) {
 		this.favoriteExhRepository = favoriteExhRepository;
-		this.userExhRepository = userExhRepository;
-		this.gatheringExhRepository = gatheringExhRepository;
+		this.exhVisitRepository = exhVisitRepository;
 	}
 
 	/*
@@ -57,7 +55,8 @@ public class SendAlarmService {
 	 * 캘린더에 저장한 전시회 방문 날짜 알림
 	 * - 캘린더에 저장한 전시회? -> 방문 날짜에 맞춰서 알림?
 	 * */
-	public void sendMessageAboutExh() throws IOException {
+	public void sendMessageAboutExh() {
+		log.info("[알림 보내기]");
 		List<FcmSendDto> fcmSendDtoList = new ArrayList<>();
 		// 좋아요 누른 전시회의 시작일과 종료일 알림
 		aboutFavorite(fcmSendDtoList);
@@ -65,7 +64,12 @@ public class SendAlarmService {
 		aboutCalendar(fcmSendDtoList);
 		// push
 		for (FcmSendDto fcmSendDto : fcmSendDtoList) {
-			sendMessageTo(fcmSendDto);
+			try {
+				System.out.println(fcmSendDto.getBody() + " " + fcmSendDto.getToken());
+				sendMessageTo(fcmSendDto);
+			} catch (Exception e) {
+				System.out.println(e);
+			}
 		}
 	}
 
@@ -103,42 +107,24 @@ public class SendAlarmService {
 
 	private void aboutCalendar(List<FcmSendDto> fcmSendDtoList) {
 		// 캘린더에 저장한 전시회 방문 날짜 알림
-		List<Tuple> soloVisitInfo = userExhRepository.getVisitExhWithUser();
-		List<Tuple> gatherVisitInfo = gatheringExhRepository.getVisitExhWithUser();
+		List<Map<String, Object>> visitInfoList = exhVisitRepository.getVisitExhForFcm();
 		LocalDate localDate = LocalDate.now();
 
-		for (Tuple info : soloVisitInfo) {
-			UserEntity userEntity = info.get(0, UserEntity.class);
-			ExhEntity exhEntity = info.get(1, ExhEntity.class);
-			UserExhEntity userExhEntity = info.get(2, UserExhEntity.class);
+		for (Map<String, Object> visitInfo : visitInfoList) {
+			ExhVisitEntity exhVisit = (ExhVisitEntity)visitInfo.get("exhVisit");
+			UserEntity user = (UserEntity)visitInfo.get("user");
+			ExhEntity exh = (ExhEntity)visitInfo.get("exhibition");
+
 			// 전시회 날짜 비교
-			if (userExhEntity != null && exhEntity != null
-				&& userEntity != null && userExhEntity.getVisitDate() != null
-				&& userEntity.getAlarmToken() != null) {
-				if (userEntity.getAlarm3() && localDate.isEqual(userExhEntity.getVisitDate())) {
+			if (exhVisit != null && exh != null
+				&& user != null && exhVisit.getVisitDate() != null
+				&& user.getAlarmToken() != null) {
+				if (user.getAlarm3() && localDate.isEqual(exhVisit.getVisitDate())) {
 					fcmSendDtoList.add(FcmSendDto.builder()
-						.token(userEntity.getAlarmToken())
+						.token(user.getAlarmToken())
 						.title("캘린더에 저장한 전시회 방문 안내")
-						.body("\"" + exhEntity.getExhName() + "\"" + " 오늘 방문 예정!")
-						.exhId(exhEntity.getExhId())
-						.build());
-				}
-			}
-		}
-		for (Tuple info : gatherVisitInfo) {
-			UserEntity userEntity = info.get(0, UserEntity.class);
-			ExhEntity exhEntity = info.get(1, ExhEntity.class);
-			GatheringExhEntity gatheringExh = info.get(2, GatheringExhEntity.class);
-			// 전시회 날짜 비교
-			if (gatheringExh != null && exhEntity != null
-				&& userEntity != null && gatheringExh.getVisitDate() != null
-				&& userEntity.getAlarmToken() != null) {
-				if (userEntity.getAlarm3() && localDate.isEqual(gatheringExh.getVisitDate())) {
-					fcmSendDtoList.add(FcmSendDto.builder()
-						.token(userEntity.getAlarmToken())
-						.title("캘린더에 저장한 전시회 방문 안내")
-						.body(exhEntity.getExhName() + " 오늘 방문 예정!")
-						.exhId(exhEntity.getExhId())
+						.body("\"" + exh.getExhName() + "\"" + " 오늘 방문 예정!")
+						.exhId(exh.getExhId())
 						.build());
 				}
 			}

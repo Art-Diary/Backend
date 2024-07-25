@@ -25,8 +25,8 @@ public class MyDiaryRequest {
 	private Boolean diaryPrivate;
 	@NotBlank
 	private String contents;
-	// @NotNull
 	private MultipartFile thumbnail;
+	private MultipartFile[] files;
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate writeDate;

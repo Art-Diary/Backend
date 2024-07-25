@@ -67,12 +67,21 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 			.contents(command.getContents())
 			.initDate(LocalDateTime.now())
 			.writeDate(command.getWriteDate())
-			.saying(command.getSaying())
+			.saying(command.getSaying() == null ? "" : command.getSaying())
 			.writerId(userEntity.getUserId())
 			.exhVisitId(command.getExhVisitId())
 			.build();
 		diaryRepository.save(newDiary);
 		saveThumbnail(command.getThumbnail(), newDiary);
+
+		String changedContents = s3ImageTransfer.uploadContentImagesToStorage(
+			S3ImageTransfer.UploadContentImagesQuery.builder()
+				.images(command.getFiles())
+				.diaryId(newDiary.getDiaryId())
+				.contents(command.getContents())
+				.build());
+
+		newDiary.updateDiary(DiaryEntity.builder().contents(changedContents).build());
 		diaryRepository.save(newDiary);
 		return getMyDiaryList(userEntity, exhEntity, null);
 	}
@@ -118,13 +127,19 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 		DiaryEntity diaryEntity = diaryRepository.findByDiaryId(command.getDiaryId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
+		String changedContents = s3ImageTransfer.uploadContentImagesToStorage(
+			S3ImageTransfer.UploadContentImagesQuery.builder()
+				.images(command.getFiles())
+				.diaryId(diaryEntity.getDiaryId())
+				.contents(command.getContents())
+				.build());
 		diaryEntity.updateDiary(DiaryEntity.builder()
 			.title(command.getTitle())
 			.rate(command.getRate())
 			.diaryPrivate(command.getDiaryPrivate())
-			.contents(command.getContents())
+			.contents(changedContents)
 			.writeDate(command.getWriteDate())
-			.saying(command.getSaying())
+			.saying(command.getSaying() == null ? "" : command.getSaying())
 			.exhVisitId(command.getExhVisitId())
 			.build());
 		saveThumbnail(command.getThumbnail(), diaryEntity);

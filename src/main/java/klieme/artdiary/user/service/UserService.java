@@ -103,7 +103,10 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			// update provider type
 			userEntity = userRepository.findByUserId(socialLoginEntity.get().getUserId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			userEntity.updateUser(UserEntity.builder().providerType(command.getProviderType()).build());
+			userEntity.updateUser(UserEntity.builder()
+				.providerType(command.getProviderType())
+				.alarmToken(command.getAlarmToken())
+				.build());
 			userRepository.save(userEntity);
 		} else {
 			// init

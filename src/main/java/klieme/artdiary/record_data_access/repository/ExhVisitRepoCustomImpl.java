@@ -18,6 +18,8 @@ import klieme.artdiary.gathering.data_access.entity.QGatheringEntity;
 import klieme.artdiary.gathering.data_access.entity.QGatheringMateEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.record_data_access.entity.QExhVisitEntity;
+import klieme.artdiary.user.data_access.entity.QUserEntity;
+import klieme.artdiary.user.data_access.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -134,6 +136,36 @@ public class ExhVisitRepoCustomImpl implements ExhVisitRepoCustom {
 			Map<String, Object> row = new HashMap<>();
 			row.put("exhVisit", tuple.get(0, ExhVisitEntity.class));
 			row.put("gathering", tuple.get(1, GatheringEntity.class));
+			row.put("exhibition", tuple.get(2, ExhEntity.class));
+			result.add(row);
+		}
+		return result;
+	}
+
+	@Override
+	public List<Map<String, Object>> getVisitExhForFcm() {
+		QUserEntity user = QUserEntity.userEntity;
+		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
+		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
+		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
+		QExhEntity exh = QExhEntity.exhEntity;
+
+		List<Tuple> tuples = query
+			.select(exhVisit, user, exh)
+			.from(exhVisit)
+			.leftJoin(gathering).on(exhVisit.gatherId.eq(gathering.gatherId))
+			.leftJoin(gatheringMate).on(gathering.gatherId.eq(gatheringMate.gatheringMateId.gatherId))
+			.leftJoin(user).on(exhVisit.userId.eq(user.userId).or(gatheringMate.gatheringMateId.userId.eq(user.userId)))
+			.leftJoin(exh).on(exhVisit.exhId.eq(exh.exhId))
+			.fetchJoin()
+			.fetch();
+
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("exhVisit", tuple.get(0, ExhVisitEntity.class));
+			row.put("user", tuple.get(1, UserEntity.class));
 			row.put("exhibition", tuple.get(2, ExhEntity.class));
 			result.add(row);
 		}

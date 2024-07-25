@@ -26,6 +26,7 @@ public class MyDiaryUpdateRequest {
 	@NotBlank
 	private String contents;
 	private MultipartFile thumbnail;
+	private MultipartFile[] files;
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate writeDate;
