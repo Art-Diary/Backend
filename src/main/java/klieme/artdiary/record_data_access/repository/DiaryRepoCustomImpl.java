@@ -140,6 +140,48 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 	}
 
 	@Override
+	public List<Map<String, Object>> getAllOfDiaries(Long userId, Long exhId) {
+		QDiaryEntity diary = QDiaryEntity.diaryEntity;
+		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
+		QExhEntity exh = QExhEntity.exhEntity;
+		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
+		QUserEntity user = QUserEntity.userEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+		BooleanBuilder privateBuilder = new BooleanBuilder();
+
+		builder.and(diary.diaryPrivate.eq(false));
+		builder.and(diary.writerId.eq(userId));
+		privateBuilder.or(builder);
+		privateBuilder.or(diary.diaryPrivate.eq(true));
+
+		List<Tuple> tuples = query
+			.select(diary, exhVisit, gathering, user, exh)
+			.from(diary)
+			.leftJoin(exhVisit).on(diary.exhVisitId.eq(exhVisit.exhVisitId))
+			.leftJoin(gathering).on(exhVisit.gatherId.eq(gathering.gatherId))
+			.leftJoin(user).on(diary.writerId.eq(user.userId))
+			.leftJoin(exh).on(exhVisit.exhId.eq(exh.exhId))
+			.fetchJoin()
+			.where(exhVisit.exhId.eq(exhId), privateBuilder)
+			.fetch();
+
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("diaryEntity", tuple.get(0, DiaryEntity.class));
+			row.put("exhVisitEntity", tuple.get(1, ExhVisitEntity.class));
+			row.put("gatheringEntity", tuple.get(2, GatheringEntity.class));
+			row.put("userEntity", tuple.get(3, UserEntity.class));
+			row.put("exhEntity", tuple.get(4, ExhEntity.class));
+
+			result.add(row);
+		}
+		return result;
+
+	}
+
+	@Override
 	public DiaryEntity getDiaryByDiaryIdAndWriterIdAndExhId(Long diaryId, Long writerId, Long exhId) {
 		QDiaryEntity diary = QDiaryEntity.diaryEntity;
 		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
