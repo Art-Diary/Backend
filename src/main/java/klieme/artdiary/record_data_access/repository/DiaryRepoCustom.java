@@ -14,6 +14,8 @@ public interface DiaryRepoCustom {
 	List<Map<String, Object>> getDiaryList(Long userId, Long exhId, Boolean isSolo, Long gatherId, Boolean isForget,
 		LocalDate visitDate, Boolean isMate);
 
+	List<Map<String, Object>> getAllOfDiaries(Long userId, Long exhId);
+
 	DiaryEntity getDiaryByDiaryIdAndWriterIdAndExhId(Long diaryId, Long writerId, Long exhId);
 
 	List<Map<String, Object>> getGatherDiaryList(Long gatherId, Long exhId);

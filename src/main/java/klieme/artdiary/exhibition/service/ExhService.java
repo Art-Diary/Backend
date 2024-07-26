@@ -6,6 +6,7 @@ import static klieme.artdiary.common.SecurityUtil.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,48 +24,29 @@ import klieme.artdiary.exhibition.info.StoredListOfDate;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhEntity;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhId;
 import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
-import klieme.artdiary.gathering.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
-import klieme.artdiary.gathering.data_access.entity.GatheringExhEntity;
-import klieme.artdiary.gathering.data_access.repository.GatheringDiaryRepository;
-import klieme.artdiary.gathering.data_access.repository.GatheringExhRepository;
-import klieme.artdiary.gathering.data_access.repository.GatheringRepository;
+import klieme.artdiary.record_data_access.entity.DiaryEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
+import klieme.artdiary.record_data_access.repository.DiaryRepository;
 import klieme.artdiary.record_data_access.repository.ExhVisitRepository;
-import klieme.artdiary.solo.data_access.entity.MydiaryEntity;
-import klieme.artdiary.solo.data_access.entity.UserExhEntity;
-import klieme.artdiary.solo.data_access.repository.MydiaryRepository;
-import klieme.artdiary.solo.data_access.repository.UserExhRepository;
 import klieme.artdiary.user.data_access.entity.UserEntity;
-import klieme.artdiary.user.data_access.repository.UserRepository;
 
 @Service
 public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 
 	private final ExhRepository exhRepository;
-	private final UserExhRepository userExhRepository;
-	private final GatheringExhRepository gatheringExhRepository;
-	private final GatheringDiaryRepository gatheringDiaryRepository;
-	private final GatheringRepository gatheringRepository;
 	private final FavoriteExhRepository favoriteExhRepository;
-	private final MydiaryRepository mydiaryRepository;
-	private final UserRepository userRepository;
 	private final ExhVisitRepository exhVisitRepository;
+	private final DiaryRepository diaryRepository;
 
 	@Autowired
-	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository,
-		GatheringExhRepository gatheringExhRepository, GatheringDiaryRepository gatheringDiaryRepository,
-		GatheringRepository gatheringRepository, FavoriteExhRepository favoriteExhRepository,
-		MydiaryRepository mydiaryRepository, UserRepository userRepository, ExhVisitRepository exhVisitRepository) {
+	public ExhService(ExhRepository exhRepository, FavoriteExhRepository favoriteExhRepository,
+		ExhVisitRepository exhVisitRepository,
+		DiaryRepository diaryRepository) {
 		this.exhRepository = exhRepository;
-		this.userExhRepository = userExhRepository;
-		this.gatheringExhRepository = gatheringExhRepository;
-		this.gatheringDiaryRepository = gatheringDiaryRepository;
-		this.gatheringRepository = gatheringRepository;
 		this.favoriteExhRepository = favoriteExhRepository;
-		this.mydiaryRepository = mydiaryRepository;
-		this.userRepository = userRepository;
 		this.exhVisitRepository = exhVisitRepository;
+		this.diaryRepository = diaryRepository;
 	}
 
 	@Transactional
@@ -84,39 +66,6 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		exhRepository.save(entity);
 		return "complete";
 	}
-
-	/*
-		@Transactional
-		@Override
-		public FindStoredDateResult addSoloExhCreateDummy(ExhOperationUseCase.AddSoloExhDummyCreateCommand command) {
-			// 전시회 아이디 검증
-			ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-
-			// 관람날짜 검증
-			Optional<UserExhEntity> userExhEntity = userExhRepository.findByUserIdAndExhIdAndVisitDate(getUserId(),
-				command.getExhId(), command.getVisitDate());
-
-			if (userExhEntity.isPresent()) {
-				throw new ArtDiaryException(MessageType.CONFLICT);
-			}
-
-			// 전시회 일정에 맞춰 갈 수 있는지 확인
-			if (exhEntity.getExhPeriodStart().isAfter(command.getVisitDate())
-				|| exhEntity.getExhPeriodEnd().isBefore(command.getVisitDate())) {
-				throw new ArtDiaryException(MessageType.FORBIDDEN_DATE);
-			}
-
-			// DB에 데이터 생성
-			UserExhEntity entity = UserExhEntity.builder()
-				.visitDate(command.getVisitDate())
-				.userId(getUserId())
-				.exhId(command.getExhId())
-				.build();
-			userExhRepository.save(entity);
-			return FindStoredDateResult.findByStoredDate(command.getExhId(), command.getVisitDate(), null);
-		}
-	*/
 
 	//[here/hw]
 	@Override
@@ -186,63 +135,39 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	@Override
 	public List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId) {
 
-		// Diary 테이블에서 기록 가져오기
-		// Diary 테이블의 writeId로 user 테이블에서 nickname 가져오기
-		// ExhVisit 테이블에서 gatherId가 null이 아니면 Gathering에서 gatherName 가져오기
-		// ExhVisit 테이블에서 visitDate 가져오기
-		// ExhVisit 테이블의 exhId로 Exhibition 테이블에서 exhName 가져오기
-
-		//유저가 탈퇴하여 userId가 null인 경우 고려
-
-		// 개인이 다녀온 전시 기록과 그룹으로 다녀온 전시 기록 테이블 나눴을 때, 코드
 		List<FindDiaryResult> results = new ArrayList<>();
-		//해당 exhId의 user_Exh에서 확인 후, solo_Diary에서 가져오기
-		ExhEntity exh = exhRepository.findByExhId(exhId)
-			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-		List<UserExhEntity> userEntities = userExhRepository.findByExhId(exhId);
-		for (UserExhEntity userEntity : userEntities) {
-			List<MydiaryEntity> diaries = mydiaryRepository.findByUserExhId(userEntity.getUserExhId());
-			UserEntity user;
+		List<Map<String, Object>> diaryList = null;
+		diaryList = diaryRepository.getAllOfDiaries(getUserId(), exhId);
 
-			// 유저가 탈퇴하여 userId가 null인 경우 고려
-			if (userEntity.getUserId() == null) {
-				user = UserEntity.builder().nickname("전시 메이트").build();
-			} else {
-				user = userRepository.findByUserId(userEntity.getUserId())
-					.orElseGet(() -> UserEntity.builder().nickname("전시 메이트").build());
-			}
-			for (MydiaryEntity diary : diaries) {
-				if (!diary.getDiaryPrivate()) {
-					continue;
-				}
-				results.add(FindDiaryResult.findSoloDiary(diary, userEntity, user, exh));
-			}
-		}
+		for (Map<String, Object> item : diaryList) {
+			DiaryEntity diary = (DiaryEntity)item.get("diaryEntity");
+			ExhVisitEntity exhVisit = (ExhVisitEntity)item.get("exhVisitEntity");
+			GatheringEntity gathering = (GatheringEntity)item.get("gatheringEntity");
+			UserEntity user = (UserEntity)item.get("userEntity");
+			ExhEntity exh = (ExhEntity)item.get("exhEntity");
 
-		//해당 exhId의 gather_Exh에서 확인 후, gather_Diary에서 가져오기
-		List<GatheringExhEntity> gatherEntities = gatheringExhRepository.findByExhId(exhId);
-		for (GatheringExhEntity gatherEntity : gatherEntities) {
-			List<GatheringDiaryEntity> gDiaries = gatheringDiaryRepository.findByGatherExhId(
-				gatherEntity.getGatherExhId());
-			GatheringEntity gatherName = gatheringRepository.findByGatherId(gatherEntity.getGatherId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+			if (gathering == null) {//개인이 다녀온 기록: groupId==null인 경우
 
-			for (GatheringDiaryEntity gDiary : gDiaries) {
-				if (!gDiary.getDiaryPrivate()) {
-					continue;
-				}
-				UserEntity user;
-
-				// 유저가 탈퇴하여 userId가 -null인 경우 고려
-				if (gDiary.getUserId() == null) {
-					user = UserEntity.builder().nickname("전시 메이트").build();
+				if (user == null) {// 유저가 탈퇴하여 userId가 null인 경우 고려
+					results.add(FindDiaryResult.findStoredAnonymousDiary(diary, exhVisit,
+						exh));
 				} else {
-					user = userRepository.findByUserId(gDiary.getUserId())
-						.orElseGet(() -> UserEntity.builder().nickname("전시 메이트").build());
+					results.add(FindDiaryResult.findStoredSoloDiary(diary, exhVisit, user,
+						exh));
 				}
-				results.add(FindDiaryResult.findGatheringDiary(gDiary, gatherEntity, gatherName, user, exh));
+			} else {//그룹에서 다녀온 기록: userId==null인 경우
+
+				if (user == null) {// 유저가 탈퇴하여 userId가 null인 경우 고려
+					results.add(FindDiaryResult.findStoredAnonymousDiary(diary, exhVisit,
+						exh));
+				} else {
+					results.add(FindDiaryResult.findStoredGroupDiary(diary, exhVisit, user,
+						exh, gathering));
+				}
 			}
+
 		}
+
 		return results;
 	}
 

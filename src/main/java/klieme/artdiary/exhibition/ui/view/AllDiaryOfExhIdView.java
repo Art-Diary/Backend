@@ -13,6 +13,7 @@ import lombok.ToString;
 public class AllDiaryOfExhIdView {
 
 	private final Long diaryId;
+	private final Long exhVisitId;
 	private final String title;
 	private final Double rate;
 	private final Boolean diaryPrivate;
@@ -20,17 +21,15 @@ public class AllDiaryOfExhIdView {
 	private final String thumbnail;
 	private final String writeDate;
 	private final String saying;
-	private final Long userId;
 	private final String nickname; // 작성자
 	private final String gatherName;
 	private final String visitDate;
 	private final String exhName;
-	private final Long userExhId; // 개인 일정이 아닌 경우 null
-	private final Long gatherExhId; // 모임이 아닐 경우 null
 
 	@Builder
 	public AllDiaryOfExhIdView(ExhReadUseCase.FindDiaryResult result) {
 		this.diaryId = result.getDiaryId();
+		this.exhVisitId = result.getExhVisitId();
 		this.title = result.getTitle();
 		this.rate = result.getRate();
 		this.diaryPrivate = result.getDiaryPrivate();
@@ -38,12 +37,9 @@ public class AllDiaryOfExhIdView {
 		this.thumbnail = result.getThumbnail();
 		this.writeDate = result.getWriteDate();
 		this.saying = result.getSaying();
-		this.userId = result.getUserId();
 		this.nickname = result.getNickname();
 		this.gatherName = result.getGatherName();
 		this.visitDate = result.getVisitDate();
 		this.exhName = result.getExhName();
-		this.userExhId = result.getUserExhId();
-		this.gatherExhId = result.getGatherExhId();
 	}
 }
