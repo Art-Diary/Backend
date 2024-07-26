@@ -2,7 +2,6 @@ package klieme.artdiary.favoriteexh.service;
 
 import static klieme.artdiary.common.FormatDate.*;
 
-import java.io.IOException;
 import java.util.List;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
@@ -13,7 +12,7 @@ import lombok.ToString;
 
 public interface FavoriteExhReadUseCase {
 
-	List<FindFavoriteExhResult> getFavoriteExhs() throws IOException;
+	List<FindFavoriteExhResult> getFavoriteExhs();
 
 	@Getter
 	@ToString
@@ -33,14 +32,14 @@ public interface FavoriteExhReadUseCase {
 				.build();
 		}
 
-		public static FindFavoriteExhResult findByFavoriteExhDetail(ExhEntity exh, String poster) {
+		public static FindFavoriteExhResult findByFavoriteExhDetail(ExhEntity exh) {
 			return FindFavoriteExhResult.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
 				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
 				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
-				.poster(poster)
+				.poster(exh.getPoster())
 				.favoriteExh(true)
 				.build();
 		}

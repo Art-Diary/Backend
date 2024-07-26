@@ -16,4 +16,6 @@ public interface ExhVisitRepoCustom {
 
 	List<Map<String, Object>> getVisitInfoForCalendar(CalendarKind kind, Long userId, Long gatherId,
 		LocalDate startDate, LocalDate endDate);
+
+	List<Map<String, Object>> getVisitExhForFcm();
 }

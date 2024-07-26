@@ -51,7 +51,7 @@ public class MyDiaryController {
 	public ResponseEntity<List<MyDiaryView>> createDiary(
 		@PathVariable(name = "exhId") Long exhId,
 		@Valid @ModelAttribute MyDiaryRequest request
-	) throws IOException {
+	) {
 		log.info("[기록 추가]");
 		// request body 데이터 받아오기
 		var command = MyDiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
@@ -64,6 +64,7 @@ public class MyDiaryController {
 			.thumbnail(request.getThumbnail())
 			.writeDate(request.getWriteDate())
 			.saying(request.getSaying())
+			.files(request.getFiles())
 			.build();
 		// 비즈니스 로직 호출
 		List<MyDiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryOperationUseCase.createMyDiary(command);
@@ -136,7 +137,7 @@ public class MyDiaryController {
 		@PathVariable(name = "exhId") Long exhId,
 		@PathVariable(name = "diaryId") Long diaryId,
 		@Valid @ModelAttribute MyDiaryUpdateRequest request
-	) throws IOException {
+	) {
 		log.info("[기록 수정]");
 		// request body 데이터 받아오기
 		var command = MyDiaryOperationUseCase.MyDiaryCreateUpdateCommand.builder()
@@ -150,6 +151,7 @@ public class MyDiaryController {
 			.thumbnail(request.getThumbnail())
 			.writeDate(request.getWriteDate())
 			.saying(request.getSaying())
+			.files(request.getFiles())
 			.build();
 		// 비즈니스 로직 호출
 		List<MyDiaryReadUseCase.FindMyDiaryResult> myDiaryResults = mydiaryOperationUseCase.updateMyDiary(command);

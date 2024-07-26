@@ -1,6 +1,5 @@
 package klieme.artdiary.solo.service;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,11 +11,11 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface MyDiaryOperationUseCase {
-	List<MyDiaryReadUseCase.FindMyDiaryResult> createMyDiary(MyDiaryCreateUpdateCommand command) throws IOException;
+	List<MyDiaryReadUseCase.FindMyDiaryResult> createMyDiary(MyDiaryCreateUpdateCommand command);
 
 	void deleteMyDiary(Long exhId, Long diaryId);
 
-	List<MyDiaryReadUseCase.FindMyDiaryResult> updateMyDiary(MyDiaryCreateUpdateCommand command) throws IOException;
+	List<MyDiaryReadUseCase.FindMyDiaryResult> updateMyDiary(MyDiaryCreateUpdateCommand command);
 
 	@EqualsAndHashCode
 	@Builder
@@ -33,5 +32,6 @@ public interface MyDiaryOperationUseCase {
 		private final MultipartFile thumbnail;
 		private final LocalDate writeDate;
 		private final String saying;
+		private final MultipartFile[] files;
 	}
 }

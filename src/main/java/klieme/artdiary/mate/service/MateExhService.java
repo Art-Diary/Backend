@@ -2,7 +2,6 @@ package klieme.artdiary.mate.service;
 
 import static klieme.artdiary.common.SecurityUtil.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import klieme.artdiary.common.api.ArtDiaryException;
-import klieme.artdiary.common.image.ImageTransfer;
 import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
@@ -31,20 +29,18 @@ public class MateExhService implements MateExhReadUseCase {
 	private final DiaryRepository diaryRepository;
 	private final ExhRepository exhRepository;
 	private final MateRepository mateRepository;
-	private final ImageTransfer imageTransfer;
 
 	@Autowired
 	public MateExhService(UserRepository userRepository, DiaryRepository diaryRepository, ExhRepository exhRepository,
-		MateRepository mateRepository, ImageTransfer imageTransfer) {
+		MateRepository mateRepository) {
 		this.userRepository = userRepository;
 		this.diaryRepository = diaryRepository;
 		this.exhRepository = exhRepository;
 		this.mateRepository = mateRepository;
-		this.imageTransfer = imageTransfer;
 	}
 
 	@Override
-	public List<FindMateExhsResult> getMateExhsList(MateExhsFindQuery query) throws IOException {
+	public List<FindMateExhsResult> getMateExhsList(MateExhsFindQuery query) {
 		Long mateId = query.getMateId();
 		// 내 친구가 맞는지 확인 - exh_mate 확인
 		mateRepository.findByFromUserIdAndToUserId(getUserId(), mateId)
@@ -61,15 +57,14 @@ public class MateExhService implements MateExhReadUseCase {
 			ExhEntity exh = (ExhEntity)mateDiarySumRateAndCount.get("exhibition");
 			// averageRate & poster
 			double averageRate = sumOfRate / countOfDiary;
-			String poster = imageTransfer.downloadImage(exh.getPoster());
 
-			result.add(FindMateExhsResult.findMateExhs(exh, averageRate, poster));
+			result.add(FindMateExhsResult.findMateExhs(exh, averageRate));
 		}
 		return result;
 	}
 
 	@Override
-	public List<FindMateDiaryResult> getMateDiaryList(MateDiaryFindQuery query) throws IOException {
+	public List<FindMateDiaryResult> getMateDiaryList(MateDiaryFindQuery query) {
 		// 내 친구가 맞는지 확인 - exh_mate 확인
 		mateRepository.findByFromUserIdAndToUserId(getUserId(), query.getMateId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
@@ -92,10 +87,9 @@ public class MateExhService implements MateExhReadUseCase {
 			GatheringEntity gathering = (GatheringEntity)item.get("gatheringEntity");
 
 			if (diary != null && exhVisit != null) {
-				String thumbnail = imageTransfer.downloadImage(diary.getThumbnail());
 				results.add(
 					MateExhReadUseCase.FindMateDiaryResult.findMateDiary(diary, exhVisit, mateEntity, mateExhEntity,
-						gathering, thumbnail));
+						gathering));
 			}
 		}
 		results.sort(Comparator.comparing(FindMateDiaryResult::getInitDate));

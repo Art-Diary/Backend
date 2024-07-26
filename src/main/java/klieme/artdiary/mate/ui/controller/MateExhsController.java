@@ -1,6 +1,5 @@
 package klieme.artdiary.mate.ui.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +31,7 @@ public class MateExhsController {
 	 * "/mates/:mateId/exhibitions"
 	 */
 	@GetMapping("")
-	public ResponseEntity<List<MateExhsView>> getMateExhsList(@PathVariable(name = "mateId") Long mateId) throws
-		IOException {
+	public ResponseEntity<List<MateExhsView>> getMateExhsList(@PathVariable(name = "mateId") Long mateId) {
 		log.info("[전시 메이트가 갔다온 전시회 목록]");
 		var query = MateExhReadUseCase.MateExhsFindQuery.builder().mateId(mateId).build();
 		// 비즈니스 로직 호출
@@ -53,7 +51,7 @@ public class MateExhsController {
 	 */
 	@GetMapping("/{exhId}/diaries")
 	public ResponseEntity<List<MateDiaryView>> getMateDiaries(@PathVariable(name = "mateId") Long mateId,
-		@PathVariable(name = "exhId") Long exhId) throws IOException {
+		@PathVariable(name = "exhId") Long exhId) {
 		log.info("[전시 메이트의 전시회 기록 목록]");
 		var query = MateExhReadUseCase.MateDiaryFindQuery.builder().mateId(mateId).exhId(exhId).build();
 

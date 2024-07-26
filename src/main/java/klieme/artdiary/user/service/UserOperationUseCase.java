@@ -1,7 +1,5 @@
 package klieme.artdiary.user.service;
 
-import java.io.IOException;
-
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.Builder;
@@ -11,16 +9,17 @@ import lombok.ToString;
 
 public interface UserOperationUseCase {
 	UserReadUseCase.FindUserResult socialLogin(Boolean forCheckEmail, Boolean wantUnite,
-		UserCreateCommand command) throws IOException;
+		UserCreateCommand command);
 
-	UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command) throws IOException;
+	UserReadUseCase.FindUserResult updateUser(UserUpdateCommand command);
 
 	UserReadUseCase.FindAlarmResult updateAlarm(UserAlarmUpdateCommand command);
 
 	void deleteUser(DeleteReasonCommand command);
 
 	void setAlarmToken(AlarmTokenUpdateCommand command);
-	UserReadUseCase.FindUserResult loginTester(Long userId) throws IOException;
+
+	UserReadUseCase.FindUserResult loginTester(Long userId);
 
 	@EqualsAndHashCode
 	@Getter

@@ -2,7 +2,6 @@ package klieme.artdiary.exhibition.service;
 
 import static klieme.artdiary.common.FormatDate.*;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -27,11 +26,11 @@ import lombok.ToString;
 public interface ExhReadUseCase {
 	FindStoredDateResult getStoredDateOfExhsByGatherId(StoredDateFindQuery query);
 
-	List<FindExhResult> getExhList(ExhListFindQuery query) throws IOException;
+	List<FindExhResult> getExhList(ExhListFindQuery query);
 
-	FindExhResult getExhDetailInfo(Long exhId) throws IOException;
+	FindExhResult getExhDetailInfo(Long exhId);
 
-	List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId) throws IOException;
+	List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId);
 
 	@EqualsAndHashCode
 	@Getter
@@ -93,7 +92,7 @@ public interface ExhReadUseCase {
 				.gallery(exh.getGallery())
 				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
 				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
-				.poster(poster)
+				.poster(exh.getPoster())
 				.favoriteExh(favoriteExh)
 				.painter(exh.getPainter())
 				.fee(exh.getFee())
@@ -103,14 +102,14 @@ public interface ExhReadUseCase {
 				.build();
 		}
 
-		public static FindExhResult findByExhForList(ExhEntity exh, Boolean isFavoriteExh, String poster) {
+		public static FindExhResult findByExhForList(ExhEntity exh, Boolean isFavoriteExh) {
 			return FindExhResult.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
 				.gallery(exh.getGallery())
 				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
 				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
-				.poster(poster)
+				.poster(exh.getPoster())
 				.favoriteExh(isFavoriteExh)
 				.build();
 		}

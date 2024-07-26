@@ -2,7 +2,6 @@ package klieme.artdiary.gathering.service;
 
 import static klieme.artdiary.common.SecurityUtil.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.api.ArtDiaryException;
-import klieme.artdiary.common.image.ImageTransfer;
 import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
@@ -45,12 +43,11 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	private final MateRepository mateRepository;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
-	private final ImageTransfer imageTransfer;
 
 	@Autowired
 	public GatheringService(GatheringRepository gatheringRepository, GatheringMateRepository gatheringMateRepository,
 		ExhRepository exhRepository, UserRepository userRepository, MateRepository mateRepository,
-		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository, ImageTransfer imageTransfer) {
+		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository) {
 		this.gatheringRepository = gatheringRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.exhRepository = exhRepository;
@@ -58,7 +55,6 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		this.mateRepository = mateRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
-		this.imageTransfer = imageTransfer;
 	}
 
 	@Transactional
@@ -106,9 +102,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 
 	@Transactional
 	@Override
-	public List<FindGatheringExhResult> addExhAboutGathering(
-		ExhGatheringCreateCommand command) throws
-		IOException {
+	public List<FindGatheringExhResult> addExhAboutGathering(ExhGatheringCreateCommand command) {
 		// 유저가 속한 모임의 gatherId인지 확인
 		gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
 			.gatherId(command.getGatherId())
@@ -156,19 +150,17 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			ExhEntity exh = (ExhEntity)gatherDiarySumRateAndCount.get("exhibition");
 			// averageRate & poster
 			double averageRate = 0.0;
-			String poster = imageTransfer.downloadImage(exh.getPoster());
 
 			if (sumOfRate != null && countOfDiary != null && countOfDiary != 0) {
 				averageRate = sumOfRate / countOfDiary;
 			}
-			result.add(FindGatheringExhResult.findByGatheringExh(exh, poster, averageRate));
+			result.add(FindGatheringExhResult.findByGatheringExh(exh, averageRate));
 		}
 		return result;
 	}
 
 	@Override
-	public List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query) throws
-		IOException {
+	public List<FindGatheringDiaryResult> getDiariesAboutGatheringExh(GatheringDiariesFindQuery query) {
 		// gather 데이터
 		GatheringEntity gatheringEntity = gatheringRepository.findByGatherId(query.getGatherId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
@@ -197,13 +189,12 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 				if (!(diary.getDiaryPrivate() || Objects.equals(diary.getWriterId(), getUserId()))) {
 					continue;
 				}
-				String thumbnail = imageTransfer.downloadImage(diary.getThumbnail());
 
 				if (user == null) {
 					user = UserEntity.builder().nickname("전시 메이트").build();
 				}
 				results.add(
-					FindGatheringDiaryResult.findByGatheringDiary(diary, exhVisit, gathering, user, exh, thumbnail));
+					FindGatheringDiaryResult.findByGatheringDiary(diary, exhVisit, gathering, user, exh));
 			}
 		}
 		results.sort(Comparator.comparing(FindGatheringDiaryResult::getInitDate));
@@ -211,7 +202,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	}
 
 	@Override
-	public List<FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command) throws IOException {
+	public List<FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command) {
 		// 유저가 존재하는지 확인
 		UserEntity requestGatheringMate = getUser(command.getUserId());
 		// gatherId 확인
@@ -259,14 +250,13 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 
 		for (GatheringMateEntity gatheringMateEntity : gatheringMateEntities) {
 			UserEntity mate = getUser(gatheringMateEntity.getGatheringMateId().getUserId());
-			String profile = imageTransfer.downloadImage(mate.getProfile());
-			results.add(FindGatheringMatesResult.findByGatheringMates(mate, profile));
+			results.add(FindGatheringMatesResult.findByGatheringMates(mate));
 		}
 		return results;
 	}
 
 	@Override
-	public FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query) throws IOException {
+	public FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query) {
 		// 유저가 모임에 포함되어있는지 확인
 		gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
 			.userId(getUserId())
@@ -300,7 +290,6 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			ExhEntity exh = (ExhEntity)gatherDiarySumRateAndCount.get("exhibition");
 			// averageRate & poster
 			double averageRate = 0.0;
-			String poster = imageTransfer.downloadImage(exh.getPoster());
 
 			if (sumOfRate != null && countOfDiary != null && countOfDiary != 0) {
 				averageRate = sumOfRate / countOfDiary;
@@ -308,7 +297,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			exhibitionInfoList.add(ExhibitionInfo.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
-				.poster(poster)
+				.poster(exh.getPoster())
 				.rate(averageRate)
 				.build());
 		}
@@ -316,8 +305,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	}
 
 	@Override
-	public List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query) throws
-		IOException {
+	public List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query) {
 		// 모임 멤버 리스트 조회
 		List<GatheringMateEntity> gatheringMateEntities = gatheringMateRepository.findByGatheringMateIdGatherId(
 			query.getGatherId());
@@ -344,8 +332,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 					.findAny();
 
 				if (filterUser.isEmpty()) {
-					String profile = imageTransfer.downloadImage(user.get().getProfile());
-					results.add(FindGatheringMatesResult.findByGatheringMates(user.get(), profile));
+					results.add(FindGatheringMatesResult.findByGatheringMates(user.get()));
 				}
 			}
 		}

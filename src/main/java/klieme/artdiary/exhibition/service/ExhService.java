@@ -178,7 +178,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	@Override
-	public List<FindExhResult> getExhList(ExhListFindQuery query) throws IOException {
+	public List<FindExhResult> getExhList(ExhListFindQuery query) {
 		List<FindExhResult> results = new ArrayList<>();
 		List<ExhEntity> exhEntityList = exhRepository.searchExhList(query.getSearchName(), query.getFieldList(),
 			query.getPrice(), query.getStateList(), query.getDate());
@@ -190,8 +190,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	@Override
-	public ExhReadUseCase.FindExhResult getExhDetailInfo(Long exhId) throws
-		IOException { //나중에 getfindexhresult함수 사용으로 바꿔보기
+	public ExhReadUseCase.FindExhResult getExhDetailInfo(Long exhId) { //나중에 getfindexhresult함수 사용으로 바꿔보기
 
 		ExhEntity entity = exhRepository.findByExhId(exhId)
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
@@ -201,12 +200,12 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			.exhId(exhId)
 			.build());
 		boolean isFavoriteExh = favoriteExh.isPresent();
-		return FindExhResult.findByExh(entity, isFavoriteExh, imageTransfer.downloadImage(entity.getPoster()));
+		return FindExhResult.findByExh(entity, isFavoriteExh);
 	}
 
 	//[here/hw]
 	@Override
-	public List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId) throws IOException {
+	public List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId) {
 
 		List<FindDiaryResult> results = new ArrayList<>();
 		List<Map<String, Object>> diaryList = null;
@@ -323,14 +322,13 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			|| (exh.getExhPeriodStart().isBefore(targetDate) && exh.getExhPeriodEnd().isAfter(targetDate));
 	}
 
-	private FindExhResult getFindExhResult(ExhEntity exh) throws IOException {
+	private FindExhResult getFindExhResult(ExhEntity exh) {
 		// 전시회 좋아요 여부 구현
 		Optional<FavoriteExhEntity> favoriteExh = favoriteExhRepository.findByFavoriteExhId(FavoriteExhId.builder()
 			.userId(getUserId())
 			.exhId(exh.getExhId())
 			.build());
 		boolean isFavoriteExh = favoriteExh.isPresent();
-		String thumbnail = imageTransfer.downloadImage(exh.getPoster());
-		return FindExhResult.findByExhForList(exh, isFavoriteExh, thumbnail);
+		return FindExhResult.findByExhForList(exh, isFavoriteExh);
 	}
 }

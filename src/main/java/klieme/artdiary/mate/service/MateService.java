@@ -2,7 +2,6 @@ package klieme.artdiary.mate.service;
 
 import static klieme.artdiary.common.SecurityUtil.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import klieme.artdiary.common.api.ArtDiaryException;
-import klieme.artdiary.common.image.ImageTransfer;
 import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.mate.data_access.entity.MateEntity;
 import klieme.artdiary.mate.data_access.repository.MateRepository;
@@ -23,17 +21,15 @@ import klieme.artdiary.user.data_access.repository.UserRepository;
 public class MateService implements MateReadUseCase, MateOperationUseCase {
 	private final MateRepository mateRepository;
 	private final UserRepository userRepository;
-	private final ImageTransfer imageTransfer;
 
 	@Autowired
-	public MateService(MateRepository mateRepository, UserRepository userRepository, ImageTransfer imageTransfer) {
+	public MateService(MateRepository mateRepository, UserRepository userRepository) {
 		this.mateRepository = mateRepository;
 		this.userRepository = userRepository;
-		this.imageTransfer = imageTransfer;
 	}
 
 	@Override
-	public List<MateReadUseCase.FindMateResult> getMateList() throws IOException {
+	public List<MateReadUseCase.FindMateResult> getMateList() {
 		// exh_mate 테이블에서 내 전시 메이트 리스트 조회
 		List<MateEntity> mateEntities = mateRepository.findByFromUserId(getUserId());
 		List<MateReadUseCase.FindMateResult> results = new ArrayList<>();
@@ -41,16 +37,13 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 		for (MateEntity mate : mateEntities) {
 			Optional<UserEntity> userEntity = userRepository.findByUserId(mate.getToUserId());
 
-			if (userEntity.isPresent()) {
-				String profile = imageTransfer.downloadImage(userEntity.get().getProfile());
-				results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(userEntity.get(), profile));
-			}
+			userEntity.ifPresent(entity -> results.add(FindMateResult.findByGatheringExhs(entity)));
 		}
 		return results;
 	}
 
 	@Override
-	public List<MateReadUseCase.FindMateResult> searchNewMate(String nickname) throws IOException {
+	public List<MateReadUseCase.FindMateResult> searchNewMate(String nickname) {
 		// 가져오기& 이미 내 전시메이트인 경우 보여주지 않기
 		List<MateReadUseCase.FindMateResult> results = new ArrayList<>();
 		List<MateEntity> mates = mateRepository.findByFromUserId(getUserId()); //나의 전시메이트 목록
@@ -63,8 +56,7 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 				.findAny();
 
 			if (filterUser.isEmpty() && !user.getUserId().equals(getUserId())) {
-				String profile = imageTransfer.downloadImage(user.getProfile());
-				results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(user, profile));
+				results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(user));
 			}
 
 		}
@@ -74,8 +66,7 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 
 	@Override
 	@Transactional
-	public List<MateReadUseCase.FindMateResult> addMyMateCreate(MateOperationUseCase.AddMyMateCreateDummy dummy) throws
-		IOException {
+	public List<MateReadUseCase.FindMateResult> addMyMateCreate(MateOperationUseCase.AddMyMateCreateDummy dummy) {
 
 		//user에 있는지 확인
 		UserEntity checkEntity = userRepository.findByUserId(dummy.getToUserId())
@@ -104,11 +95,10 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 		for (MateEntity allMateEntity : allMateEntities) {
 			UserEntity tmp = userRepository.findByUserId(allMateEntity.getToUserId())
 				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			String profile = imageTransfer.downloadImage(tmp.getProfile());
 			MateReadUseCase.FindMateResult result = MateReadUseCase.FindMateResult.builder()
 				.userId(tmp.getUserId())
 				.nickname(tmp.getNickname())
-				.profile(profile)
+				.profile(tmp.getProfile())
 				.favoriteArt(tmp.getFavoriteArt())
 				.build();
 			results.add(result);

@@ -51,8 +51,8 @@ public interface MyDiaryReadUseCase {
 		private final String visitDate;
 		private final String exhName;
 
-		public static FindMyDiaryResult findByMyDiary(UserEntity user, ExhEntity exh, String thumbnail,
-			ExhVisitEntity exhVisit, DiaryEntity diary, GatheringEntity gathering) {
+		public static FindMyDiaryResult findByMyDiary(UserEntity user, ExhEntity exh, ExhVisitEntity exhVisit,
+			DiaryEntity diary, GatheringEntity gathering) {
 
 			return FindMyDiaryResult.builder()
 				.diaryId(diary.getDiaryId())
@@ -60,7 +60,7 @@ public interface MyDiaryReadUseCase {
 				.rate(diary.getRate())
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
-				.thumbnail(thumbnail)
+				.thumbnail(diary.getThumbnail())
 				.initDate(diary.getInitDate())
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())

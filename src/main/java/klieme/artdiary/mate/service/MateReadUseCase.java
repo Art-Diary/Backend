@@ -1,6 +1,5 @@
 package klieme.artdiary.mate.service;
 
-import java.io.IOException;
 import java.util.List;
 
 import klieme.artdiary.user.data_access.entity.UserEntity;
@@ -9,9 +8,9 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface MateReadUseCase {
-	List<FindMateResult> getMateList() throws IOException;
+	List<FindMateResult> getMateList();
 
-	List<FindMateResult> searchNewMate(String nickname) throws IOException;
+	List<FindMateResult> searchNewMate(String nickname);
 
 	@Getter
 	@ToString
@@ -22,11 +21,11 @@ public interface MateReadUseCase {
 		private final String profile;
 		private final String favoriteArt;
 
-		public static FindMateResult findByGatheringExhs(UserEntity user, String profile) {
+		public static FindMateResult findByGatheringExhs(UserEntity user) {
 			return FindMateResult.builder()
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
-				.profile(profile)
+				.profile(user.getProfile())
 				.favoriteArt(user.getFavoriteArt())
 				.build();
 		}

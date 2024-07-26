@@ -3,7 +3,6 @@ package klieme.artdiary.calendar.service;
 import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import klieme.artdiary.calendar.enums.CalendarKind;
 import klieme.artdiary.calendar.info.ScheduleInfo;
-import klieme.artdiary.common.image.ImageTransfer;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
@@ -24,16 +22,14 @@ import klieme.artdiary.record_data_access.repository.ExhVisitRepository;
 @Service
 public class CalendarService implements CalendarReadUseCase {
 	private final ExhVisitRepository exhVisitRepository;
-	private final ImageTransfer imageTransfer;
 
 	@Autowired
-	public CalendarService(ExhVisitRepository exhVisitRepository, ImageTransfer imageTransfer) {
+	public CalendarService(ExhVisitRepository exhVisitRepository) {
 		this.exhVisitRepository = exhVisitRepository;
-		this.imageTransfer = imageTransfer;
 	}
 
 	@Override
-	public List<FindCalendarResult> getExhSchedule(CalendarFindQuery query) throws IOException {
+	public List<FindCalendarResult> getExhSchedule(CalendarFindQuery query) {
 		// 반환 리스트
 		List<FindCalendarResult> results = new ArrayList<>();
 		// FindCalendarTestResult의 dayOfScheduleInfos 값 구하기
@@ -70,8 +66,7 @@ public class CalendarService implements CalendarReadUseCase {
 	}
 
 	private void dayOfVisitInfo(List<Map<String, Object>> visitInfo,
-		HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos) throws
-		IOException {
+		HashMap<Integer, List<ScheduleInfo>> dayOfScheduleInfos) {
 		for (Map<String, Object> info : visitInfo) {
 			ExhVisitEntity exhVisit = (ExhVisitEntity)info.get("exhVisit");
 			GatheringEntity gathering = (GatheringEntity)info.get("gathering");
@@ -79,7 +74,6 @@ public class CalendarService implements CalendarReadUseCase {
 
 			// 날짜 별 전시회 추가
 			int day = exhVisit.getVisitDate().getDayOfMonth();
-			String poster = imageTransfer.downloadImage(exh.getPoster());
 
 			dayOfScheduleInfos.computeIfAbsent(day, k -> new ArrayList<>());
 			dayOfScheduleInfos.get(day).add(ScheduleInfo.builder()
@@ -88,7 +82,7 @@ public class CalendarService implements CalendarReadUseCase {
 				.gallery(exh.getGallery())
 				.exhPeriodStart(changeDateFormat(exh.getExhPeriodStart()))
 				.exhPeriodEnd(changeDateFormat(exh.getExhPeriodEnd()))
-				.poster(poster)
+				.poster(exh.getPoster())
 				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.exhVisitId(exhVisit.getExhVisitId())
 				.gatherId(gathering != null ? gathering.getGatherId() : null)
