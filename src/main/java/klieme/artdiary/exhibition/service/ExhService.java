@@ -3,21 +3,17 @@ package klieme.artdiary.exhibition.service;
 import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.api.ArtDiaryException;
-import klieme.artdiary.common.image.ImageTransfer;
 import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
@@ -28,62 +24,27 @@ import klieme.artdiary.exhibition.info.StoredListOfDate;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhEntity;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhId;
 import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
-import klieme.artdiary.gathering.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
-import klieme.artdiary.gathering.data_access.entity.GatheringExhEntity;
-import klieme.artdiary.gathering.data_access.entity.GatheringMateId;
-import klieme.artdiary.gathering.data_access.repository.GatheringDiaryRepository;
-import klieme.artdiary.gathering.data_access.repository.GatheringExhRepository;
-import klieme.artdiary.gathering.data_access.repository.GatheringMateRepository;
-import klieme.artdiary.gathering.data_access.repository.GatheringRepository;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
-import klieme.artdiary.record_data_access.repository.DiaryRepoCustom;
 import klieme.artdiary.record_data_access.repository.DiaryRepository;
-import klieme.artdiary.record_data_access.repository.ExhVisitRepoCustom;
-import klieme.artdiary.record_data_access.repository.ExhVisitRepoCustomImpl;
 import klieme.artdiary.record_data_access.repository.ExhVisitRepository;
-import klieme.artdiary.solo.data_access.entity.MydiaryEntity;
-import klieme.artdiary.solo.data_access.entity.UserExhEntity;
-import klieme.artdiary.solo.data_access.repository.MydiaryRepository;
-import klieme.artdiary.solo.data_access.repository.UserExhRepository;
-import klieme.artdiary.solo.info.StoredDateInfo;
 import klieme.artdiary.user.data_access.entity.UserEntity;
-import klieme.artdiary.user.data_access.repository.UserRepository;
 
 @Service
 public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 
 	private final ExhRepository exhRepository;
-	private final UserExhRepository userExhRepository;
-	private final GatheringMateRepository gatheringMateRepository;
-	private final GatheringExhRepository gatheringExhRepository;
-	private final GatheringDiaryRepository gatheringDiaryRepository;
-	private final GatheringRepository gatheringRepository;
 	private final FavoriteExhRepository favoriteExhRepository;
-	private final MydiaryRepository mydiaryRepository;
-	private final UserRepository userRepository;
-	private final ImageTransfer imageTransfer;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
 
 	@Autowired
-	public ExhService(ExhRepository exhRepository, UserExhRepository userExhRepository,
-		GatheringMateRepository gatheringMateRepository, GatheringExhRepository gatheringExhRepository,
-		GatheringDiaryRepository gatheringDiaryRepository, GatheringRepository gatheringRepository,
-		FavoriteExhRepository favoriteExhRepository, MydiaryRepository mydiaryRepository,
-		UserRepository userRepository, ImageTransfer imageTransfer, ExhVisitRepository exhVisitRepository,
+	public ExhService(ExhRepository exhRepository, FavoriteExhRepository favoriteExhRepository,
+		ExhVisitRepository exhVisitRepository,
 		DiaryRepository diaryRepository) {
 		this.exhRepository = exhRepository;
-		this.userExhRepository = userExhRepository;
-		this.gatheringMateRepository = gatheringMateRepository;
-		this.gatheringExhRepository = gatheringExhRepository;
-		this.gatheringDiaryRepository = gatheringDiaryRepository;
-		this.gatheringRepository = gatheringRepository;
 		this.favoriteExhRepository = favoriteExhRepository;
-		this.mydiaryRepository = mydiaryRepository;
-		this.userRepository = userRepository;
-		this.imageTransfer = imageTransfer;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
 	}
@@ -105,39 +66,6 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		exhRepository.save(entity);
 		return "complete";
 	}
-
-	/*
-		@Transactional
-		@Override
-		public FindStoredDateResult addSoloExhCreateDummy(ExhOperationUseCase.AddSoloExhDummyCreateCommand command) {
-			// 전시회 아이디 검증
-			ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-
-			// 관람날짜 검증
-			Optional<UserExhEntity> userExhEntity = userExhRepository.findByUserIdAndExhIdAndVisitDate(getUserId(),
-				command.getExhId(), command.getVisitDate());
-
-			if (userExhEntity.isPresent()) {
-				throw new ArtDiaryException(MessageType.CONFLICT);
-			}
-
-			// 전시회 일정에 맞춰 갈 수 있는지 확인
-			if (exhEntity.getExhPeriodStart().isAfter(command.getVisitDate())
-				|| exhEntity.getExhPeriodEnd().isBefore(command.getVisitDate())) {
-				throw new ArtDiaryException(MessageType.FORBIDDEN_DATE);
-			}
-
-			// DB에 데이터 생성
-			UserExhEntity entity = UserExhEntity.builder()
-				.visitDate(command.getVisitDate())
-				.userId(getUserId())
-				.exhId(command.getExhId())
-				.build();
-			userExhRepository.save(entity);
-			return FindStoredDateResult.findByStoredDate(command.getExhId(), command.getVisitDate(), null);
-		}
-	*/
 
 	//[here/hw]
 	@Override

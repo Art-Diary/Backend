@@ -10,13 +10,9 @@ import klieme.artdiary.exhibition.enums.ExhField;
 import klieme.artdiary.exhibition.enums.ExhPrice;
 import klieme.artdiary.exhibition.enums.ExhState;
 import klieme.artdiary.exhibition.info.StoredListOfDate;
-import klieme.artdiary.gathering.data_access.entity.GatheringDiaryEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
-import klieme.artdiary.gathering.data_access.entity.GatheringExhEntity;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
-import klieme.artdiary.solo.data_access.entity.MydiaryEntity;
-import klieme.artdiary.solo.data_access.entity.UserExhEntity;
 import klieme.artdiary.user.data_access.entity.UserEntity;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -85,7 +81,7 @@ public interface ExhReadUseCase {
 		private final String url;
 		private final String art;
 
-		public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh, String poster) {
+		public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh) {
 			return FindExhResult.builder()
 				.exhId(exh.getExhId())
 				.exhName(exh.getExhName())
