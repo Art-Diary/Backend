@@ -123,7 +123,7 @@ public class SendAlarmService {
 					fcmSendDtoList.add(FcmSendDto.builder()
 						.token(user.getAlarmToken())
 						.title("캘린더에 저장한 전시회 방문 안내")
-						.body("\"" + exh.getExhName() + "\"" + " 오늘 방문 예정!")
+						.body("오늘은 \"" + exh.getExhName() + "\"" + " 방문 예정일!")
 						.exhId(exh.getExhId())
 						.build());
 				}
