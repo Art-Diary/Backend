@@ -35,7 +35,7 @@
 
 (기능) 등록할 전시회 목록 조회(사용자/관리자)
 - method: get
-- url: /regexh
+- url: /regexh?isAdmin=true/false
 - request data: no
 - response data: no., 전시회 제목, 등록자, 등록일, 등록 현황
 list: [

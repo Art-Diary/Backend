@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface RegExhReadUseCase {
-	List<FindRegExhListResult> getRegisteredExhibitionList();
+	List<FindRegExhListResult> getRegisteredExhibitionList(Boolean isAdmin);
 
 	RegExhReadUseCase.FindRegExhResult getRegisteredExhibition(Long regExhId);
 
