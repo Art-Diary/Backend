@@ -77,4 +77,8 @@ public class RegExhEntity {
 		this.regComment = regComment;
 		this.regState = regState;
 	}
+
+	public void updateUserIdNull() {
+		this.userId = null;
+	}
 }

@@ -16,6 +16,8 @@ import klieme.artdiary.common.image.ImageType;
 import klieme.artdiary.common.image.S3ImageTransfer;
 import klieme.artdiary.common.jwt.JwtUtil;
 import klieme.artdiary.common.jwt.TokenInfo;
+import klieme.artdiary.exhibition.data_access.entity.RegExhEntity;
+import klieme.artdiary.exhibition.data_access.repository.RegExhRepository;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.record_data_access.repository.DiaryRepository;
@@ -36,18 +38,20 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	private final DiaryRepository diaryRepository;
 	private final ReasonRepository reasonRepository;
 	private final SocialLoginRepository socialLoginRepository;
+	private final RegExhRepository regExhRepository;
 	private final JwtUtil jwtUtil;
 	private final S3ImageTransfer s3ImageTransfer;
 
 	@Autowired
 	public UserService(UserRepository userRepository, ExhVisitRepository exhVisitRepository,
 		DiaryRepository diaryRepository, ReasonRepository reasonRepository, SocialLoginRepository socialLoginRepository,
-		JwtUtil jwtUtil, S3ImageTransfer s3ImageTransfer) {
+		RegExhRepository regExhRepository, JwtUtil jwtUtil, S3ImageTransfer s3ImageTransfer) {
 		this.userRepository = userRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
 		this.reasonRepository = reasonRepository;
 		this.socialLoginRepository = socialLoginRepository;
+		this.regExhRepository = regExhRepository;
 		this.jwtUtil = jwtUtil;
 		this.s3ImageTransfer = s3ImageTransfer;
 	}
@@ -219,6 +223,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		// - ExhVisit의 writerId와 Diary의 userId 값을 null로 변경
 		List<ExhVisitEntity> exhVisitList = exhVisitRepository.findByUserId(getUserId());
 		List<DiaryEntity> diaryList = diaryRepository.findByWriterId(getUserId());
+		List<RegExhEntity> regExhList = regExhRepository.findByUserId(getUserId());
 
 		for (ExhVisitEntity exhVisit : exhVisitList) {
 			exhVisit.updateUserIdNull();
@@ -227,6 +232,10 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 		for (DiaryEntity diary : diaryList) {
 			diary.updateWriterIdNull();
 			diaryRepository.save(diary);
+		}
+		for (RegExhEntity regExh : regExhList) {
+			regExh.updateUserIdNull();
+			regExhRepository.save(regExh);
 		}
 
 		// - 탈퇴 이유 reason에 저장.
