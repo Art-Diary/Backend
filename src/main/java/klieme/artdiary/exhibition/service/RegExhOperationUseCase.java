@@ -2,7 +2,6 @@ package klieme.artdiary.exhibition.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -41,6 +40,7 @@ public interface RegExhOperationUseCase {
 	@Getter
 	@ToString
 	class RegExhUpdateByAdminCommand {
+		private final Long regExhId;
 		private final String regExhName;
 		private final String regGallery;
 		private final LocalDate regExhPeriodStart;

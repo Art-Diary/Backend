@@ -139,6 +139,7 @@ public class RegExhController {
 		log.info("[전시회 등록 요청 확인 코멘트 추가 및 전시회 정보 수정 (관리자)]");
 
 		var command = RegExhOperationUseCase.RegExhUpdateByAdminCommand.builder()
+			.regExhId(regExhId)
 			.regExhName(request.getRegExhName())
 			.regGallery(request.getRegGallery())
 			.regExhPeriodStart(request.getRegExhPeriodStart())
