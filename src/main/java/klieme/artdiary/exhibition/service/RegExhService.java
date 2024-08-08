@@ -5,6 +5,7 @@ import static klieme.artdiary.common.SecurityUtil.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -88,7 +89,20 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	@Transactional
 	@Override
 	public void deleteRegExhByUser(Long regExhId) {
+		// TODO 사용자 자격인지 확인
+		// regExhId가 해당 사용자의 것인지 확인
+		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(regExhId)
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
+		if (!Objects.equals(regExhEntity.getUserId(), getUserId())) {
+			throw new ArtDiaryException(MessageType.NOT_FOUND);
+		}
+		// regState 확인하여 등록이 완료된 전시회인지 확인
+		if (regExhEntity.getRegState()) {
+			throw new ArtDiaryException(MessageType.FORBIDDEN);
+		}
+		// 삭제
+		regExhRepository.deleteById(regExhId);
 	}
 
 	@Transactional
