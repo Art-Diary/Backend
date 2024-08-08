@@ -30,8 +30,30 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 
 	@Transactional
 	@Override
-	public List<FindRegExhListResult> createRegExhByUser(RegExhCreateUpdateByUserCommand command) {
-		return null;
+	public FindRegExhResult createRegExhByUser(RegExhCreateUpdateByUserCommand command) {
+
+
+		RegExhEntity regExhEntity=RegExhEntity.builder()
+			.userId(getUserId())
+			.regExhName(command.getRegExhName())
+			.regGallery(command.getRegGallery())
+			.regExhPeriodStart(command.getRegExhPeriodStart())
+			.regExhPeriodEnd(command.getRegExhPeriodEnd())
+			.regPainter(command.getRegPainter())
+			.regFee(command.getRegFee())
+			.regIntro(command.getRegIntro())
+			.regUrl(command.getRegUrl())
+			.regPoster(command.getRegPoster())
+			.regArt(command.getRegArt())
+			.regDate(command.getRegDate())
+			.regState(false).build();
+
+		regExhRepository.save(regExhEntity);
+
+
+		return FindRegExhResult.findByRegExh(regExhEntity);
+
+
 	}
 
 	@Override
