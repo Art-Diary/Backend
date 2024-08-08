@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 public interface RegExhOperationUseCase {
-	List<RegExhReadUseCase.FindRegExhListResult> createRegExhByUser(RegExhCreateUpdateByUserCommand command);
+	RegExhReadUseCase.FindRegExhResult createRegExhByUser(RegExhCreateUpdateByUserCommand command);
 
 	RegExhReadUseCase.FindRegExhResult updateRegExhByUser(RegExhCreateUpdateByUserCommand command);
 
