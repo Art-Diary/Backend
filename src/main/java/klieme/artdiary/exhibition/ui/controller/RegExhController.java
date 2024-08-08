@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -70,11 +71,14 @@ public class RegExhController {
 	}
 
 	@GetMapping("")
-	public ResponseEntity<List<RegExhListView>> getRegisteredExhibitionList() {
+	public ResponseEntity<List<RegExhListView>> getRegisteredExhibitionList(
+		@RequestParam(name = "isAdmin") Boolean isAdmin
+	) {
 		log.info("[등록할 전시회 목록 조회(사용자/관리자)]");
 
 		// 비즈니스 로직 호출
-		List<RegExhReadUseCase.FindRegExhListResult> regExhListResults = regExhReadUseCase.getRegisteredExhibitionList();
+		List<RegExhReadUseCase.FindRegExhListResult> regExhListResults = regExhReadUseCase.getRegisteredExhibitionList(
+			isAdmin);
 		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
 		List<RegExhListView> results = new ArrayList<>();
 
