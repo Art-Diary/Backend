@@ -39,7 +39,7 @@ public class RegExhController {
 	}
 
 	@PostMapping("")
-	public ResponseEntity<List<RegExhListView>> registerExhibitionByUser(
+	public ResponseEntity<RegExhView> registerExhibitionByUser(
 		@Valid @RequestBody RegExhByUserRequest request) {
 		log.info("[등록할 전시회 추가(사용자)]");
 
@@ -58,15 +58,14 @@ public class RegExhController {
 			.regDate(request.getRegDate())
 			.build();
 		// 비즈니스 로직 호출
-		List<RegExhReadUseCase.FindRegExhListResult> regExhListResults = regExhOperationUseCase.createRegExhByUser(
-			command);
-		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
-		List<RegExhListView> results = new ArrayList<>();
+		RegExhReadUseCase.FindRegExhResult regExhResult = regExhOperationUseCase.createRegExhByUser(command);
 
-		for (RegExhReadUseCase.FindRegExhListResult regExhList : regExhListResults) {
-			results.add(RegExhListView.builder().result(regExhList).build());
-		}
-		return ResponseEntity.created(null).body(results);
+		return ResponseEntity.ok(RegExhView.builder().result(regExhResult).build());
+
+		// for (RegExhReadUseCase.FindRegExhResult regExhList : regExhListResults) {
+		// 	results.add(RegExhListView.builder().result(regExhList).build());
+		// }
+		// return ResponseEntity.created(null).body(results);
 	}
 
 	@GetMapping("")
