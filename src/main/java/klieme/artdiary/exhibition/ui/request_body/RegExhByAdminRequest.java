@@ -25,7 +25,7 @@ public class RegExhByAdminRequest {
 	@NotBlank
 	String regPainter;
 
-	@NotBlank
+	@NotNull
 	Integer regFee;
 
 	String regIntro;
