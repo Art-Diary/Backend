@@ -84,7 +84,7 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserId().getUserId();
 	}
 
 }

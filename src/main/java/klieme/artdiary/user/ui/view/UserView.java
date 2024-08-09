@@ -22,6 +22,7 @@ public class UserView {
 	private final Boolean initInfo;
 	private final String providerType;
 	private final String accessToken;
+	private final String roleType;
 
 	@Builder
 	public UserView(UserReadUseCase.FindUserResult result) {
@@ -36,5 +37,6 @@ public class UserView {
 		this.initInfo = result.getInitInfo();
 		this.providerType = result.getProviderType();
 		this.accessToken = result.getAccessToken();
+		this.roleType = result.getRoleType();
 	}
 }

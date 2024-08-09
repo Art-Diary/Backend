@@ -149,6 +149,6 @@ public class MyExhService implements MyExhReadUseCase, MyExhOperationUseCase {
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserId().getUserId();
 	}
 }

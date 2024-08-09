@@ -354,7 +354,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserId().getUserId();
 	}
 
 	private UserEntity getUser(Long userId) {

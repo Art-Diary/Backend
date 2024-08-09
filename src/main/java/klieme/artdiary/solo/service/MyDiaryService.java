@@ -148,11 +148,11 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserId().getUserId();
 	}
 
 	private UserEntity getUser() {
-		return userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		return getCurrentUserId();
 	}
 
 	private List<FindMyDiaryResult> getMyDiaryList(UserEntity userEntity, ExhEntity exhEntity,

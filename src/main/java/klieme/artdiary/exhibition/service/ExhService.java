@@ -172,7 +172,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserId().getUserId();
 	}
 
 	private Boolean checkField(ExhField field, ExhEntity exh) {
