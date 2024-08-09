@@ -28,7 +28,7 @@ public class RegExhCustomImpl implements RegExhCustom {
 			.from(regExh)
 			.leftJoin(user).on(regExh.userId.eq(user.userId))
 			.fetchJoin()
-			.orderBy(regExh.regState.desc(), regExh.regExhId.asc())
+			.orderBy(regExh.regState.asc(), regExh.regExhId.asc())
 			.fetch();
 
 		List<Map<String, Object>> results = new ArrayList<>();

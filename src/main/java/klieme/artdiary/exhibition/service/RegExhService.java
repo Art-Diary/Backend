@@ -51,6 +51,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 
 		regExhRepository.save(regExhEntity);
 
+
 		return FindRegExhResult.findByRegExh(regExhEntity);
 
 	}
@@ -154,7 +155,25 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	@Transactional
 	@Override
 	public FindRegExhResult confirmExhRequestByAdmin(RegExhUpdateByAdminCommand command) {
-		return null;
+		// TODO 관리자 자격인지 확인
+		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(command.getRegExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		regExhEntity.updateByAdmin(RegExhEntity.builder()
+			.regExhName(command.getRegExhName())
+			.regGallery(command.getRegGallery())
+			.regExhPeriodStart(command.getRegExhPeriodStart())
+			.regExhPeriodEnd(command.getRegExhPeriodEnd())
+			.regPainter(command.getRegPainter())
+			.regFee(command.getRegFee())
+			.regIntro(command.getRegIntro())
+			.regUrl(command.getRegUrl())
+			.regPoster(command.getRegPoster())
+			.regArt(command.getRegArt())
+			.regComment(command.getRegComment())
+			.regState(true)
+			.build());
+		regExhRepository.save(regExhEntity);
+		return FindRegExhResult.findByRegExh(regExhEntity);
 	}
 
 	private Long getUserId() {

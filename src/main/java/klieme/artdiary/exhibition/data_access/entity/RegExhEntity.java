@@ -121,4 +121,19 @@ public class RegExhEntity {
 	public void updateUserIdNull() {
 		this.userId = null;
 	}
+
+	public void updateByAdmin(RegExhEntity newRegExh) {
+		this.regExhName = newRegExh.getRegExhName();
+		this.regGallery = newRegExh.getRegGallery();
+		this.regExhPeriodStart = newRegExh.getRegExhPeriodStart();
+		this.regExhPeriodEnd = newRegExh.getRegExhPeriodEnd();
+		this.regPainter = newRegExh.getRegPainter();
+		this.regFee = newRegExh.getRegFee();
+		this.regIntro = newRegExh.getRegIntro();
+		this.regUrl = newRegExh.getRegUrl();
+		this.regPoster = newRegExh.getRegPoster();
+		this.regArt = newRegExh.getRegArt();
+		this.regComment = newRegExh.getRegComment();
+		this.regState = newRegExh.getRegState();
+	}
 }
