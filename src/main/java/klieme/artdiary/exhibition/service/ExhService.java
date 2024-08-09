@@ -3,7 +3,6 @@ package klieme.artdiary.exhibition.service;
 import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +16,6 @@ import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
-import klieme.artdiary.exhibition.enums.ExhField;
-import klieme.artdiary.exhibition.enums.ExhPrice;
-import klieme.artdiary.exhibition.enums.ExhState;
 import klieme.artdiary.exhibition.info.StoredListOfDate;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhEntity;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhId;
@@ -41,8 +37,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 
 	@Autowired
 	public ExhService(ExhRepository exhRepository, FavoriteExhRepository favoriteExhRepository,
-		ExhVisitRepository exhVisitRepository,
-		DiaryRepository diaryRepository) {
+		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository) {
 		this.exhRepository = exhRepository;
 		this.favoriteExhRepository = favoriteExhRepository;
 		this.exhVisitRepository = exhVisitRepository;
@@ -107,12 +102,22 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 
 	@Override
 	public List<FindExhResult> getExhList(ExhListFindQuery query) {
+		/* api 요청 옵션에 전시회 진행 상황이 포함되어있으면 해당 진행 상황 적용.
+		 * 옵션에 진행 상황이 없으면 "현재 진행 중"인 전시회 적용.
+		 */
+		/* 전시회 리스트 고정 순서
+		 * 1. 좋아요 많은 순
+		 * 2. 최근에 시작한 순
+		 * */
 		List<FindExhResult> results = new ArrayList<>();
-		List<ExhEntity> exhEntityList = exhRepository.searchExhList(query.getSearchName(), query.getFieldList(),
-			query.getPrice(), query.getStateList(), query.getDate());
+		List<Map<String, Object>> infoList = exhRepository.searchExhList(query.getSearchName(), query.getFieldList(),
+			query.getPrice(), query.getStateList(), query.getDate(), getUserId());
 
-		for (ExhEntity exh : exhEntityList) {
-			results.add(getFindExhResult(exh));
+		for (Map<String, Object> info : infoList) {
+			ExhEntity exhibition = (ExhEntity)info.get("exhibition");
+			Integer haveFavoriteByUser = (Integer)info.get("haveFavoriteByUser");
+
+			results.add(FindExhResult.findByExhForList(exhibition, haveFavoriteByUser == 1));
 		}
 		return results;
 	}
@@ -175,88 +180,78 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		return getCurrentUserEntity().getUserId();
 	}
 
-	private Boolean checkField(ExhField field, ExhEntity exh) {
-		if (field == null) {
-			return true;
-		}
-		if (field == ExhField.OTHER) {
-			if (exh.getArt() == null) { // other && art == null
-				return true;
-			} else { // other && art != null
-				return !exh.getArt().contains(ExhField.PHOTO.label())
-					&& !exh.getArt().contains(ExhField.PAINTING.label())
-					&& !exh.getArt().contains(ExhField.PIECE.label())
-					&& !exh.getArt().contains(ExhField.CRAFTS.label())
-					&& !exh.getArt().contains(ExhField.MEDIA_ART.label());
-			}
-		} else {
-			if (exh.getArt() == null) { // !other && art == null
-				return false;
-			} else { // !other && art != null
-				return exh.getArt().contains(field.label());
-			}
-		}
-	}
-
-	private Boolean checkPrice(ExhPrice price, ExhEntity exh) {
-		if (price == null) {
-			return true;
-		}
-		switch (price) {
-			case ExhPrice.FREE:
-				if (exh.getFee() == 0) {
-					return true;
-				}
-				break;
-			case ExhPrice.PAY:
-				if (exh.getFee() != 0) {
-					return true;
-				}
-				break;
-			default:
-				if (exh.getFee() <= 20000) {
-					return true;
-				}
-		}
-		return false;
-	}
-
-	private Boolean checkState(ExhState state, ExhEntity exh) {
-		if (state == null) {
-			return true;
-		}
-		LocalDate now = LocalDate.now();
-		switch (state) {
-			case ExhState.BEFORE_START:
-				if (exh.getExhPeriodStart().isAfter(now)) {
-					return true;
-				}
-				break;
-			case ExhState.END:
-				if (exh.getExhPeriodEnd().isBefore(now)) {
-					return true;
-				}
-				break;
-			default:
-				if (isProceedExh(exh, now)) {
-					return true;
-				}
-		}
-		return false;
-	}
-
-	private Boolean isProceedExh(ExhEntity exh, LocalDate targetDate) {
-		return exh.getExhPeriodStart().isEqual(targetDate) || exh.getExhPeriodEnd().isEqual(targetDate)
-			|| (exh.getExhPeriodStart().isBefore(targetDate) && exh.getExhPeriodEnd().isAfter(targetDate));
-	}
-
-	private FindExhResult getFindExhResult(ExhEntity exh) {
-		// 전시회 좋아요 여부 구현
-		Optional<FavoriteExhEntity> favoriteExh = favoriteExhRepository.findByFavoriteExhId(FavoriteExhId.builder()
-			.userId(getUserId())
-			.exhId(exh.getExhId())
-			.build());
-		boolean isFavoriteExh = favoriteExh.isPresent();
-		return FindExhResult.findByExhForList(exh, isFavoriteExh);
-	}
+	// private Boolean checkField(ExhField field, ExhEntity exh) {
+	// 	if (field == null) {
+	// 		return true;
+	// 	}
+	// 	if (field == ExhField.OTHER) {
+	// 		if (exh.getArt() == null) { // other && art == null
+	// 			return true;
+	// 		} else { // other && art != null
+	// 			return !exh.getArt().contains(ExhField.PHOTO.label())
+	// 				&& !exh.getArt().contains(ExhField.PAINTING.label())
+	// 				&& !exh.getArt().contains(ExhField.PIECE.label())
+	// 				&& !exh.getArt().contains(ExhField.CRAFTS.label())
+	// 				&& !exh.getArt().contains(ExhField.MEDIA_ART.label());
+	// 		}
+	// 	} else {
+	// 		if (exh.getArt() == null) { // !other && art == null
+	// 			return false;
+	// 		} else { // !other && art != null
+	// 			return exh.getArt().contains(field.label());
+	// 		}
+	// 	}
+	// }
+	//
+	// private Boolean checkPrice(ExhPrice price, ExhEntity exh) {
+	// 	if (price == null) {
+	// 		return true;
+	// 	}
+	// 	switch (price) {
+	// 		case ExhPrice.FREE:
+	// 			if (exh.getFee() == 0) {
+	// 				return true;
+	// 			}
+	// 			break;
+	// 		case ExhPrice.PAY:
+	// 			if (exh.getFee() != 0) {
+	// 				return true;
+	// 			}
+	// 			break;
+	// 		default:
+	// 			if (exh.getFee() <= 20000) {
+	// 				return true;
+	// 			}
+	// 	}
+	// 	return false;
+	// }
+	//
+	// private Boolean checkState(ExhState state, ExhEntity exh) {
+	// 	if (state == null) {
+	// 		return true;
+	// 	}
+	// 	LocalDate now = LocalDate.now();
+	// 	switch (state) {
+	// 		case ExhState.BEFORE_START:
+	// 			if (exh.getExhPeriodStart().isAfter(now)) {
+	// 				return true;
+	// 			}
+	// 			break;
+	// 		case ExhState.END:
+	// 			if (exh.getExhPeriodEnd().isBefore(now)) {
+	// 				return true;
+	// 			}
+	// 			break;
+	// 		default:
+	// 			if (isProceedExh(exh, now)) {
+	// 				return true;
+	// 			}
+	// 	}
+	// 	return false;
+	// }
+	//
+	// private Boolean isProceedExh(ExhEntity exh, LocalDate targetDate) {
+	// 	return exh.getExhPeriodStart().isEqual(targetDate) || exh.getExhPeriodEnd().isEqual(targetDate)
+	// 		|| (exh.getExhPeriodStart().isBefore(targetDate) && exh.getExhPeriodEnd().isAfter(targetDate));
+	// }
 }

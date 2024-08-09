@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
+import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.entity.RegExhEntity;
+import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibition.data_access.repository.RegExhRepository;
 import klieme.artdiary.user.data_access.entity.UserEntity;
 import klieme.artdiary.user.enums.RoleType;
@@ -21,10 +23,12 @@ import klieme.artdiary.user.enums.RoleType;
 @Service
 public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase {
 	private final RegExhRepository regExhRepository;
+	private final ExhRepository exhRepository;
 
 	@Autowired
-	public RegExhService(RegExhRepository regExhRepository) {
+	public RegExhService(RegExhRepository regExhRepository, ExhRepository exhRepository) {
 		this.regExhRepository = regExhRepository;
+		this.exhRepository = exhRepository;
 	}
 
 	@Transactional
@@ -169,9 +173,36 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			throw new ArtDiaryException(MessageType.FORBIDDEN);
 		}
 
-		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(command.getRegExhId())
-			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		Map<String, Object> regExhInfo = regExhRepository.getRegExhWithExhByAdmin(command.getRegExhId());
+
+		if (regExhInfo.isEmpty()) {
+			throw new ArtDiaryException(MessageType.NOT_FOUND);
+		}
+		RegExhEntity regExhEntity = (RegExhEntity)regExhInfo.get("regExhEntity");
+		ExhEntity exhEntity = (ExhEntity)regExhInfo.get("exhEntity");
+
+		// 관리자가 승인한 전시회를 전시회 테이블에 추가
+		ExhEntity updateExhEntity = ExhEntity.builder()
+			.exhName(command.getRegExhName())
+			.gallery(command.getRegGallery())
+			.exhPeriodStart(command.getRegExhPeriodStart())
+			.exhPeriodEnd(command.getRegExhPeriodEnd())
+			.painter(command.getRegPainter())
+			.fee(command.getRegFee())
+			.intro(command.getRegIntro())
+			.url(command.getRegUrl())
+			.poster(command.getRegPoster())
+			.art(command.getRegArt())
+			.build();
+		if (exhEntity == null) {
+			exhEntity = updateExhEntity;
+		} else {
+			exhEntity.updateExhEntity(updateExhEntity);
+		}
+		exhRepository.save(exhEntity);
+		// 사용자가 요청한 전시회를 관리자가 승인
 		regExhEntity.updateByAdmin(RegExhEntity.builder()
+			.exhId(exhEntity.getExhId())
 			.regExhName(command.getRegExhName())
 			.regGallery(command.getRegGallery())
 			.regExhPeriodStart(command.getRegExhPeriodStart())

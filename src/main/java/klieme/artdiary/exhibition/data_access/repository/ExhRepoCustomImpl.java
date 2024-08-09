@@ -1,9 +1,15 @@
 package klieme.artdiary.exhibition.data_access.repository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
@@ -11,6 +17,7 @@ import klieme.artdiary.exhibition.data_access.entity.QExhEntity;
 import klieme.artdiary.exhibition.enums.ExhField;
 import klieme.artdiary.exhibition.enums.ExhPrice;
 import klieme.artdiary.exhibition.enums.ExhState;
+import klieme.artdiary.favoriteexh.data_access.entity.QFavoriteExhEntity;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -18,10 +25,10 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 	private final JPAQueryFactory query;
 
 	@Override
-	public List<ExhEntity> searchExhList(String searchName, List<ExhField> fieldList, ExhPrice price,
-		List<ExhState> stateList,
-		LocalDate date) {
+	public List<Map<String, Object>> searchExhList(String searchName, List<ExhField> fieldList, ExhPrice price,
+		List<ExhState> stateList, LocalDate date, Long userId) {
 		QExhEntity exh = QExhEntity.exhEntity;
+		QFavoriteExhEntity favoriteExh = QFavoriteExhEntity.favoriteExhEntity;
 		BooleanBuilder builder = new BooleanBuilder();
 
 		if (searchName != null) {
@@ -48,7 +55,7 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 				builder.and(exh.fee.loe(20000)); // fee <= 20000
 			}
 		}
-		if (stateList != null || date != null) {
+		if ((stateList != null && !stateList.isEmpty()) || date != null) {
 			LocalDate now = date != null ? date : LocalDate.now();
 
 			if (date != null) {
@@ -71,9 +78,39 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 				}
 				builder.and(stateListBuilder);
 			}
+		} else {
+			BooleanBuilder stateBuilder = new BooleanBuilder();
+			LocalDate now = LocalDate.now();
+
+			stateBuilder.and(exh.exhPeriodStart.loe(now)); // start <= now
+			stateBuilder.and(exh.exhPeriodEnd.goe(now)); // end >= now
+			builder.and(stateBuilder);
 		}
-		return query.selectFrom(exh)
+		List<Tuple> tuples = query.select(exh,
+				new CaseBuilder()
+					.when(
+						JPAExpressions.selectOne()
+							.from(favoriteExh)
+							.where(favoriteExh.favoriteExhId.exhId.eq(exh.exhId)
+								.and(favoriteExh.favoriteExhId.userId.eq(userId)))
+							.exists()
+					).then(1)
+					.otherwise(0))
+			.from(exh)
+			.leftJoin(favoriteExh).on(exh.exhId.eq(favoriteExh.favoriteExhId.exhId))
+			.fetchJoin()
 			.where(builder)
+			.groupBy(exh.exhId)
+			.orderBy(exh.count().desc(), exh.exhPeriodStart.desc())
 			.fetch();
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("exhibition", tuple.get(0, ExhEntity.class));
+			row.put("haveFavoriteByUser", tuple.get(1, Boolean.class));
+			result.add(row);
+		}
+		return result;
 	}
 }

@@ -5,4 +5,6 @@ import java.util.Map;
 
 public interface RegExhCustom {
 	List<Map<String, Object>> getRegExhListByAdmin();
+
+	Map<String, Object> getRegExhWithExhByAdmin(Long regExhId);
 }
