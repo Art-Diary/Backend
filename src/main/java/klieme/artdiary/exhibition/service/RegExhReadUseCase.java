@@ -52,25 +52,6 @@ public interface RegExhReadUseCase {
 				.build();
 		}
 
-		public static FindRegExhResult findByRegExhNoComment(RegExhEntity regExh) {
-			return FindRegExhResult.builder()
-				.regExhId(regExh.getRegExhId())
-				.regExhName(regExh.getRegExhName())
-				.regGallery(regExh.getRegGallery())
-				.regExhPeriodStart(changeDateFormat(regExh.getRegExhPeriodStart()))
-				.regExhPeriodEnd(changeDateFormat(regExh.getRegExhPeriodEnd()))
-				.regPainter(regExh.getRegPainter())
-				.regFee(regExh.getRegFee())
-				.regIntro(regExh.getRegIntro())
-				.regUrl(regExh.getRegUrl())
-				.regPoster(regExh.getRegPoster())
-				.regArt(regExh.getRegArt())
-				.regDate(changeDateTimeFormat(regExh.getRegDate()))
-				.regComment(null)
-				.regState(regExh.getRegState())
-				.build();
-		}
-
 	}
 
 	@Getter

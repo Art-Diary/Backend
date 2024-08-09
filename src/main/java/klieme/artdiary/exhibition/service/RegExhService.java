@@ -102,12 +102,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			throw new ArtDiaryException(MessageType.NOT_FOUND);
 		}
 
-		//대기상태인지
-		if (!entity.getRegState()) {
-			return FindRegExhResult.findByRegExhNoComment(entity);
-		} else {
-			return FindRegExhResult.findByRegExh(entity);
-		}
+		return FindRegExhResult.findByRegExh(entity);
 
 	}
 
