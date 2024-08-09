@@ -22,6 +22,7 @@ public interface RegExhOperationUseCase {
 	@Getter
 	@ToString
 	class RegExhCreateUpdateByUserCommand {
+		private final Long regExhId;
 		private final String regExhName;
 		private final String regGallery;
 		private final LocalDate regExhPeriodStart;
