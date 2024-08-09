@@ -63,10 +63,6 @@ public class RegExhController {
 
 		return ResponseEntity.ok(RegExhView.builder().result(regExhResult).build());
 
-		// for (RegExhReadUseCase.FindRegExhResult regExhList : regExhListResults) {
-		// 	results.add(RegExhListView.builder().result(regExhList).build());
-		// }
-		// return ResponseEntity.created(null).body(results);
 	}
 
 	@GetMapping("")
@@ -105,6 +101,7 @@ public class RegExhController {
 		log.info("[등록할 전시회 수정(사용자)]");
 
 		var command = RegExhOperationUseCase.RegExhCreateUpdateByUserCommand.builder()
+			.regExhId(regExhId)
 			.regExhName(request.getRegExhName())
 			.regGallery(request.getRegGallery())
 			.regExhPeriodStart(request.getRegExhPeriodStart())

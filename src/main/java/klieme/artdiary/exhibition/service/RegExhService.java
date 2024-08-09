@@ -55,6 +55,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		regExhRepository.save(regExhEntity);
 
 		return FindRegExhResult.findByRegExh(regExhEntity);
+
 	}
 
 	@Override
@@ -104,13 +105,43 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 
 	@Override
 	public FindRegExhResult getRegisteredExhibition(Long regExhId) {
+
+		// RegExhEntity entity=regExhRepository.findByRegExhId(regExhId).orElseThrow(() -> new ArtDiaryException(
+		// 	MessageType.NOT_FOUND));
+		//
+		// return FindRegExhResult.findByRegExh(entity);
 		return null;
 	}
 
 	@Transactional
 	@Override
 	public FindRegExhResult updateRegExhByUser(RegExhCreateUpdateByUserCommand command) {
-		return null;
+
+		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(command.getRegExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+
+		//regState==true일 경우
+		if (regExhEntity.getRegState()) {
+			throw new ArtDiaryException(MessageType.FORBIDDEN);
+		}
+
+		regExhEntity.updateRegExh(RegExhEntity.builder()
+			.regExhName(command.getRegExhName())
+			.regGallery(command.getRegGallery())
+			.regExhPeriodStart(command.getRegExhPeriodStart())
+			.regExhPeriodEnd(command.getRegExhPeriodEnd())
+			.regPainter(command.getRegPainter())
+			.regFee(command.getRegFee())
+			.regIntro(command.getRegIntro())
+			.regUrl(command.getRegUrl())
+			.regPoster(command.getRegPoster())
+			.regArt(command.getRegArt())
+			.regDate(command.getRegDate())
+			.build());
+
+		regExhRepository.save(regExhEntity);
+
+		return FindRegExhResult.findByRegExh(regExhEntity);
 	}
 
 	@Transactional
