@@ -51,6 +51,7 @@ public interface RegExhReadUseCase {
 				.regState(regExh.getRegState())
 				.build();
 		}
+
 	}
 
 	@Getter
