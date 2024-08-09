@@ -98,9 +98,9 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			MessageType.NOT_FOUND));
 
 		//해당 사용자가 등록한 것인지 확인
-		// if (!Objects.equals(regExhEntity.getUserId(), getUserId())) {
-		// 	throw new ArtDiaryException(MessageType.NOT_FOUND);
-		// }
+		if (!Objects.equals(entity.getUserId(), getUserId())) {
+			throw new ArtDiaryException(MessageType.NOT_FOUND);
+		}
 
 		//대기상태인지
 		if (!entity.getRegState()) {
@@ -109,7 +109,6 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			return FindRegExhResult.findByRegExh(entity);
 		}
 
-		//return null;
 	}
 
 	@Transactional
