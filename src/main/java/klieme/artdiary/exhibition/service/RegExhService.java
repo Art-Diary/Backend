@@ -16,17 +16,15 @@ import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.RegExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.RegExhRepository;
 import klieme.artdiary.user.data_access.entity.UserEntity;
-import klieme.artdiary.user.data_access.repository.UserRepository;
+import klieme.artdiary.user.enums.RoleType;
 
 @Service
 public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase {
 	private final RegExhRepository regExhRepository;
-	private final UserRepository userRepository;
 
 	@Autowired
-	public RegExhService(RegExhRepository regExhRepository, UserRepository userRepository) {
+	public RegExhService(RegExhRepository regExhRepository) {
 		this.regExhRepository = regExhRepository;
-		this.userRepository = userRepository;
 	}
 
 	@Transactional
@@ -57,17 +55,13 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	@Override
 	public List<FindRegExhListResult> getRegisteredExhibitionList(Boolean isAdmin) {
 		List<FindRegExhListResult> results = new ArrayList<>();
+		UserEntity user = getUser();
 
 		if (!isAdmin) {
 			/* 사용자
-			 * 1. 사용자 자격인지 확인
-			 * 2. 해당 사용자가 등록 요청한 전시회 리스트
+			 * 해당 사용자가 등록 요청한 전시회 리스트
 			 * */
-			// TODO 1. 사용자 자격인지 확인
-			// 2. 해당 사용자가 등록 요청한 전시회 리스트
-			UserEntity user = userRepository.findByUserId(getUserId()).orElseThrow(() -> new ArtDiaryException(
-				MessageType.NOT_FOUND));
-			List<RegExhEntity> regExhEntityList = regExhRepository.findByUserId(getUserId());
+			List<RegExhEntity> regExhEntityList = regExhRepository.findByUserId(user.getUserId());
 			Long idx = 1L;
 
 			for (RegExhEntity regExhEntity : regExhEntityList) {
@@ -79,15 +73,18 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			 * 1. 관리자 자격인지 확인
 			 * 2. 등록을 기다리는 전시회 리스트
 			 * */
-			// TODO 1. 관리자 자격인지 확인
+			// 1. 관리자 자격인지 확인
+			if (!Objects.equals(user.getRoleType(), RoleType.ADMIN.label())) {
+				throw new ArtDiaryException(MessageType.FORBIDDEN);
+			}
 			// 2. 등록을 기다리는 전시회 리스트
 			List<Map<String, Object>> queryResultList = regExhRepository.getRegExhListByAdmin();
 			Long idx = 1L;
 
 			for (Map<String, Object> queryResult : queryResultList) {
-				RegExhEntity regExh = (RegExhEntity)queryResult.get("regExhEntity");
-				UserEntity user = (UserEntity)queryResult.get("userEntity");
-				results.add(FindRegExhListResult.findByRegExhList(regExh, idx, user.getNickname()));
+				RegExhEntity regExhEntity = (RegExhEntity)queryResult.get("regExhEntity");
+				UserEntity userEntity = (UserEntity)queryResult.get("userEntity");
+				results.add(FindRegExhListResult.findByRegExhList(regExhEntity, idx, userEntity.getNickname()));
 				idx++;
 			}
 		}
@@ -111,6 +108,10 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(command.getRegExhId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
+		// 사용자의 것인지 확인
+		if (!Objects.equals(regExhEntity.getUserId(), getUserId())) {
+			throw new ArtDiaryException(MessageType.NOT_FOUND);
+		}
 		//regState==true일 경우
 		if (regExhEntity.getRegState()) {
 			throw new ArtDiaryException(MessageType.FORBIDDEN);
@@ -138,7 +139,6 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	@Transactional
 	@Override
 	public void deleteRegExhByUser(Long regExhId) {
-		// TODO 사용자 자격인지 확인
 		// regExhId가 해당 사용자의 것인지 확인
 		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(regExhId)
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
@@ -157,7 +157,13 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	@Transactional
 	@Override
 	public FindRegExhResult confirmExhRequestByAdmin(RegExhUpdateByAdminCommand command) {
-		// TODO 관리자 자격인지 확인
+		// 관리자 자격인지 확인
+		UserEntity user = getUser();
+
+		if (!Objects.equals(user.getRoleType(), RoleType.ADMIN.label())) {
+			throw new ArtDiaryException(MessageType.FORBIDDEN);
+		}
+
 		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(command.getRegExhId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 		regExhEntity.updateByAdmin(RegExhEntity.builder()
@@ -179,6 +185,10 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserEntity().getUserId();
+	}
+
+	private UserEntity getUser() {
+		return getCurrentUserEntity();
 	}
 }

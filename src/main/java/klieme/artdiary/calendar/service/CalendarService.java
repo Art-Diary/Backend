@@ -62,7 +62,7 @@ public class CalendarService implements CalendarReadUseCase {
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserEntity().getUserId();
 	}
 
 	private void dayOfVisitInfo(List<Map<String, Object>> visitInfo,

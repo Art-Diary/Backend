@@ -214,6 +214,6 @@ public class ImageTransfer {
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserEntity().getUserId();
 	}
 }

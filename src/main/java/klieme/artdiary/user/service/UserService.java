@@ -29,6 +29,7 @@ import klieme.artdiary.user.data_access.entity.UserEntity;
 import klieme.artdiary.user.data_access.repository.ReasonRepository;
 import klieme.artdiary.user.data_access.repository.SocialLoginRepository;
 import klieme.artdiary.user.data_access.repository.UserRepository;
+import klieme.artdiary.user.enums.RoleType;
 
 @Service
 public class UserService implements UserOperationUseCase, UserReadUseCase {
@@ -276,7 +277,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserEntity().getUserId();
 	}
 
 	private UserEntity insertUser(UserCreateCommand command) {
@@ -290,6 +291,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			.alarm3(true)
 			.alarmToken(command.getAlarmToken())
 			.providerType(command.getProviderType())
+			.roleType(RoleType.USER.label())
 			.build();
 		userRepository.save(newUser);
 		return newUser;

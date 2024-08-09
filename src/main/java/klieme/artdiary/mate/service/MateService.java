@@ -109,6 +109,6 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId();
+		return getCurrentUserEntity().getUserId();
 	}
 }
