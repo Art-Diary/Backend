@@ -30,12 +30,6 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	@Transactional
 	@Override
 	public FindRegExhResult createRegExhByUser(RegExhCreateUpdateByUserCommand command) {
-		// 사용자 자격인지 확인
-		UserEntity user = getUser();
-
-		if (!Objects.equals(user.getRoleType(), RoleType.USER.label())) {
-			throw new ArtDiaryException(MessageType.FORBIDDEN);
-		}
 
 		RegExhEntity regExhEntity = RegExhEntity.builder()
 			.userId(getUserId())
@@ -65,14 +59,8 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 
 		if (!isAdmin) {
 			/* 사용자
-			 * 1. 사용자 자격인지 확인
-			 * 2. 해당 사용자가 등록 요청한 전시회 리스트
+			 * 해당 사용자가 등록 요청한 전시회 리스트
 			 * */
-			// 1. 사용자 자격인지 확인
-			if (!Objects.equals(user.getRoleType(), RoleType.USER.label())) {
-				throw new ArtDiaryException(MessageType.FORBIDDEN);
-			}
-			// 2. 해당 사용자가 등록 요청한 전시회 리스트
 			List<RegExhEntity> regExhEntityList = regExhRepository.findByUserId(user.getUserId());
 			Long idx = 1L;
 
@@ -120,6 +108,10 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(command.getRegExhId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
+		// 사용자의 것인지 확인
+		if (!Objects.equals(regExhEntity.getUserId(), getUserId())) {
+			throw new ArtDiaryException(MessageType.NOT_FOUND);
+		}
 		//regState==true일 경우
 		if (regExhEntity.getRegState()) {
 			throw new ArtDiaryException(MessageType.FORBIDDEN);
@@ -147,12 +139,6 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	@Transactional
 	@Override
 	public void deleteRegExhByUser(Long regExhId) {
-		// 사용자 자격인지 확인
-		UserEntity user = getUser();
-
-		if (!Objects.equals(user.getRoleType(), RoleType.USER.label())) {
-			throw new ArtDiaryException(MessageType.FORBIDDEN);
-		}
 		// regExhId가 해당 사용자의 것인지 확인
 		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(regExhId)
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));

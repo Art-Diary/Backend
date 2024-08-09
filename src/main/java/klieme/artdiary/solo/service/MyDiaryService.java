@@ -25,20 +25,17 @@ import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.record_data_access.repository.DiaryRepository;
 import klieme.artdiary.record_data_access.repository.ExhVisitRepository;
 import klieme.artdiary.user.data_access.entity.UserEntity;
-import klieme.artdiary.user.data_access.repository.UserRepository;
 
 @Service
 public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCase {
-	private final UserRepository userRepository;
 	private final ExhRepository exhRepository;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
 	private final S3ImageTransfer s3ImageTransfer;
 
 	@Autowired
-	public MyDiaryService(UserRepository userRepository, ExhRepository exhRepository,
-		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository, S3ImageTransfer s3ImageTransfer) {
-		this.userRepository = userRepository;
+	public MyDiaryService(ExhRepository exhRepository, ExhVisitRepository exhVisitRepository,
+		DiaryRepository diaryRepository, S3ImageTransfer s3ImageTransfer) {
 		this.exhRepository = exhRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
