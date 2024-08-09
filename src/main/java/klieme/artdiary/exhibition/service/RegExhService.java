@@ -1,6 +1,7 @@
 package klieme.artdiary.exhibition.service;
 
 import static klieme.artdiary.common.SecurityUtil.*;
+import static klieme.artdiary.exhibition.data_access.entity.QRegExhEntity.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	@Override
 	public FindRegExhResult createRegExhByUser(RegExhCreateUpdateByUserCommand command) {
 
-
-		RegExhEntity regExhEntity=RegExhEntity.builder()
+		RegExhEntity regExhEntity = RegExhEntity.builder()
 			.userId(getUserId())
 			.regExhName(command.getRegExhName())
 			.regGallery(command.getRegGallery())
@@ -51,9 +51,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 
 		regExhRepository.save(regExhEntity);
 
-
 		return FindRegExhResult.findByRegExh(regExhEntity);
-
 
 	}
 
@@ -99,13 +97,39 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 
 	@Override
 	public FindRegExhResult getRegisteredExhibition(Long regExhId) {
+
+		// RegExhEntity entity=regExhRepository.findByRegExhId(regExhId).orElseThrow(() -> new ArtDiaryException(
+		// 	MessageType.NOT_FOUND));
+		//
+		// return FindRegExhResult.findByRegExh(entity);
 		return null;
 	}
 
 	@Transactional
 	@Override
 	public FindRegExhResult updateRegExhByUser(RegExhCreateUpdateByUserCommand command) {
-		return null;
+
+		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(command.getRegExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+
+		regExhEntity.updateRegExh(RegExhEntity.builder()
+			.userId(getUserId())
+			.regExhName(command.getRegExhName())
+			.regGallery(command.getRegGallery())
+			.regExhPeriodStart(command.getRegExhPeriodStart())
+			.regExhPeriodEnd(command.getRegExhPeriodEnd())
+			.regPainter(command.getRegPainter())
+			.regFee(command.getRegFee())
+			.regIntro(command.getRegIntro())
+			.regUrl(command.getRegUrl())
+			.regPoster(command.getRegPoster())
+			.regArt(command.getRegArt())
+			.regDate(command.getRegDate())
+			.regState(false).build());
+
+		regExhRepository.save(regExhEntity);
+
+		return FindRegExhResult.findByRegExh(regExhEntity);
 	}
 
 	@Transactional
