@@ -2,13 +2,14 @@ package klieme.artdiary.common;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
+import klieme.artdiary.common.jwt.CustomUserDetails;
+import klieme.artdiary.user.data_access.entity.UserEntity;
 
 public class SecurityUtil {
-	public static Long getCurrentUserId() {
+	public static UserEntity getCurrentUserEntity() {
 		final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null || authentication.getName().equals("anonymousUser")
@@ -16,8 +17,7 @@ public class SecurityUtil {
 			throw new ArtDiaryException(MessageType.ReLogin);
 		}
 
-		UserDetails principal = (UserDetails)authentication.getPrincipal();
-		// System.out.println(principal.getAuthorities().stream().findFirst().get());
-		return Long.parseLong(principal.getUsername());
+		CustomUserDetails principal = (CustomUserDetails)authentication.getPrincipal();
+		return principal.getUser();
 	}
 }

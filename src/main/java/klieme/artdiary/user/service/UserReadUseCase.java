@@ -47,6 +47,7 @@ public interface UserReadUseCase {
 		private final Boolean initInfo;
 		private final String providerType;
 		private final String accessToken;
+		private final String roleType;
 
 		public static FindUserResult findUserInfo(UserEntity user) {
 			return FindUserResult.builder()
@@ -60,6 +61,7 @@ public interface UserReadUseCase {
 				.alarm2(user.getAlarm2())
 				.alarm3(user.getAlarm3())
 				.providerType(user.getProviderType())
+				.roleType(user.getRoleType())
 				.build();
 		}
 
@@ -78,6 +80,7 @@ public interface UserReadUseCase {
 				.alarm3(initInfo ? user.getAlarm3() : null)
 				.providerType(user.getProviderType())
 				.accessToken(accessToken)
+				.roleType(user.getRoleType())
 				.build();
 		}
 	}

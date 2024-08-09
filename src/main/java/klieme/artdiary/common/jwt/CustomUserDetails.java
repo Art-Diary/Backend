@@ -22,14 +22,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-	private final Long userId;
+	private final UserEntity user;
 	private final Collection<GrantedAuthority> authorities;
 
 	public static CustomUserDetails create(UserEntity user) {
 		List<String> roles = new ArrayList<>();
 
-		roles.add("USER");
-		return new CustomUserDetails(user.getUserId(),
+		roles.add(user.getRoleType());
+		return new CustomUserDetails(user,
 			roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
 	}
 
@@ -40,12 +40,12 @@ public class CustomUserDetails implements UserDetails {
 
 	@Override
 	public String getPassword() {
-		return userId.toString();
+		return user.getUserId().toString();
 	}
 
 	@Override
 	public String getUsername() {
-		return userId.toString();
+		return user.getUserId().toString();
 	}
 
 	@Override
@@ -66,5 +66,9 @@ public class CustomUserDetails implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+
+	public UserEntity getUserEntity() {
+		return user;
 	}
 }

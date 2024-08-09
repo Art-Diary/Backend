@@ -45,10 +45,12 @@ public class UserEntity {
 	private String alarmToken;
 	@Column(name = "provider_type", nullable = false)
 	private String providerType;
+	@Column(name = "role_type", nullable = false)
+	private String roleType;
 
 	@Builder
 	public UserEntity(Long userId, String email, String nickname, String profile, String favoriteArt, Boolean alarm1,
-		Boolean alarm2, Boolean alarm3, String refreshToken, String alarmToken, String providerType) {
+		Boolean alarm2, Boolean alarm3, String refreshToken, String alarmToken, String providerType, String roleType) {
 		this.userId = userId;
 		this.email = email;
 		this.nickname = nickname;
@@ -60,6 +62,7 @@ public class UserEntity {
 		this.refreshToken = refreshToken;
 		this.alarmToken = alarmToken;
 		this.providerType = providerType;
+		this.roleType = roleType;
 	}
 
 	public void updateUser(UserEntity user) {
