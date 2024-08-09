@@ -97,6 +97,6 @@ public class MateExhService implements MateExhReadUseCase {
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId().getUserId();
+		return getCurrentUserEntity().getUserId();
 	}
 }

@@ -9,7 +9,7 @@ import klieme.artdiary.common.jwt.CustomUserDetails;
 import klieme.artdiary.user.data_access.entity.UserEntity;
 
 public class SecurityUtil {
-	public static UserEntity getCurrentUserId() {
+	public static UserEntity getCurrentUserEntity() {
 		final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null || authentication.getName().equals("anonymousUser")

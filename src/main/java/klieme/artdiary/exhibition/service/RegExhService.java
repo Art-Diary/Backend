@@ -185,10 +185,10 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId().getUserId();
+		return getCurrentUserEntity().getUserId();
 	}
 
 	private UserEntity getUser() {
-		return getCurrentUserId();
+		return getCurrentUserEntity();
 	}
 }

@@ -87,6 +87,6 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId().getUserId();
+		return getCurrentUserEntity().getUserId();
 	}
 }

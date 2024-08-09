@@ -277,7 +277,7 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	}
 
 	private Long getUserId() {
-		return getCurrentUserId().getUserId();
+		return getCurrentUserEntity().getUserId();
 	}
 
 	private UserEntity insertUser(UserCreateCommand command) {
