@@ -111,8 +111,12 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(command.getRegExhId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
+		//regState==true일 경우
+		if (regExhEntity.getRegState()) {
+			throw new ArtDiaryException(MessageType.FORBIDDEN);
+		}
+
 		regExhEntity.updateRegExh(RegExhEntity.builder()
-			.userId(getUserId())
 			.regExhName(command.getRegExhName())
 			.regGallery(command.getRegGallery())
 			.regExhPeriodStart(command.getRegExhPeriodStart())
@@ -124,7 +128,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regPoster(command.getRegPoster())
 			.regArt(command.getRegArt())
 			.regDate(command.getRegDate())
-			.regState(false).build());
+			.build());
 
 		regExhRepository.save(regExhEntity);
 
