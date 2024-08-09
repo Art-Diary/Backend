@@ -1,7 +1,6 @@
 package klieme.artdiary.exhibition.service;
 
 import static klieme.artdiary.common.SecurityUtil.*;
-import static klieme.artdiary.exhibition.data_access.entity.QRegExhEntity.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,6 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regState(false).build();
 
 		regExhRepository.save(regExhEntity);
-
 
 		return FindRegExhResult.findByRegExh(regExhEntity);
 
