@@ -57,4 +57,17 @@ public class ExhEntity {
 		this.poster = poster;
 		this.art = art;
 	}
+
+	public void updateExhEntity(ExhEntity exhEntity) {
+		this.exhName = exhEntity.getExhName();
+		this.gallery = exhEntity.getGallery();
+		this.exhPeriodStart = exhEntity.getExhPeriodStart();
+		this.exhPeriodEnd = exhEntity.getExhPeriodEnd();
+		this.painter = exhEntity.getPainter();
+		this.fee = exhEntity.getFee();
+		this.intro = exhEntity.getIntro();
+		this.url = exhEntity.getUrl();
+		this.poster = exhEntity.getPoster();
+		this.art = exhEntity.getArt();
+	}
 }

@@ -30,6 +30,8 @@ public class RegExhEntity {
 	private Long regExhId;
 	@Column(name = "user_id")
 	private Long userId;
+	@Column(name = "exh_id")
+	private Long exhId;
 	@Column(name = "reg_exh_name", nullable = false)
 	private String regExhName;
 	@Column(name = "reg_gallery")
@@ -58,11 +60,12 @@ public class RegExhEntity {
 	private Boolean regState;
 
 	@Builder
-	public RegExhEntity(Long regExhId, Long userId, String regExhName, String regGallery, LocalDate regExhPeriodStart,
-		LocalDate regExhPeriodEnd, String regPainter, Integer regFee, String regIntro, String regUrl, String regPoster,
-		String regArt, LocalDateTime regDate, String regComment, Boolean regState) {
+	public RegExhEntity(Long regExhId, Long userId, Long exhId, String regExhName, String regGallery,
+		LocalDate regExhPeriodStart, LocalDate regExhPeriodEnd, String regPainter, Integer regFee, String regIntro,
+		String regUrl, String regPoster, String regArt, LocalDateTime regDate, String regComment, Boolean regState) {
 		this.regExhId = regExhId;
 		this.userId = userId;
+		this.exhId = exhId;
 		this.regExhName = regExhName;
 		this.regGallery = regGallery;
 		this.regExhPeriodStart = regExhPeriodStart;
@@ -123,6 +126,7 @@ public class RegExhEntity {
 	}
 
 	public void updateByAdmin(RegExhEntity newRegExh) {
+		this.exhId = newRegExh.getExhId();
 		this.regExhName = newRegExh.getRegExhName();
 		this.regGallery = newRegExh.getRegGallery();
 		this.regExhPeriodStart = newRegExh.getRegExhPeriodStart();
