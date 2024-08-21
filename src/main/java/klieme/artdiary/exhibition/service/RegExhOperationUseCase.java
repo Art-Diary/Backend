@@ -3,6 +3,8 @@ package klieme.artdiary.exhibition.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,7 +33,7 @@ public interface RegExhOperationUseCase {
 		private final Integer regFee;
 		private final String regIntro;
 		private final String regUrl;
-		private final String regPoster;
+		private final MultipartFile regPoster;
 		private final String regArt;
 		private final LocalDateTime regDate;
 	}
@@ -50,7 +52,7 @@ public interface RegExhOperationUseCase {
 		private final Integer regFee;
 		private final String regIntro;
 		private final String regUrl;
-		private final String regPoster;
+		private final MultipartFile regPoster;
 		private final String regArt;
 		private final String regComment;
 	}

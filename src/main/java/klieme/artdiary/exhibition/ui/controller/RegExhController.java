@@ -8,10 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -41,7 +41,7 @@ public class RegExhController {
 
 	@PostMapping("")
 	public ResponseEntity<RegExhView> registerExhibitionByUser(
-		@Valid @RequestBody RegExhByUserRequest request) {
+		@Valid @ModelAttribute RegExhByUserRequest request) {
 		log.info("[등록할 전시회 추가(사용자)]");
 
 		// request body 데이터 받아오기
@@ -96,7 +96,7 @@ public class RegExhController {
 	@PatchMapping("/{regExhId}")
 	public ResponseEntity<RegExhView> updateRegisteredExhibitionByUser(
 		@PathVariable(name = "regExhId") Long regExhId,
-		@Valid @RequestBody RegExhByUserRequest request
+		@Valid @ModelAttribute RegExhByUserRequest request
 	) {
 		log.info("[등록할 전시회 수정(사용자)]");
 
@@ -131,7 +131,7 @@ public class RegExhController {
 	@PatchMapping("/{regExhId}/comments")
 	public ResponseEntity<RegExhView> confirmExhibitionRequestByAdmin(
 		@PathVariable(name = "regExhId") Long regExhId,
-		@Valid @RequestBody RegExhByAdminRequest request
+		@Valid @ModelAttribute RegExhByAdminRequest request
 	) {
 		log.info("[전시회 등록 요청 확인 코멘트 추가 및 전시회 정보 수정 (관리자)]");
 

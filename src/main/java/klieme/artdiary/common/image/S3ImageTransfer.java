@@ -37,6 +37,8 @@ public class S3ImageTransfer {
 		private final MultipartFile image;
 		// for thumbnail
 		private final Long diaryId;
+		// for reg exh
+		private final Long regExhId;
 		// for update image
 		private final String prevImagePath;
 	}
@@ -57,8 +59,10 @@ public class S3ImageTransfer {
 		// 타입 별 저장할 위치 결정
 		if (query.getType() == ImageType.PROFILE) {
 			fileName = "profile/" + getUserId() + "_";
-		} else {
+		} else if (query.getType() == ImageType.THUMBNAIL) {
 			fileName = "thumbnail/" + query.getDiaryId() + "_";
+		} else {
+			fileName = "reg_exh/" + query.getRegExhId() + "_";
 		}
 		// 업데이트 할 때 이전 사진 삭제
 		if (query.getPrevImagePath() != null) {

@@ -10,9 +10,12 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
+import klieme.artdiary.common.image.ImageType;
+import klieme.artdiary.common.image.S3ImageTransfer;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.entity.RegExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
@@ -24,11 +27,14 @@ import klieme.artdiary.user.enums.RoleType;
 public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase {
 	private final RegExhRepository regExhRepository;
 	private final ExhRepository exhRepository;
+	private final S3ImageTransfer s3ImageTransfer;
 
 	@Autowired
-	public RegExhService(RegExhRepository regExhRepository, ExhRepository exhRepository) {
+	public RegExhService(RegExhRepository regExhRepository, ExhRepository exhRepository,
+		S3ImageTransfer s3ImageTransfer) {
 		this.regExhRepository = regExhRepository;
 		this.exhRepository = exhRepository;
+		this.s3ImageTransfer = s3ImageTransfer;
 	}
 
 	@Transactional
@@ -45,15 +51,14 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regFee(command.getRegFee())
 			.regIntro(command.getRegIntro())
 			.regUrl(command.getRegUrl())
-			.regPoster(command.getRegPoster())
+			.regPoster("nop")
 			.regArt(command.getRegArt())
 			.regDate(command.getRegDate())
 			.regState(false).build();
 
 		regExhRepository.save(regExhEntity);
-
+		savePoster(command.getRegPoster(), regExhEntity);
 		return FindRegExhResult.findByRegExh(regExhEntity);
-
 	}
 
 	@Override
@@ -135,13 +140,12 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regFee(command.getRegFee())
 			.regIntro(command.getRegIntro())
 			.regUrl(command.getRegUrl())
-			.regPoster(command.getRegPoster())
 			.regArt(command.getRegArt())
 			.regDate(command.getRegDate())
 			.build());
 
 		regExhRepository.save(regExhEntity);
-
+		savePoster(command.getRegPoster(), regExhEntity);
 		return FindRegExhResult.findByRegExh(regExhEntity);
 	}
 
@@ -191,7 +195,6 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.fee(command.getRegFee())
 			.intro(command.getRegIntro())
 			.url(command.getRegUrl())
-			.poster(command.getRegPoster())
 			.art(command.getRegArt())
 			.build();
 		if (exhEntity == null) {
@@ -211,12 +214,15 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regFee(command.getRegFee())
 			.regIntro(command.getRegIntro())
 			.regUrl(command.getRegUrl())
-			.regPoster(command.getRegPoster())
 			.regArt(command.getRegArt())
 			.regComment(command.getRegComment())
 			.regState(true)
 			.build());
 		regExhRepository.save(regExhEntity);
+		// update reg exh poster
+		savePoster(command.getRegPoster(), regExhEntity);
+		// update exh poster
+		exhEntity.updateExhEntity(ExhEntity.builder().poster(regExhEntity.getRegPoster()).build());
 		return FindRegExhResult.findByRegExh(regExhEntity);
 	}
 
@@ -226,5 +232,17 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 
 	private UserEntity getUser() {
 		return getCurrentUserEntity();
+	}
+
+	private void savePoster(MultipartFile inputPoster, RegExhEntity saveEntity) {
+		// 사진 업로드
+		String uploadImageUrl = s3ImageTransfer.uploadImageToStorage(
+			S3ImageTransfer.UploadQuery.builder()
+				.type(ImageType.REG_EXH)
+				.image(inputPoster)
+				.regExhId(saveEntity.getRegExhId())
+				.build());
+
+		saveEntity.updateRegExh(RegExhEntity.builder().regPoster(uploadImageUrl).build());
 	}
 }

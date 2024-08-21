@@ -12,7 +12,7 @@
     String regFee;
     String regIntro; (nullable)
     String regUrl; (nullable)
-    String regPoster;
+    MultipartFile regPoster;
     String regArt; (nullable)
     LocalDateTime regDate;
 }
@@ -84,7 +84,7 @@ request data:
     String regFee;
     String regIntro; (nullable)
     String regUrl; (nullable)
-    String regPoster;
+    MultipartFile regPoster;
     String regArt; (nullable)
     LocalDateTime regDate;
 }
@@ -124,7 +124,7 @@ request data:
     String regFee;
     String regIntro; (nullable)
     String regUrl; (nullable)
-    String regPoster;
+    MultipartFile regPoster;
     String regArt; (nullable)
     String regComment; (nullable)
 }
