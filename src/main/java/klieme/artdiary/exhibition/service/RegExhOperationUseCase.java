@@ -15,7 +15,7 @@ public interface RegExhOperationUseCase {
 
 	RegExhReadUseCase.FindRegExhResult updateRegExhByUser(RegExhCreateUpdateByUserCommand command);
 
-	void deleteRegExhByUser(Long regExhId);
+	void deleteRegExhByUser(Long regExhId, Boolean isAdmin);
 
 	RegExhReadUseCase.FindRegExhResult confirmExhRequestByAdmin(RegExhUpdateByAdminCommand command);
 

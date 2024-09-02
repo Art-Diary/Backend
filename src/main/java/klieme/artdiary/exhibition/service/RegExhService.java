@@ -102,6 +102,10 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 
 	@Override
 	public FindRegExhResult getRegisteredExhibition(Long regExhId, Boolean isAdmin) {
+		// 관리자 인지 확인
+		if (isAdmin) {
+			checkUserIsAdmin();
+		}
 
 		RegExhEntity entity = regExhRepository.findByRegExhId(regExhId).orElseThrow(() -> new ArtDiaryException(
 			MessageType.NOT_FOUND));
@@ -153,12 +157,16 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 
 	@Transactional
 	@Override
-	public void deleteRegExhByUser(Long regExhId) {
+	public void deleteRegExhByUser(Long regExhId, Boolean isAdmin) {
+		// 관리자 인지 확인
+		if (isAdmin) {
+			checkUserIsAdmin();
+		}
 		// regExhId가 해당 사용자의 것인지 확인
 		RegExhEntity regExhEntity = regExhRepository.findByRegExhId(regExhId)
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 
-		if (!Objects.equals(regExhEntity.getUserId(), getUserId())) {
+		if (!isAdmin && !Objects.equals(regExhEntity.getUserId(), getUserId())) {
 			throw new ArtDiaryException(MessageType.NOT_FOUND);
 		}
 		// regState 확인하여 등록이 완료된 전시회인지 확인
@@ -172,12 +180,8 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	@Transactional
 	@Override
 	public FindRegExhResult confirmExhRequestByAdmin(RegExhUpdateByAdminCommand command) {
-		// 관리자 자격인지 확인
-		UserEntity user = getUser();
-
-		if (!Objects.equals(user.getRoleType(), RoleType.ADMIN.label())) {
-			throw new ArtDiaryException(MessageType.FORBIDDEN);
-		}
+		// 관리자 인지 확인
+		checkUserIsAdmin();
 
 		Map<String, Object> regExhInfo = regExhRepository.getRegExhWithExhByAdmin(command.getRegExhId());
 
@@ -248,5 +252,13 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 				.build());
 
 		saveEntity.updateRegExh(RegExhEntity.builder().regPoster(uploadImageUrl).build());
+	}
+
+	private void checkUserIsAdmin() {
+		UserEntity user = getUser();
+
+		if (!Objects.equals(user.getRoleType(), RoleType.ADMIN.label())) {
+			throw new ArtDiaryException(MessageType.FORBIDDEN);
+		}
 	}
 }

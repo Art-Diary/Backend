@@ -109,7 +109,7 @@ response data:
 
 (기능) 등록할 전시회 삭제(사용자)
 method: delete
-url: /regexh/{reg_exh_id}
+url: /regexh/{reg_exh_id}?isAdmin=true/false
 
 (기능) 전시회 등록 요청 확인 코멘트 추가 및 전시회 정보 수정 (관리자)
 method: patch
