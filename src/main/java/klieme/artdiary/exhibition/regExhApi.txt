@@ -50,7 +50,7 @@ list: [
 -----이혜원--------
 (기능) 등록할 전시회 하나 조회(사용자)
 - method: get
-- url: /regexh/{reg_exh_id}
+- url: /regexh/{reg_exh_id}?isAdmin=true/false
 - request data: no
 - response data:
 {

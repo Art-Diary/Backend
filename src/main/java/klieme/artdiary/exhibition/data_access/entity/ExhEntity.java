@@ -59,15 +59,25 @@ public class ExhEntity {
 	}
 
 	public void updateExhEntity(ExhEntity exhEntity) {
-		this.exhName = exhEntity.getExhName();
-		this.gallery = exhEntity.getGallery();
-		this.exhPeriodStart = exhEntity.getExhPeriodStart();
-		this.exhPeriodEnd = exhEntity.getExhPeriodEnd();
-		this.painter = exhEntity.getPainter();
-		this.fee = exhEntity.getFee();
-		this.intro = exhEntity.getIntro();
-		this.url = exhEntity.getUrl();
-		this.poster = exhEntity.getPoster();
-		this.art = exhEntity.getArt();
+		if (exhEntity.getExhName() != null)
+			this.exhName = exhEntity.getExhName();
+		if (exhEntity.getGallery() != null)
+			this.gallery = exhEntity.getGallery();
+		if (exhEntity.getExhPeriodStart() != null)
+			this.exhPeriodStart = exhEntity.getExhPeriodStart();
+		if (exhEntity.getExhPeriodEnd() != null)
+			this.exhPeriodEnd = exhEntity.getExhPeriodEnd();
+		if (exhEntity.getPainter() != null)
+			this.painter = exhEntity.getPainter();
+		if (exhEntity.getFee() != null)
+			this.fee = exhEntity.getFee();
+		if (exhEntity.getIntro() != null)
+			this.intro = exhEntity.getIntro();
+		if (exhEntity.getUrl() != null)
+			this.url = exhEntity.getUrl();
+		if (exhEntity.getPoster() != null)
+			this.poster = exhEntity.getPoster();
+		if (exhEntity.getArt() != null)
+			this.art = exhEntity.getArt();
 	}
 }

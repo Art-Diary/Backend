@@ -39,7 +39,6 @@ public class RegExhByAdminRequest {
 
 	String regUrl;
 
-	@NotNull
 	MultipartFile regPoster;
 
 	String regArt;

@@ -101,13 +101,13 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 	}
 
 	@Override
-	public FindRegExhResult getRegisteredExhibition(Long regExhId) {
+	public FindRegExhResult getRegisteredExhibition(Long regExhId, Boolean isAdmin) {
 
 		RegExhEntity entity = regExhRepository.findByRegExhId(regExhId).orElseThrow(() -> new ArtDiaryException(
 			MessageType.NOT_FOUND));
 
 		//해당 사용자가 등록한 것인지 확인
-		if (!Objects.equals(entity.getUserId(), getUserId())) {
+		if (!isAdmin && !Objects.equals(entity.getUserId(), getUserId())) {
 			throw new ArtDiaryException(MessageType.NOT_FOUND);
 		}
 
@@ -145,7 +145,9 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.build());
 
 		regExhRepository.save(regExhEntity);
-		savePoster(command.getRegPoster(), regExhEntity);
+		if (command.getRegPoster() != null) {
+			savePoster(command.getRegPoster(), regExhEntity);
+		}
 		return FindRegExhResult.findByRegExh(regExhEntity);
 	}
 
@@ -220,7 +222,9 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.build());
 		regExhRepository.save(regExhEntity);
 		// update reg exh poster
-		savePoster(command.getRegPoster(), regExhEntity);
+		if (command.getRegPoster() != null) {
+			savePoster(command.getRegPoster(), regExhEntity);
+		}
 		// update exh poster
 		exhEntity.updateExhEntity(ExhEntity.builder().poster(regExhEntity.getRegPoster()).build());
 		return FindRegExhResult.findByRegExh(regExhEntity);

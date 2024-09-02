@@ -12,7 +12,7 @@ import lombok.ToString;
 public interface RegExhReadUseCase {
 	List<FindRegExhListResult> getRegisteredExhibitionList(Boolean isAdmin);
 
-	RegExhReadUseCase.FindRegExhResult getRegisteredExhibition(Long regExhId);
+	RegExhReadUseCase.FindRegExhResult getRegisteredExhibition(Long regExhId, Boolean isAdmin);
 
 	@Getter
 	@ToString
