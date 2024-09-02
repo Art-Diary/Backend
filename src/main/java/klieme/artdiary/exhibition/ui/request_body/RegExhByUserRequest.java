@@ -40,7 +40,6 @@ public class RegExhByUserRequest {
 
 	String regUrl;
 
-	@NotNull
 	MultipartFile regPoster;
 
 	String regArt;

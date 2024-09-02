@@ -125,19 +125,45 @@ public class RegExhEntity {
 		this.userId = null;
 	}
 
-	public void updateByAdmin(RegExhEntity newRegExh) {
-		this.exhId = newRegExh.getExhId();
-		this.regExhName = newRegExh.getRegExhName();
-		this.regGallery = newRegExh.getRegGallery();
-		this.regExhPeriodStart = newRegExh.getRegExhPeriodStart();
-		this.regExhPeriodEnd = newRegExh.getRegExhPeriodEnd();
-		this.regPainter = newRegExh.getRegPainter();
-		this.regFee = newRegExh.getRegFee();
-		this.regIntro = newRegExh.getRegIntro();
-		this.regUrl = newRegExh.getRegUrl();
-		this.regPoster = newRegExh.getRegPoster();
-		this.regArt = newRegExh.getRegArt();
-		this.regComment = newRegExh.getRegComment();
-		this.regState = newRegExh.getRegState();
+	public void updateByAdmin(RegExhEntity entity) {
+		if (entity.getExhId() != null) {
+			this.exhId = entity.getExhId();
+		}
+		if (entity.getRegExhName() != null) {
+			this.regExhName = entity.getRegExhName();
+		}
+		if (entity.getRegGallery() != null) {
+			this.regGallery = entity.getRegGallery();
+		}
+		if (entity.getRegExhPeriodStart() != null) {
+			this.regExhPeriodStart = entity.getRegExhPeriodStart();
+		}
+		if (entity.getRegExhPeriodEnd() != null) {
+			this.regExhPeriodEnd = entity.getRegExhPeriodEnd();
+		}
+		if (entity.getRegPainter() != null) {
+			this.regPainter = entity.getRegPainter();
+		}
+		if (entity.getRegFee() != null) {
+			this.regFee = entity.getRegFee();
+		}
+		if (entity.getRegIntro() != null) {
+			this.regIntro = entity.getRegIntro();
+		}
+		if (entity.getRegUrl() != null) {
+			this.regUrl = entity.getRegUrl();
+		}
+		if (entity.getRegPoster() != null) {
+			this.regPoster = entity.getRegPoster();
+		}
+		if (entity.getRegArt() != null) {
+			this.regArt = entity.getRegArt();
+		}
+		if (entity.getRegComment() != null) {
+			this.regComment = entity.getRegComment();
+		}
+		if (entity.getRegState() != null) {
+			this.regState = entity.getRegState();
+		}
 	}
 }

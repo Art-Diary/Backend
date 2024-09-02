@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import klieme.artdiary.common.api.ArtDiaryException;
+import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.service.RegExhOperationUseCase;
 import klieme.artdiary.exhibition.service.RegExhReadUseCase;
 import klieme.artdiary.exhibition.ui.request_body.RegExhByAdminRequest;
@@ -44,6 +46,9 @@ public class RegExhController {
 		@Valid @ModelAttribute RegExhByUserRequest request) {
 		log.info("[등록할 전시회 추가(사용자)]");
 
+		if (request.getRegPoster() == null) {
+			throw new ArtDiaryException(MessageType.BAD_REQUEST);
+		}
 		// request body 데이터 받아오기
 		var command = RegExhOperationUseCase.RegExhCreateUpdateByUserCommand.builder()
 			.regExhName(request.getRegExhName())
@@ -84,11 +89,14 @@ public class RegExhController {
 	}
 
 	@GetMapping("/{regExhId}")
-	public ResponseEntity<RegExhView> getRegisteredExhibition(@PathVariable(name = "regExhId") Long regExhId) {
+	public ResponseEntity<RegExhView> getRegisteredExhibition(
+		@PathVariable(name = "regExhId") Long regExhId,
+		@RequestParam(name = "isAdmin") Boolean isAdmin
+	) {
 		log.info("[등록할 전시회 하나 조회(사용자)]");
 
 		// 비즈니스 로직 호출
-		RegExhReadUseCase.FindRegExhResult regExhResult = regExhReadUseCase.getRegisteredExhibition(regExhId);
+		RegExhReadUseCase.FindRegExhResult regExhResult = regExhReadUseCase.getRegisteredExhibition(regExhId, isAdmin);
 
 		return ResponseEntity.ok(RegExhView.builder().result(regExhResult).build());
 	}
