@@ -130,13 +130,10 @@ public class RegExhController {
 
 	@DeleteMapping("/{regExhId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteRegisteredExhibition(
-		@PathVariable(name = "regExhId") Long regExhId,
-		@RequestParam(name = "isAdmin") Boolean isAdmin
-	) {
+	public void deleteRegisteredExhibition(@PathVariable(name = "regExhId") Long regExhId) {
 		log.info("[등록할 전시회 삭제(사용자)]");
 
-		regExhOperationUseCase.deleteRegExhByUser(regExhId, isAdmin);
+		regExhOperationUseCase.deleteRegExhByUser(regExhId);
 	}
 
 	@PatchMapping("/{regExhId}/comments")
