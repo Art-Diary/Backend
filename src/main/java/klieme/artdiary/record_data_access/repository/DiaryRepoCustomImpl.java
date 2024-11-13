@@ -125,6 +125,7 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 			.leftJoin(gathering).on(exhVisit.gatherId.eq(gathering.gatherId))
 			.fetchJoin()
 			.where(diary.writerId.eq(userId), exhVisit.exhId.eq(exhId), builder)
+			.orderBy(diary.initDate.desc())
 			.fetch();
 
 		List<Map<String, Object>> result = new ArrayList<>();

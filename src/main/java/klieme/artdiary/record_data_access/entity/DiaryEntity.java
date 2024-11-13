@@ -41,10 +41,11 @@ public class DiaryEntity {
 	private LocalDateTime initDate;
 	@Column(name = "write_date", nullable = false)
 	private LocalDate writeDate;
+	@Column(nullable = false)
 	private String saying;
 	@Column(name = "writer_id")
 	private Long writerId;
-	@Column(name = "exh_visit_id")
+	@Column(name = "exh_visit_id", nullable = false)
 	private Long exhVisitId;
 
 	@Builder
