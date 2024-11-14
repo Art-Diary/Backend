@@ -100,6 +100,9 @@ public class MyExhService implements MyExhReadUseCase, MyExhOperationUseCase {
 					dateInfoList = new ArrayList<>();
 				}
 			}
+			if (results.getFirst().getGatherId() != null) {
+				results.addFirst(FindMyStoredDateResult.findByMyStoredDateSolo(query.getExhId(), new ArrayList<>()));
+			}
 		}
 		return results;
 	}
