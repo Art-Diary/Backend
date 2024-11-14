@@ -30,6 +30,7 @@ public class MyDiaryRequest {
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate writeDate;
+	@NotBlank
 	private String saying;
 }
 

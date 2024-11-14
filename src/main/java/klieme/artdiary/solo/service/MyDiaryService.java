@@ -4,7 +4,6 @@ import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -191,7 +190,6 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 					FindMyDiaryResult.findByMyDiary(userEntity, exhEntity, exhVisit, diary, gathering));
 			}
 		}
-		results.sort(Comparator.comparing(FindMyDiaryResult::getInitDate));
 		return results;
 	}
 
