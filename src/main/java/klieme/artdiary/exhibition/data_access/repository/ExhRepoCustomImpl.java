@@ -113,4 +113,50 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 		}
 		return result;
 	}
+
+	@Override
+	public List<Map<String, Object>> searchExhListBySearchName(String searchName, Long userId) {
+
+		QExhEntity exh = QExhEntity.exhEntity;
+		QFavoriteExhEntity favoriteExh = QFavoriteExhEntity.favoriteExhEntity;
+		BooleanBuilder builder = new BooleanBuilder();
+
+		if (searchName != null) {
+			builder.and(exh.exhName.containsIgnoreCase(searchName)
+				.or(exh.gallery.containsIgnoreCase(searchName))
+				.or(exh.painter.containsIgnoreCase(searchName)));
+		}
+
+		List<Tuple> tuples = query.select(exh,
+				new CaseBuilder()
+					.when(
+						JPAExpressions.selectOne()
+							.from(favoriteExh)
+							.where(favoriteExh.favoriteExhId.exhId.eq(exh.exhId)
+								.and(favoriteExh.favoriteExhId.userId.eq(userId)))
+							.exists()
+					).then(1)
+					.otherwise(0))
+			.distinct()
+			.from(exh)
+			.where(builder)
+			.orderBy(new CaseBuilder()
+				.when(exh.exhName.containsIgnoreCase(searchName)).then(1) // 1순위: exhName 포함 (이름순)
+				.when(exh.gallery.containsIgnoreCase(searchName)).then(2) // 2순위: gallery 포함 (갤러리순)
+				.when(exh.painter.containsIgnoreCase(searchName)).then(3) // 3순위: painter 포함 (작가순)
+				.otherwise(4)  // 나머지는 마지막 우선순위로 정렬
+				.asc())
+			.fetch();
+
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("exhibition", tuple.get(0, ExhEntity.class));
+			row.put("haveFavoriteByUser", tuple.get(1, Boolean.class));
+			result.add(row);
+		}
+		return result;
+
+	}
 }

@@ -24,6 +24,7 @@ import klieme.artdiary.exhibition.enums.ExhState;
 import klieme.artdiary.exhibition.service.ExhOperationUseCase;
 import klieme.artdiary.exhibition.service.ExhReadUseCase;
 import klieme.artdiary.exhibition.ui.request_body.ExhRequest;
+import klieme.artdiary.exhibition.ui.request_body.SearchContentsRequest;
 import klieme.artdiary.exhibition.ui.view.AllDiaryOfExhIdView;
 import klieme.artdiary.exhibition.ui.view.ExhView;
 import klieme.artdiary.exhibition.ui.view.StoredDateView;
@@ -179,4 +180,27 @@ public class ExhController {
 		}
 		return ResponseEntity.ok(result);
 	}
+
+	@GetMapping("/search")
+	public ResponseEntity<List<ExhView>> getExhListBySearchName(@Valid @RequestBody SearchContentsRequest searchName) {
+
+		log.info("[전시회 이름 검색 결과 조회]");
+
+		//string 자료형을 갖는 변수일 경우 빈 문자열인지 확인
+		if ((searchName != null && searchName.getSearchContent().isBlank())) {
+			throw new ArtDiaryException(MessageType.BAD_REQUEST);
+		}
+
+		// 비즈니스 로직 호출
+		List<ExhReadUseCase.FindExhResult> exhResults = exhReadUseCase.getExhListBySearchName(
+			searchName.getSearchContent());
+		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
+		List<ExhView> result = new ArrayList<>();
+
+		for (ExhReadUseCase.FindExhResult exhResult : exhResults) {
+			result.add(ExhView.builder().result(exhResult).build());
+		}
+		return ResponseEntity.ok(result);
+	}
+
 }

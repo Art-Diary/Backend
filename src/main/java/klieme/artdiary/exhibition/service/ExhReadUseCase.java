@@ -24,6 +24,8 @@ public interface ExhReadUseCase {
 
 	List<FindExhResult> getExhList(ExhListFindQuery query);
 
+	List<FindExhResult> getExhListBySearchName(String searchName);
+
 	FindExhResult getExhDetailInfo(Long exhId);
 
 	List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId);
