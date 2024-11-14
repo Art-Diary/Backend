@@ -36,6 +36,7 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 		if (isMate) {
 			builder.and(diary.diaryPrivate.eq(true));
 		}
+		// 최근 작성 날짜 기준으로 정렬
 		List<Tuple> tuples = query
 			.select(diary.rate.sum(), diary.count(), exh)
 			.from(diary)
@@ -44,7 +45,7 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 			.fetchJoin()
 			.where(diary.writerId.eq(userId), builder)
 			.groupBy(exhVisit.exhId)
-			.orderBy(exh.exhId.asc())
+			.orderBy(diary.initDate.max().desc())
 			.fetch();
 
 		List<Map<String, Object>> result = new ArrayList<>();
