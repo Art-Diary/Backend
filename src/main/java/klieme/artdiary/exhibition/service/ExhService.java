@@ -17,6 +17,7 @@ import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibition.info.StoredListOfDate;
+import klieme.artdiary.exhibition.ui.request_body.SearchContentsRequest;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhEntity;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhId;
 import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
@@ -112,6 +113,21 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		List<FindExhResult> results = new ArrayList<>();
 		List<Map<String, Object>> infoList = exhRepository.searchExhList(query.getSearchName(), query.getFieldList(),
 			query.getPrice(), query.getStateList(), query.getDate(), getUserId());
+
+		for (Map<String, Object> info : infoList) {
+			ExhEntity exhibition = (ExhEntity)info.get("exhibition");
+			Integer haveFavoriteByUser = (Integer)info.get("haveFavoriteByUser");
+
+			results.add(FindExhResult.findByExhForList(exhibition, haveFavoriteByUser == 1));
+		}
+		return results;
+	}
+
+	@Override
+	public List<FindExhResult> getExhListBySearchName(String searchName) {
+
+		List<FindExhResult> results = new ArrayList<>();
+		List<Map<String, Object>> infoList = exhRepository.searchExhListBySearchName(searchName, getUserId());
 
 		for (Map<String, Object> info : infoList) {
 			ExhEntity exhibition = (ExhEntity)info.get("exhibition");
