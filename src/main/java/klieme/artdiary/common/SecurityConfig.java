@@ -34,6 +34,12 @@ public class SecurityConfig {
 	private static final String[] AUTH_WHITELIST = {
 		"/users", "/users/unite", "/users/separate", "/users/reissue", "/users/test"
 	};
+	private static final String[] DATA_WHITELIST = {
+		"/exh/data"
+	};
+	private static final String[] STATIC_RESOURCES = {
+		"/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico"
+	};
 
 	@Bean
 	public RestTemplate restTemplate() {
@@ -67,8 +73,11 @@ public class SecurityConfig {
 
 		// 권한 규칙 - AUTH_WHITELIST를 제외한 url은 권한 적용
 		http.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll()
-				.anyRequest().authenticated()
+			.requestMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll()
+			.requestMatchers(STATIC_RESOURCES).permitAll() // 정적 리소스 허용
+			.requestMatchers(HttpMethod.GET, DATA_WHITELIST).permitAll()
+			.requestMatchers(HttpMethod.POST, DATA_WHITELIST).permitAll()
+			.anyRequest().authenticated()
 		);
 
 		// 예외 처리
