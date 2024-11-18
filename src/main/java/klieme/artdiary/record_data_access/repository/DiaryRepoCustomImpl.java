@@ -165,6 +165,7 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 			.leftJoin(exh).on(exhVisit.exhId.eq(exh.exhId))
 			.fetchJoin()
 			.where(exhVisit.exhId.eq(exhId), privateBuilder)
+			.orderBy(diary.initDate.desc())
 			.fetch();
 
 		List<Map<String, Object>> result = new ArrayList<>();

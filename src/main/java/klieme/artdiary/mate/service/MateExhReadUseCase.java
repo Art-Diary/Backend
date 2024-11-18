@@ -2,7 +2,7 @@ package klieme.artdiary.mate.service;
 
 import static klieme.artdiary.common.FormatDate.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
@@ -69,6 +69,7 @@ public interface MateExhReadUseCase {
 		private final Boolean diaryPrivate;
 		private final String contents;
 		private final String thumbnail;
+		private final String initDate;
 		private final String writeDate;
 		private final String saying;
 		private final Long userId;
@@ -77,7 +78,6 @@ public interface MateExhReadUseCase {
 		private final String visitDate;
 		private final String exhName;
 		private final Long exhVisitId;
-		private final LocalDateTime initDate;
 
 		@Builder
 		public static FindMateDiaryResult findMateDiary(DiaryEntity diary, ExhVisitEntity exhVisit, UserEntity user,
@@ -89,6 +89,7 @@ public interface MateExhReadUseCase {
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
 				.thumbnail(diary.getThumbnail())
+				.initDate(changeDateFormat(LocalDate.from(diary.getInitDate())))
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())
@@ -96,7 +97,6 @@ public interface MateExhReadUseCase {
 				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.exhName(exh.getExhName())
 				.exhVisitId(exhVisit.getExhVisitId())
-				.initDate(diary.getInitDate())
 				.gatherName(gathering != null ? gathering.getGatherName() : null)
 				.build();
 		}

@@ -17,6 +17,7 @@ public class GatheringDiaryView {
 	private final Boolean diaryPrivate;
 	private final String contents;
 	private final String thumbnail;
+	private final String initDate;
 	private final String writeDate;
 	private final String saying;
 	private final Long userId;
@@ -34,6 +35,7 @@ public class GatheringDiaryView {
 		this.diaryPrivate = result.getDiaryPrivate();
 		this.contents = result.getContents();
 		this.thumbnail = result.getThumbnail();
+		this.initDate = result.getInitDate();
 		this.writeDate = result.getWriteDate();
 		this.saying = result.getSaying();
 		this.userId = result.getUserId();
