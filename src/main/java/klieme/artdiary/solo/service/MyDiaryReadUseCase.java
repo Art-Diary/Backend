@@ -4,7 +4,6 @@ import static klieme.artdiary.common.FormatDate.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
@@ -42,7 +41,7 @@ public interface MyDiaryReadUseCase {
 		private final Boolean diaryPrivate;
 		private final String contents;
 		private final String thumbnail;
-		private final LocalDateTime initDate;
+		private final String initDate;
 		private final String writeDate;
 		private final String saying;
 		private final Long userId;
@@ -61,7 +60,7 @@ public interface MyDiaryReadUseCase {
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
 				.thumbnail(diary.getThumbnail())
-				.initDate(diary.getInitDate())
+				.initDate(changeDateFormat(LocalDate.from(diary.getInitDate())))
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
 				.userId(user.getUserId())

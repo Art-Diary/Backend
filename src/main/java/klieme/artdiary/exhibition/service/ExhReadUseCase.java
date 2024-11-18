@@ -124,8 +124,10 @@ public interface ExhReadUseCase {
 		private final Boolean diaryPrivate;
 		private final String contents;
 		private final String thumbnail;
+		private final String initDate;
 		private final String writeDate;
 		private final String saying;
+		private final Long userId;
 		private final String nickname; // 작성자
 		private final String gatherName; //일단 개인일정인 경우 null로, findSoloDiary에서 없음.
 		private final String visitDate;
@@ -141,8 +143,10 @@ public interface ExhReadUseCase {
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
 				.thumbnail(diary.getThumbnail())
+				.initDate(changeDateFormat(LocalDate.from(diary.getInitDate())))
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
+				.userId(user.getUserId())
 				.nickname(user.getNickname())
 				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.exhName(exh.getExhName())
@@ -159,8 +163,10 @@ public interface ExhReadUseCase {
 				.diaryPrivate(diary.getDiaryPrivate())
 				.contents(diary.getContents())
 				.thumbnail(diary.getThumbnail())
+				.initDate(changeDateFormat(LocalDate.from(diary.getInitDate())))
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
+				.userId(user.getUserId())
 				.nickname(user.getNickname())
 				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.exhName(exh.getExhName())

@@ -19,8 +19,10 @@ public class AllDiaryOfExhIdView {
 	private final Boolean diaryPrivate;
 	private final String contents;
 	private final String thumbnail;
+	private final String initDate;
 	private final String writeDate;
 	private final String saying;
+	private final Long userId;
 	private final String nickname; // 작성자
 	private final String gatherName;
 	private final String visitDate;
@@ -35,8 +37,10 @@ public class AllDiaryOfExhIdView {
 		this.diaryPrivate = result.getDiaryPrivate();
 		this.contents = result.getContents();
 		this.thumbnail = result.getThumbnail();
+		this.initDate = result.getInitDate();
 		this.writeDate = result.getWriteDate();
 		this.saying = result.getSaying();
+		this.userId = result.getUserId();
 		this.nickname = result.getNickname();
 		this.gatherName = result.getGatherName();
 		this.visitDate = result.getVisitDate();
