@@ -61,7 +61,7 @@
                                         <td colspan="3"><input type="text" id="exhPeriodEnd" name="exhPeriodEnd" placeholder="종료 날짜를 입력해 주세요. 예시) 2024-01-01" /></td>
                                     </tr>
                                     <tr>
-                                        <th>exh painter <span class="es">필수 입력</span></th>
+                                        <th>exh painter</th>
                                         <td colspan="3"><input type="text" id="painter" name="painter" placeholder="작가를 입력해 주세요." /></td>
                                     </tr>
                                     <tr>
@@ -69,11 +69,11 @@
                                         <td colspan="3"><input type="text" id="fee" name="fee" placeholder="가격을 입력해 주세요. 예시) 1000" /></td>
                                     </tr>
                                     <tr>
-                                        <th>exh art <span class="es">필수 입력</span></th>
+                                        <th>exh art</th>
                                         <td colspan="3"><input type="text" id="art" name="art" placeholder="분야를 입력해 주세요." /></td>
                                     </tr>
                                     <tr>
-                                        <th>exh url <span class="es">필수 입력</span></th>
+                                        <th>exh url</th>
                                         <td colspan="3"><input type="text" id="url" name="url" placeholder="홈페이지 url을 입력해 주세요." /></td>
                                     </tr>
                                     <tr>
@@ -81,7 +81,7 @@
                                         <td colspan="3"><input type="text" id="poster" name="poster" placeholder="포스터를 입력해 주세요." /></td>
                                     </tr>
                                     <tr>
-                                        <th>exh intro <span class="es">필수 입력</span></th>
+                                        <th>exh intro</th>
                                         <td colspan="3"><textarea id="intro" name="intro" cols="50" rows="10" placeholder="소개글을 입력해 주세요." ></textarea></td>
                                     </tr>
                                 </tbody>
@@ -166,6 +166,9 @@
                                 const fieldNames = ['제목', '갤러리', '시작 날짜', '종료 날짜', '작가', '가격', '분야', '홈페이지 url', '포스터', '소개글'];
 
                                 for (let i = 0, len = fields.length; i < len; i++) {
+                                    if (fieldNames[i] === '작가' || fieldNames[i] === '소개글' || fieldNames[i] === '홈페이지 url' || fieldNames[i] === '분야') {
+                                        continue;
+                                    }
                                     isValid(fields[i], fieldNames[i]);
                                 }
 
