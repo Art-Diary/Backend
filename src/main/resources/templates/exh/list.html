@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:fragment="main-head">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+    <th:block layout:fragment="title"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/default.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/content.css}" />
+    <link rel="stylesheet" th:href="@{/css/button.css}" />
+
+    <th:block layout:fragment="add-css"></th:block>
+
+    <style>
+        .ellipsis {
+            white-space: nowrap; /* 텍스트가 한 줄로 나오도록 설정 */
+            overflow: hidden; /* 넘치는 텍스트는 숨김 처리 */
+            text-overflow: ellipsis; /* 잘린 부분에 '...' 표시 */
+        }
+    </style>
+</head>
+
+<body th:fragment="main-body">
+<div id="adm_wrap">
+    <header>
+        <div class="head">
+            <h1>Art Diary Exhibition Data</h1></div>
+    </header>
+
+    <div id="container">
+        <div class="menu_toggle"><span></span></div>
+        <div class="rcontent">
+
+            <th:block layout:fragment="content"><th:block layout:fragment="title">
+                <title>리스트 페이지</title>
+            </th:block>
+
+            <th:block layout:fragment="content">
+
+                <div class="content">
+                    <section>
+                        <!--/* 새로 추가 */-->
+                        <form id="saveForm" method="post" autocomplete="off">
+                            <table class="tb tb_row">
+                                <tbody>
+                                    <tr>
+                                        <th>exh name <span class="es">필수 입력</span></th>
+                                        <td colspan="3"><input type="text" id="exhName" name="exhName" placeholder="제목을 입력해 주세요." /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>exh gallery <span class="es">필수 입력</span></th>
+                                        <td colspan="3"><input type="text" id="gallery" name="gallery" placeholder="갤러리를 입력해 주세요." /></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">exh period start <span class="es">필수 입력</span></th>
+                                        <td><input type="text" id="exhPeriodStart" name="exhPeriodStart" placeholder="시작 날짜를 입력해 주세요. 예시) 2024-01-01" /></td>
+
+                                        <th scope="row">exh period end <span class="es">필수 입력</span></th>
+                                        <td colspan="3"><input type="text" id="exhPeriodEnd" name="exhPeriodEnd" placeholder="종료 날짜를 입력해 주세요. 예시) 2024-01-01" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>exh painter</th>
+                                        <td colspan="3"><input type="text" id="painter" name="painter" placeholder="작가를 입력해 주세요." /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>exh fee <span class="es">필수 입력</span></th>
+                                        <td colspan="3"><input type="text" id="fee" name="fee" placeholder="가격을 입력해 주세요. 예시) 1000" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>exh art</th>
+                                        <td colspan="3"><input type="text" id="art" name="art" placeholder="분야를 입력해 주세요." /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>exh url</th>
+                                        <td colspan="3"><input type="text" id="url" name="url" placeholder="홈페이지 url을 입력해 주세요." /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>exh poster <span class="es">필수 입력</span></th>
+                                        <td colspan="3"><input type="text" id="poster" name="poster" placeholder="포스터를 입력해 주세요." /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>exh intro</th>
+                                        <td colspan="3"><textarea id="intro" name="intro" cols="50" rows="10" placeholder="소개글을 입력해 주세요." ></textarea></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </form>
+
+                        <!--/* 버튼 */-->
+                        <p class="btn_set tr">
+                            <button type="button" id="saveBtn" onclick="savePost();" class="btns btn_st3 btn_mid">저장</button>
+                        </p>
+                        <!--/* 리스트 */-->
+                        <table class="tb tb_col" style="table-layout: fixed; width: 100%; text-overflow: ellipsis;">
+                            <colgroup>
+                                <col style="width: 40px;" />
+                                <col style="width: 40px;" />
+                                <col style="width: 150px;" />
+                                <col style="width: 150px;" />
+                                <col style="width: 90px;" />
+                                <col style="width: 90px;" />
+                                <col style="width: 100px;" />
+                                <col style="width: 50px;" />
+                                <col style="width: 100px;" />
+                                <col style="width: 150px;" />
+                                <col style="width: 150px;" />
+                                <col style="width: 200px;" />
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th scope="col">번호</th>
+                                <th scope="col">exh id</th>
+                                <th scope="col">exh name</th>
+                                <th scope="col">exh gallery</th>
+                                <th scope="col">exh period start</th>
+                                <th scope="col">exh period end</th>
+                                <th scope="col">painter</th>
+                                <th scope="col">fee</th>
+                                <th scope="col">art</th>
+                                <th scope="col">url</th>
+                                <th scope="col">poster</th>
+                                <th scope="col">intro</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${not #lists.isEmpty( exhs )}" th:each="row, status : ${exhs}">
+                                <td th:text="${status.size - status.index}"></td>
+                                <td th:text="${row.exhId}"></td>
+                                <td th:text="${row.exhName}"></td>
+                                <td th:text="${row.gallery}"></td>
+                                <td th:text="${row.exhPeriodStart}"></td>
+                                <td th:text="${row.exhPeriodEnd}"></td>
+                                <td th:text="${row.painter}"></td>
+                                <td th:text="${row.fee}"></td>
+                                <td th:text="${row.art}"></td>
+                                <td class="ellipsis" th:data-tooltip="${row.url}" th:text="${row.url}"></td>
+                                <td class="ellipsis" th:data-tooltip="${row.poster}" th:text="${row.poster}"></td>
+                                <td class="ellipsis" th:data-tooltip="${row.intro}" th:text="${row.intro}"></td>
+                            </tr>
+
+                            <tr th:unless="${not #lists.isEmpty( exhs )}">
+                                <td colspan="12">
+                                    <div class="no_data_msg">검색된 결과가 없습니다.</div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+<!--                        <div class="paging">-->
+<!--                            <a href="#" class="page_bt first">첫 페이지</a><a href="#" class="page_bt prev">이전 페이지 그룹</a>-->
+<!--                            <p><span class="on">1</span><a href="#">2</a><a href="#">3</a><a href="#">4</a><a href="#">5</a><a href="#">6</a><a href="#">7</a><a href="#">8</a><a href="#">9</a><a href="#">10</a></p>-->
+<!--                            <a href="#" class="page_bt next">다음 페이지 그룹</a><a href="#" class="page_bt last">마지막 페이지</a>-->
+<!--                        </div>-->
+                    </section>
+                </div>
+            </th:block>
+                <th:block layout:fragment="script">
+                    <script th:inline="javascript">
+                        /*<![CDATA[*/
+                            // 게시글 저장(수정)
+                            function savePost() {
+                                const form = document.getElementById('saveForm');
+                                const fields = [form.exhName, form.gallery, form.exhPeriodStart, form.exhPeriodEnd, form.painter, form.fee, form.art, form.url, form.poster, form.intro];
+                                const fieldNames = ['제목', '갤러리', '시작 날짜', '종료 날짜', '작가', '가격', '분야', '홈페이지 url', '포스터', '소개글'];
+
+                                for (let i = 0, len = fields.length; i < len; i++) {
+                                    if (fieldNames[i] === '작가' || fieldNames[i] === '소개글' || fieldNames[i] === '홈페이지 url' || fieldNames[i] === '분야') {
+                                        continue;
+                                    }
+                                    isValid(fields[i], fieldNames[i]);
+                                }
+
+                                document.getElementById('saveBtn').disabled = true;
+                                form.action = '/exh/data';
+                                form.submit();
+                            }
+
+                        /*]]>*/
+                    </script>
+                </th:block>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/function.js}"></script>
+<script th:src="@{/js/jquery-3.6.0.min.js}"></script>
+<script th:src="@{/js/common.js}"></script>
+<script src="https://kit.fontawesome.com/79613ae794.js" crossorigin="anonymous"></script>
+</body>
+</html>
