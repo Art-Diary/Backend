@@ -2,13 +2,17 @@ package klieme.artdiary.exhibition.ui.request_body;
 
 import java.time.LocalDate;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
+@Setter
 public class ExhRequest {
 
 	@NotBlank
@@ -18,23 +22,24 @@ public class ExhRequest {
 	private String gallery;
 
 	@NotNull
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate exhPeriodStart;
 
 	@NotNull
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate exhPeriodEnd;
 
-	@NotBlank
 	private String painter;
 
 	@NotNull
 	private Integer fee;
 
-	@NotBlank
 	private String intro;
 
-	@NotBlank
 	private String url;
 
 	@NotBlank
 	private String poster;
+
+	private String art;
 }

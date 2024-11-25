@@ -29,12 +29,14 @@ public class ExhEntity {
 	private Long exhId;
 	@Column(name = "exh_name", nullable = false)
 	private String exhName;
+	@Column(nullable = false)
 	private String gallery;
-	@Column(name = "exh_period_start")
+	@Column(name = "exh_period_start", nullable = false)
 	private LocalDate exhPeriodStart;
-	@Column(name = "exh_period_end")
+	@Column(name = "exh_period_end", nullable = false)
 	private LocalDate exhPeriodEnd;
 	private String painter;
+	@Column(nullable = false)
 	private Integer fee;
 	private String intro;
 	private String url;
@@ -67,17 +69,13 @@ public class ExhEntity {
 			this.exhPeriodStart = exhEntity.getExhPeriodStart();
 		if (exhEntity.getExhPeriodEnd() != null)
 			this.exhPeriodEnd = exhEntity.getExhPeriodEnd();
-		if (exhEntity.getPainter() != null)
-			this.painter = exhEntity.getPainter();
+		this.painter = exhEntity.getPainter();
 		if (exhEntity.getFee() != null)
 			this.fee = exhEntity.getFee();
-		if (exhEntity.getIntro() != null)
-			this.intro = exhEntity.getIntro();
-		if (exhEntity.getUrl() != null)
-			this.url = exhEntity.getUrl();
+		this.intro = exhEntity.getIntro();
+		this.url = exhEntity.getUrl();
 		if (exhEntity.getPoster() != null)
 			this.poster = exhEntity.getPoster();
-		if (exhEntity.getArt() != null)
-			this.art = exhEntity.getArt();
+		this.art = exhEntity.getArt();
 	}
 }

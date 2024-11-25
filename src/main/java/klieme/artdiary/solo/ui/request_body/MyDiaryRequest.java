@@ -33,4 +33,3 @@ public class MyDiaryRequest {
 	@NotBlank
 	private String saying;
 }
-

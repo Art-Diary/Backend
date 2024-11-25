@@ -9,7 +9,7 @@ import lombok.ToString;
 
 public interface ExhOperationUseCase {
 
-	String createDummy(klieme.artdiary.exhibition.service.ExhOperationUseCase.ExhDummyCreateCommand command);
+	ExhReadUseCase.FindExhResult updateExhDetailInfo(ExhUpdateCommand command);
 
 	/*ExhReadUseCase.FindStoredDateResult addSoloExhCreateDummy(
 		klieme.artdiary.exhibitions.service.ExhOperationUseCase.AddSoloExhDummyCreateCommand command);
@@ -18,7 +18,8 @@ public interface ExhOperationUseCase {
 	@Builder
 	@Getter
 	@ToString
-	class ExhDummyCreateCommand {
+	class ExhUpdateCommand {
+		private final Long exhId;
 		private final String exhName;
 		private final String gallery;
 		private final LocalDate exhPeriodStart;
@@ -28,7 +29,7 @@ public interface ExhOperationUseCase {
 		private final String intro;
 		private final String url;
 		private final String poster;
-
+		private final String art;
 	}
 
 	@EqualsAndHashCode

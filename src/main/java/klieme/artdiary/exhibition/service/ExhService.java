@@ -17,7 +17,6 @@ import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibition.info.StoredListOfDate;
-import klieme.artdiary.exhibition.ui.request_body.SearchContentsRequest;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhEntity;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhId;
 import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
@@ -43,24 +42,6 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		this.favoriteExhRepository = favoriteExhRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
-	}
-
-	@Transactional
-	@Override
-	public String createDummy(ExhOperationUseCase.ExhDummyCreateCommand command) {
-		ExhEntity entity = ExhEntity.builder()
-			.exhName(command.getExhName())
-			.gallery(command.getGallery())
-			.exhPeriodStart(command.getExhPeriodStart())
-			.exhPeriodEnd(command.getExhPeriodEnd())
-			.painter(command.getPainter())
-			.fee(command.getFee())
-			.intro(command.getIntro())
-			.url(command.getUrl())
-			.poster(command.getPoster())
-			.build();
-		exhRepository.save(entity);
-		return "complete";
 	}
 
 	//[here/hw]
@@ -157,8 +138,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	public List<FindDiaryResult> getAllOfExhIdDiaries(Long exhId) {
 
 		List<FindDiaryResult> results = new ArrayList<>();
-		List<Map<String, Object>> diaryList = null;
-		diaryList = diaryRepository.getAllOfDiaries(getUserId(), exhId);
+		List<Map<String, Object>> diaryList = diaryRepository.getAllOfDiaries(getUserId(), exhId);
 
 		for (Map<String, Object> item : diaryList) {
 			DiaryEntity diary = (DiaryEntity)item.get("diaryEntity");
@@ -190,6 +170,29 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		}
 
 		return results;
+	}
+
+	@Transactional
+	@Override
+	public FindExhResult updateExhDetailInfo(ExhUpdateCommand command) {
+		ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		ExhEntity updatedExh = ExhEntity.builder()
+			.exhName(command.getExhName())
+			.gallery(command.getGallery())
+			.exhPeriodStart(command.getExhPeriodStart())
+			.exhPeriodEnd(command.getExhPeriodEnd())
+			.painter(command.getPainter())
+			.fee(command.getFee())
+			.intro(command.getIntro())
+			.url(command.getUrl())
+			.poster(command.getPoster())
+			.art(command.getArt())
+			.build();
+
+		exhEntity.updateExhEntity(updatedExh);
+		exhRepository.save(exhEntity);
+		return FindExhResult.findByExh(exhEntity, null);
 	}
 
 	private Long getUserId() {
