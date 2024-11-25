@@ -3,6 +3,7 @@ package klieme.artdiary.exhibition.ui.request_body;
 import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,8 +39,7 @@ public class ExhRequest {
 
 	private String url;
 
-	@NotBlank
-	private String poster;
+	private MultipartFile poster;
 
 	private String art;
 }

@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
+import klieme.artdiary.common.image.ImageType;
+import klieme.artdiary.common.image.S3ImageTransfer;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibition.info.StoredListOfDate;
@@ -34,14 +36,16 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	private final FavoriteExhRepository favoriteExhRepository;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
+	private final S3ImageTransfer s3ImageTransfer;
 
 	@Autowired
 	public ExhService(ExhRepository exhRepository, FavoriteExhRepository favoriteExhRepository,
-		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository) {
+		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository, S3ImageTransfer s3ImageTransfer) {
 		this.exhRepository = exhRepository;
 		this.favoriteExhRepository = favoriteExhRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
+		this.s3ImageTransfer = s3ImageTransfer;
 	}
 
 	//[here/hw]
@@ -177,6 +181,16 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	public FindExhResult updateExhDetailInfo(ExhUpdateCommand command) {
 		ExhEntity exhEntity = exhRepository.findByExhId(command.getExhId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		String uploadImageUrl = null;
+
+		if (command.getPoster() != null) {
+			uploadImageUrl = s3ImageTransfer.uploadImageToStorage(
+				S3ImageTransfer.UploadQuery.builder()
+					.type(ImageType.REG_EXH)
+					.image(command.getPoster())
+					.exhId(command.getExhId())
+					.build());
+		}
 		ExhEntity updatedExh = ExhEntity.builder()
 			.exhName(command.getExhName())
 			.gallery(command.getGallery())
@@ -186,7 +200,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			.fee(command.getFee())
 			.intro(command.getIntro())
 			.url(command.getUrl())
-			.poster(command.getPoster())
+			.poster(uploadImageUrl)
 			.art(command.getArt())
 			.build();
 
