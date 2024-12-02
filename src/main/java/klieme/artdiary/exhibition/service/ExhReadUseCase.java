@@ -56,11 +56,16 @@ public interface ExhReadUseCase {
 	@Builder
 	class FindStoredDateResult {
 		private final Long exhId;
+		private final Long gatherId; // 개인일 경우엔 null
+		private final String gatherName; // 개인일 경우엔 null
 		private final List<StoredListOfDate> dates;
 
-		public static FindStoredDateResult findByStoredDate(Long exhId, List<StoredListOfDate> dates) {
+		public static FindStoredDateResult findByStoredDate(Long exhId, GatheringEntity gathering,
+			List<StoredListOfDate> dates) {
 			return FindStoredDateResult.builder()
 				.exhId(exhId)
+				.gatherId(gathering != null ? gathering.getGatherId() : null)
+				.gatherName(gathering != null ? gathering.getGatherName() : null)
 				.dates(dates)
 				.build();
 		}

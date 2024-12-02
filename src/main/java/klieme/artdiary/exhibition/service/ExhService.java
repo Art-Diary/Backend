@@ -23,6 +23,7 @@ import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhEntity;
 import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhId;
 import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
+import klieme.artdiary.gathering.data_access.repository.GatheringRepository;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.record_data_access.repository.DiaryRepository;
@@ -36,15 +37,18 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	private final FavoriteExhRepository favoriteExhRepository;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
+	private final GatheringRepository gatheringRepository;
 	private final S3ImageTransfer s3ImageTransfer;
 
 	@Autowired
 	public ExhService(ExhRepository exhRepository, FavoriteExhRepository favoriteExhRepository,
-		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository, S3ImageTransfer s3ImageTransfer) {
+		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository, GatheringRepository gatheringRepository,
+		S3ImageTransfer s3ImageTransfer) {
 		this.exhRepository = exhRepository;
 		this.favoriteExhRepository = favoriteExhRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
+		this.gatheringRepository = gatheringRepository;
 		this.s3ImageTransfer = s3ImageTransfer;
 	}
 
@@ -57,6 +61,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 		Long userId = getUserId();
 		List<StoredListOfDate> dateList = new ArrayList<>();
 		List<ExhVisitEntity> entities;
+		GatheringEntity gathering = null;
 
 		// 전시회 아이디 검증
 		exhRepository.findByExhId(query.getExhId()).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
@@ -68,6 +73,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 
 		} else {
 			//그룹에서 다녀온 전시회
+			gathering = gatheringRepository.findByGatherId(query.getGatherId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 			entities = exhVisitRepository.getGroupVisitedDateListOfExh(userId,
 				query.getGatherId(),
 				query.getExhId());
@@ -82,7 +89,7 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 				.build());
 
 		}
-		return FindStoredDateResult.findByStoredDate(query.getExhId(), dateList);
+		return FindStoredDateResult.findByStoredDate(query.getExhId(), gathering, dateList);
 
 	}
 
