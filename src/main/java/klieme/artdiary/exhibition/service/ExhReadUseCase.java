@@ -132,33 +132,13 @@ public interface ExhReadUseCase {
 		private final String initDate;
 		private final String writeDate;
 		private final String saying;
-		private final Long userId;
-		private final String nickname; // 작성자
-		private final String gatherName; //일단 개인일정인 경우 null로, findSoloDiary에서 없음.
+		private final Long userId; // 작성자. 탈퇴한 경우면 null
+		private final String nickname; // 작성자. 탈퇴한 경우면 null
+		private final String gatherName; // 개인 일정인 경우 null
 		private final String visitDate;
 		private final String exhName;
 
-		public static FindDiaryResult findStoredSoloDiary(DiaryEntity diary, ExhVisitEntity exhVisit, UserEntity user,
-			ExhEntity exh) {
-			return FindDiaryResult.builder()
-				.diaryId(diary.getDiaryId())
-				.exhVisitId(diary.getExhVisitId())
-				.title(diary.getTitle())
-				.rate(diary.getRate())
-				.diaryPrivate(diary.getDiaryPrivate())
-				.contents(diary.getContents())
-				.thumbnail(diary.getThumbnail())
-				.initDate(changeDateFormat(LocalDate.from(diary.getInitDate())))
-				.writeDate(changeDateFormat(diary.getWriteDate()))
-				.saying(diary.getSaying())
-				.userId(user.getUserId())
-				.nickname(user.getNickname())
-				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
-				.exhName(exh.getExhName())
-				.build();
-		}
-
-		public static FindDiaryResult findStoredGroupDiary(DiaryEntity diary, ExhVisitEntity exhVisit, UserEntity user,
+		public static FindDiaryResult findStoredDiary(DiaryEntity diary, ExhVisitEntity exhVisit, UserEntity user,
 			ExhEntity exh, GatheringEntity gather) {
 			return FindDiaryResult.builder()
 				.diaryId(diary.getDiaryId())
@@ -171,30 +151,12 @@ public interface ExhReadUseCase {
 				.initDate(changeDateFormat(LocalDate.from(diary.getInitDate())))
 				.writeDate(changeDateFormat(diary.getWriteDate()))
 				.saying(diary.getSaying())
-				.userId(user.getUserId())
-				.nickname(user.getNickname())
+				.userId(user != null ? user.getUserId() : null)
+				.nickname(user != null ? user.getNickname() : null)
 				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.exhName(exh.getExhName())
-				.gatherName(gather.getGatherName())
+				.gatherName(gather != null ? gather.getGatherName() : null)
 				.build();
 		}
-
-		public static FindDiaryResult findStoredAnonymousDiary(DiaryEntity diary, ExhVisitEntity exhVisit,
-			ExhEntity exh) {
-			return FindDiaryResult.builder()
-				.diaryId(diary.getDiaryId())
-				.exhVisitId(diary.getExhVisitId())
-				.title(diary.getTitle())
-				.rate(diary.getRate())
-				.diaryPrivate(diary.getDiaryPrivate())
-				.contents(diary.getContents())
-				.thumbnail(diary.getThumbnail())
-				.writeDate(changeDateFormat(diary.getWriteDate()))
-				.saying(diary.getSaying())
-				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
-				.exhName(exh.getExhName())
-				.build();
-		}
-
 	}
 }

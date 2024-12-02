@@ -158,28 +158,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			UserEntity user = (UserEntity)item.get("userEntity");
 			ExhEntity exh = (ExhEntity)item.get("exhEntity");
 
-			if (gathering == null) {//개인이 다녀온 기록: groupId==null인 경우
-
-				if (user == null) {// 유저가 탈퇴하여 userId가 null인 경우 고려
-					results.add(FindDiaryResult.findStoredAnonymousDiary(diary, exhVisit,
-						exh));
-				} else {
-					results.add(FindDiaryResult.findStoredSoloDiary(diary, exhVisit, user,
-						exh));
-				}
-			} else {//그룹에서 다녀온 기록: userId==null인 경우
-
-				if (user == null) {// 유저가 탈퇴하여 userId가 null인 경우 고려
-					results.add(FindDiaryResult.findStoredAnonymousDiary(diary, exhVisit,
-						exh));
-				} else {
-					results.add(FindDiaryResult.findStoredGroupDiary(diary, exhVisit, user,
-						exh, gathering));
-				}
-			}
-
+			results.add(FindDiaryResult.findStoredDiary(diary, exhVisit, user, exh, gathering));
 		}
-
 		return results;
 	}
 
