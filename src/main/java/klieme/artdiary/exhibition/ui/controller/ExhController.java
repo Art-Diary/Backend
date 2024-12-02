@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,26 +41,6 @@ public class ExhController {
 	public ExhController(ExhOperationUseCase exhOperationUseCase, ExhReadUseCase exhReadUseCase) {
 		this.exhOperationUseCase = exhOperationUseCase;
 		this.exhReadUseCase = exhReadUseCase;
-	}
-
-	@PostMapping("")
-	public void createDummyDate(@Valid @RequestBody ExhRequest exhRequest) {
-
-		log.info("[새로운 전시회 저장]");
-
-		var command = ExhOperationUseCase.ExhDummyCreateCommand.builder()
-			.exhName(exhRequest.getExhName())
-			.gallery(exhRequest.getGallery())
-			.exhPeriodStart(exhRequest.getExhPeriodStart())
-			.exhPeriodEnd(exhRequest.getExhPeriodEnd())
-			.painter(exhRequest.getPainter())
-			.fee(exhRequest.getFee())
-			.intro(exhRequest.getIntro())
-			.url(exhRequest.getUrl())
-			.poster(exhRequest.getPoster())
-			.build();
-
-		System.out.println(exhOperationUseCase.createDummy(command));
 	}
 
 	/*
@@ -203,4 +183,28 @@ public class ExhController {
 		return ResponseEntity.ok(result);
 	}
 
+	@PatchMapping("/{exhId}")
+	public ResponseEntity<ExhView> updateExhDetailInfo(@PathVariable(name = "exhId") Long exhId,
+		@Valid @ModelAttribute ExhRequest exhRequest) {
+		log.info("[전시회 상세 정보 업데이트]");
+
+		// request body 데이터 받아오기
+		var command = ExhOperationUseCase.ExhUpdateCommand.builder()
+			.exhId(exhId)
+			.exhName(exhRequest.getExhName())
+			.gallery(exhRequest.getGallery())
+			.exhPeriodStart(exhRequest.getExhPeriodStart())
+			.exhPeriodEnd(exhRequest.getExhPeriodEnd())
+			.painter(exhRequest.getPainter())
+			.fee(exhRequest.getFee())
+			.intro(exhRequest.getIntro())
+			.url(exhRequest.getUrl())
+			.poster(exhRequest.getPoster())
+			.art(exhRequest.getArt())
+			.build();
+		// 비즈니스 로직 호출
+		ExhReadUseCase.FindExhResult result = exhOperationUseCase.updateExhDetailInfo(command);
+
+		return ResponseEntity.ok(ExhView.builder().result(result).build());
+	}
 }

@@ -26,7 +26,6 @@ import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.solo.service.MyDiaryOperationUseCase;
 import klieme.artdiary.solo.service.MyDiaryReadUseCase;
 import klieme.artdiary.solo.ui.request_body.MyDiaryRequest;
-import klieme.artdiary.solo.ui.request_body.MyDiaryUpdateRequest;
 import klieme.artdiary.solo.ui.view.MyDiaryView;
 import lombok.extern.slf4j.Slf4j;
 
@@ -136,7 +135,7 @@ public class MyDiaryController {
 	public ResponseEntity<List<MyDiaryView>> updateMyDiary(
 		@PathVariable(name = "exhId") Long exhId,
 		@PathVariable(name = "diaryId") Long diaryId,
-		@Valid @ModelAttribute MyDiaryUpdateRequest request
+		@Valid @ModelAttribute MyDiaryRequest request
 	) {
 		log.info("[기록 수정]");
 		// request body 데이터 받아오기

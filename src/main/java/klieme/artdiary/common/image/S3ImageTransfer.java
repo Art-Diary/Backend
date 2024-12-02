@@ -39,6 +39,8 @@ public class S3ImageTransfer {
 		private final Long diaryId;
 		// for reg exh
 		private final Long regExhId;
+		// for exh
+		private final Long exhId;
 		// for update image
 		private final String prevImagePath;
 	}
@@ -61,8 +63,10 @@ public class S3ImageTransfer {
 			fileName = "profile/" + getUserId() + "_";
 		} else if (query.getType() == ImageType.THUMBNAIL) {
 			fileName = "thumbnail/" + query.getDiaryId() + "_";
-		} else {
+		} else if (query.getType() == ImageType.REG_EXH) {
 			fileName = "reg_exh/" + query.getRegExhId() + "_";
+		} else {
+			fileName = "exh/" + query.getExhId() + "_";
 		}
 		// 업데이트 할 때 이전 사진 삭제
 		if (query.getPrevImagePath() != null) {
