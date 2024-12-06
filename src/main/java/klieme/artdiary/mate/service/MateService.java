@@ -4,6 +4,7 @@ import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,25 +42,23 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 	}
 
 	@Override
-	public List<MateReadUseCase.FindMateResult> searchNewMate(String nickname) {
+	public FindIsMateResult searchNewMate(String nickname) {
 		// 가져오기& 이미 내 전시메이트인 경우 보여주지 않기
-		List<MateReadUseCase.FindMateResult> results = new ArrayList<>();
-		List<MateEntity> mates = mateRepository.findByFromUserId(getUserId()); //나의 전시메이트 목록
-		List<UserEntity> users = userRepository.findByNicknameContainingIgnoreCase(nickname);
+		List<Map<String, Object>> mateQuery = mateRepository.getMateListForSearch(getUserId(), nickname);
+		List<FindMateResult> alreadyMate = new ArrayList<>();
+		List<FindMateResult> notMate = new ArrayList<>();
 
-		for (UserEntity user : users) {
+		for (Map<String, Object> query : mateQuery) {
+			UserEntity userEntity = (UserEntity)query.get("userEntity");
+			Boolean isMate = (Boolean)query.get("isMate");
 
-			Optional<MateEntity> filterUser = mates.stream()
-				.filter(m -> m.getToUserId().equals(user.getUserId()))
-				.findAny();
-
-			if (filterUser.isEmpty() && !user.getUserId().equals(getUserId())) {
-				results.add(MateReadUseCase.FindMateResult.findByGatheringExhs(user));
+			if (isMate) {
+				alreadyMate.add(FindMateResult.findByGatheringExhs(userEntity));
+			} else {
+				notMate.add(FindMateResult.findByGatheringExhs(userEntity));
 			}
-
 		}
-
-		return results;
+		return FindIsMateResult.findByGatheringMate(alreadyMate, notMate);
 	}
 
 	@Override

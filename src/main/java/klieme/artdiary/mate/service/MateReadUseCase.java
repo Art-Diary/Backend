@@ -10,7 +10,23 @@ import lombok.ToString;
 public interface MateReadUseCase {
 	List<FindMateResult> getMateList();
 
-	List<FindMateResult> searchNewMate(String nickname);
+	FindIsMateResult searchNewMate(String nickname);
+
+	@Getter
+	@ToString
+	@Builder
+	class FindIsMateResult {
+		private final List<FindMateResult> alreadyMate;
+		private final List<FindMateResult> notMate;
+
+		public static FindIsMateResult findByGatheringMate(List<FindMateResult> alreadyMate,
+			List<FindMateResult> notMate) {
+			return FindIsMateResult.builder()
+				.alreadyMate(alreadyMate)
+				.notMate(notMate)
+				.build();
+		}
+	}
 
 	@Getter
 	@ToString
