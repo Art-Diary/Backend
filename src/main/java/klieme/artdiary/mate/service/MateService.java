@@ -31,13 +31,11 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 	@Override
 	public List<MateReadUseCase.FindMateResult> getMateList() {
 		// exh_mate 테이블에서 내 전시 메이트 리스트 조회
-		List<MateEntity> mateEntities = mateRepository.findByFromUserId(getUserId());
+		List<UserEntity> mateInfoList = mateRepository.getMyMateListByFromUserId(getUserId());
 		List<MateReadUseCase.FindMateResult> results = new ArrayList<>();
 		// 각 toUserId로 회원 정보 조회
-		for (MateEntity mate : mateEntities) {
-			Optional<UserEntity> userEntity = userRepository.findByUserId(mate.getToUserId());
-
-			userEntity.ifPresent(entity -> results.add(FindMateResult.findByGatheringExhs(entity)));
+		for (UserEntity user : mateInfoList) {
+			results.add(FindMateResult.findByGatheringExhs(user));
 		}
 		return results;
 	}
@@ -90,22 +88,12 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 
 		mateRepository.save(newMate);
 
-		List<MateEntity> allMateEntities = mateRepository.findByFromUserId(getUserId());
+		List<UserEntity> allMateEntities = mateRepository.getMyMateListByFromUserId(getUserId());
 		List<MateReadUseCase.FindMateResult> results = new ArrayList<>();
-		for (MateEntity allMateEntity : allMateEntities) {
-			UserEntity tmp = userRepository.findByUserId(allMateEntity.getToUserId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-			MateReadUseCase.FindMateResult result = MateReadUseCase.FindMateResult.builder()
-				.userId(tmp.getUserId())
-				.nickname(tmp.getNickname())
-				.profile(tmp.getProfile())
-				.favoriteArt(tmp.getFavoriteArt())
-				.build();
-			results.add(result);
+		for (UserEntity allMateEntity : allMateEntities) {
+			results.add(FindMateResult.findByGatheringExhs(allMateEntity));
 		}
-
 		return results;
-
 	}
 
 	private Long getUserId() {
