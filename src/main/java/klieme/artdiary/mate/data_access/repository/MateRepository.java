@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import klieme.artdiary.mate.data_access.entity.MateEntity;
 
 @Repository
-public interface MateRepository extends JpaRepository<MateEntity, Long> {
+public interface MateRepository extends JpaRepository<MateEntity, Long>, MateRepoCustom {
 	Optional<MateEntity> findByFromUserIdAndToUserId(Long fromUserId, Long toUserId);
 
 	List<MateEntity> findByFromUserId(Long fromUserId);
