@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import klieme.artdiary.mate.service.MateOperationUseCase;
 import klieme.artdiary.mate.service.MateReadUseCase;
 import klieme.artdiary.mate.ui.request_body.MateRequest;
+import klieme.artdiary.mate.ui.view.MateSearchView;
 import klieme.artdiary.mate.ui.view.MateView;
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,17 +78,14 @@ public class MateController {
 	 * "/mates/search?nickname=[]"
 	 */
 	@GetMapping("/search")
-	public ResponseEntity<List<MateView>> searchNewMate(
+	public ResponseEntity<MateSearchView> searchNewMate(
 		@RequestParam(name = "nickname", required = false) String nickname) {
 		log.info("[전시 메이트 추가할 때 닉네임 검색]");
 
 		List<MateView> results = new ArrayList<>();
 
-		List<MateReadUseCase.FindMateResult> mateList = mateReadUseCase.searchNewMate(nickname);
-		for (MateReadUseCase.FindMateResult mate : mateList) {
-			results.add(MateView.builder().result(mate).build());
-		}
-		return ResponseEntity.ok(results);
-	}
+		MateReadUseCase.FindIsMateResult result = mateReadUseCase.searchNewMate(nickname);
 
+		return ResponseEntity.ok(MateSearchView.builder().result(result).build());
+	}
 }
