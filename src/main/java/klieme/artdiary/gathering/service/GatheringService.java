@@ -83,20 +83,12 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		Long userId = getUserId();
 		List<GatheringReadUseCase.FindGatheringResult> gatherings = new ArrayList<>();
 
-		// 모임 있는지 확인
-		List<GatheringMateEntity> GEntities = gatheringMateRepository.findByGatheringMateIdUserId(userId);
+		// 사용자가 모임에서 최근에 전시회를 방문한 날짜 순으로 정렬됨.
+		List<GatheringEntity> gatheringEntityList = gatheringMateRepository.getGatheringListByRecentVisitDate(userId);
 
-		//if (query.getGatherId() == null) {
-		// (목적) 한 전시회에 대한 캘린더에 저장된 개인의 일정 날짜 조회 로직 구현
-		//List<GatheringEntity> entities = GatheringMateRepository.findByUserIdAndGatherId(userId, query.getGatherId());
-		for (GatheringMateEntity GEntity : GEntities) {
-			GatheringEntity gatheringEntity = gatheringRepository.findByGatherId(
-				GEntity.getGatheringMateId().getGatherId()).orElseThrow(() -> new ArtDiaryException(
-				MessageType.NOT_FOUND));
-			gatherings.add(GatheringReadUseCase.FindGatheringResult.findByGathering(gatheringEntity));
+		for (GatheringEntity gathering : gatheringEntityList) {
+			gatherings.add(GatheringReadUseCase.FindGatheringResult.findByGathering(gathering));
 		}
-		//}
-
 		return gatherings;
 	}
 

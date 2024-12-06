@@ -10,10 +10,8 @@ import klieme.artdiary.gathering.data_access.entity.GatheringMateEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringMateId;
 
 @Repository
-public interface GatheringMateRepository extends JpaRepository<GatheringMateEntity, GatheringMateId> {
-
-	List<GatheringMateEntity> findByGatheringMateIdUserId(Long userId);
-
+public interface GatheringMateRepository
+	extends JpaRepository<GatheringMateEntity, GatheringMateId>, GatheringMateRepoCustom {
 	Optional<GatheringMateEntity> findByGatheringMateId(GatheringMateId gatheringMateId);
 
 	List<GatheringMateEntity> findByGatheringMateIdGatherId(Long gatherId);
