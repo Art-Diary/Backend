@@ -38,3 +38,5 @@ out/
 
 **/resources/firebase/
 **/resources/application.properties
+**/src/main/**/TODO
+
