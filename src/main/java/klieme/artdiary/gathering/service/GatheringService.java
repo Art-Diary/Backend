@@ -189,10 +189,6 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 				if (!(diary.getDiaryPrivate() || Objects.equals(diary.getWriterId(), getUserId()))) {
 					continue;
 				}
-
-				if (user == null) {
-					user = UserEntity.builder().nickname("전시 메이트").build();
-				}
 				results.add(
 					FindGatheringDiaryResult.findByGatheringDiary(diary, exhVisit, gathering, user, exh));
 			}
