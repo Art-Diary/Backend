@@ -3,6 +3,7 @@ package klieme.artdiary.exhibition.service;
 import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +41,19 @@ public class SearchService implements SearchOperationUseCase, SearchReadUseCase 
 			newSearchContent = savedSearchContent.get();
 			newSearchContent.updateSearchEntity(command.getSearchTime());
 		} else {
-			// 없으면 저장
+			// 해당 유저의 검색 기록 수가 10개 이상인지 확인
+			List<SearchEntity> sEntities = searchRepository.findByUserId(getUserId());
+
+			// 10개 이상이면 검색시간 (searchTime)이 가장 오랜된 기록 삭제
+			if (sEntities.size() >= 10) {
+				//가장 오래된 순으로 정렬
+				sEntities.sort(Comparator.comparing(SearchEntity::getSearchTime));
+				//가장 오래된 기록 삭제
+				SearchEntity deleteEntity = sEntities.getFirst();
+				searchRepository.delete(deleteEntity);
+			}
+
+			// 새 검색단어 저장
 			newSearchContent = SearchEntity.builder()
 				.searchName(command.getSearchContent())
 				.userId(userId)
