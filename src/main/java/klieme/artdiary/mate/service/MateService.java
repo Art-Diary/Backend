@@ -5,6 +5,7 @@ import static klieme.artdiary.common.SecurityUtil.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +48,15 @@ public class MateService implements MateReadUseCase, MateOperationUseCase {
 		List<Map<String, Object>> mateQuery = mateRepository.getMateListForSearch(getUserId(), nickname);
 		List<FindMateResult> alreadyMate = new ArrayList<>();
 		List<FindMateResult> notMate = new ArrayList<>();
+		Long myUserId = getUserId();
 
 		for (Map<String, Object> query : mateQuery) {
 			UserEntity userEntity = (UserEntity)query.get("userEntity");
 			Boolean isMate = (Boolean)query.get("isMate");
 
+			if (Objects.equals(myUserId, userEntity.getUserId())) {
+				continue;
+			}
 			if (isMate) {
 				alreadyMate.add(FindMateResult.findByGatheringExhs(userEntity));
 			} else {

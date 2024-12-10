@@ -1,13 +1,21 @@
 package klieme.artdiary.gathering.data_access.repository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
 import klieme.artdiary.gathering.data_access.entity.QGatheringEntity;
 import klieme.artdiary.gathering.data_access.entity.QGatheringMateEntity;
+import klieme.artdiary.mate.data_access.entity.QMateEntity;
 import klieme.artdiary.record_data_access.entity.QExhVisitEntity;
+import klieme.artdiary.user.data_access.entity.QUserEntity;
+import klieme.artdiary.user.data_access.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -31,5 +39,41 @@ public class GatheringMateRepoCustomImpl implements GatheringMateRepoCustom {
 			.groupBy(exhVisit.gatherId)
 			.orderBy(exhVisit.visitDate.max().desc())
 			.fetch();
+	}
+
+	@Override
+	public List<Map<String, Object>> getGatheringMateListForSearch(Long gatherId, Long userId, String nickname) {
+		QMateEntity mate = QMateEntity.mateEntity;
+		QUserEntity user = QUserEntity.userEntity;
+		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
+
+		List<Tuple> tuples = query
+			.select(user, new CaseBuilder()
+				.when(gatheringMate.gatheringMateId.gatherId.isNull()).then(false)
+				.otherwise(true))
+			.from(mate)
+			.leftJoin(gatheringMate)
+			.on(mate.toUserId.eq(gatheringMate.gatheringMateId.userId),
+				gatheringMate.gatheringMateId.gatherId.eq(gatherId))
+			.leftJoin(user)
+			.on(mate.toUserId.eq(user.userId))
+			.fetchJoin()
+			.where(mate.fromUserId.eq(userId)
+				, user.nickname.toLowerCase().notLike("%kakao_%")
+				, user.nickname.toLowerCase().notLike("%google_%")
+				, user.nickname.toLowerCase().notLike("%naver_%")
+				, user.nickname.contains(nickname))
+			.orderBy(user.nickname.asc())
+			.fetch();
+
+		List<Map<String, Object>> results = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("userEntity", tuple.get(0, UserEntity.class));
+			row.put("isGatheringMate", tuple.get(1, Boolean.class));
+			results.add(row);
+		}
+		return results;
 	}
 }

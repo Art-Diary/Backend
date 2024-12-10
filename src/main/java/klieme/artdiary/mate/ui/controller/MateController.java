@@ -82,8 +82,6 @@ public class MateController {
 		@RequestParam(name = "nickname", required = false) String nickname) {
 		log.info("[전시 메이트 추가할 때 닉네임 검색]");
 
-		List<MateView> results = new ArrayList<>();
-
 		MateReadUseCase.FindIsMateResult result = mateReadUseCase.searchNewMate(nickname);
 
 		return ResponseEntity.ok(MateSearchView.builder().result(result).build());
