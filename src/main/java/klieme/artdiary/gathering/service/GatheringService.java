@@ -25,8 +25,6 @@ import klieme.artdiary.gathering.data_access.repository.GatheringMateRepository;
 import klieme.artdiary.gathering.data_access.repository.GatheringRepository;
 import klieme.artdiary.gathering.info.ExhibitionInfo;
 import klieme.artdiary.gathering.info.MateInfo;
-import klieme.artdiary.mate.data_access.entity.MateEntity;
-import klieme.artdiary.mate.data_access.repository.MateRepository;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
 import klieme.artdiary.record_data_access.entity.ExhVisitEntity;
 import klieme.artdiary.record_data_access.repository.DiaryRepository;
@@ -40,19 +38,17 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	private final GatheringMateRepository gatheringMateRepository;
 	private final ExhRepository exhRepository;
 	private final UserRepository userRepository;
-	private final MateRepository mateRepository;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
 
 	@Autowired
 	public GatheringService(GatheringRepository gatheringRepository, GatheringMateRepository gatheringMateRepository,
-		ExhRepository exhRepository, UserRepository userRepository, MateRepository mateRepository,
-		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository) {
+		ExhRepository exhRepository, UserRepository userRepository, ExhVisitRepository exhVisitRepository,
+		DiaryRepository diaryRepository) {
 		this.gatheringRepository = gatheringRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.exhRepository = exhRepository;
 		this.userRepository = userRepository;
-		this.mateRepository = mateRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
 	}
@@ -293,40 +289,38 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	}
 
 	@Override
-	public List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query) {
-		// 모임 멤버 리스트 조회
-		List<GatheringMateEntity> gatheringMateEntities = gatheringMateRepository.findByGatheringMateIdGatherId(
-			query.getGatherId());
+	public FindIsGatheringMateResult searchNicknameNotInGathering(GatheringNicknameFindQuery query) {
+		Long myUserId = getUserId();
+
 		// 모임에 속해 있는지 확인
-		Optional<GatheringMateEntity> isMember = gatheringMateEntities.stream()
-			.filter(gm -> gm.getGatheringMateId().getUserId().equals(getUserId()))
-			.findAny();
+		Optional<GatheringMateEntity> isMember = gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
+			.gatherId(query.getGatherId())
+			.userId(myUserId)
+			.build());
 
 		if (isMember.isEmpty()) {
 			throw new ArtDiaryException(MessageType.NOT_FOUND);
 		}
-		// 요청 nickname에 해당하면서 모임에 속해 있지 않은 유저 필터링
-		// 내 전시 메이트 중에서 확인
-		List<MateEntity> mateEntities = mateRepository.findByFromUserId(getUserId());
-		List<FindGatheringMatesResult> results = new ArrayList<>();
+		// 내 전시 리스트 중, 이미 모임에 포함된 경우와 아닌 경우로 나눠서 반환하기
+		List<Map<String, Object>> gatheringMateQuery = gatheringMateRepository.getGatheringMateListForSearch(
+			query.getGatherId(), myUserId, query.getNickname());
+		List<FindGatheringMatesResult> alreadyMate = new ArrayList<>();
+		List<FindGatheringMatesResult> notMate = new ArrayList<>();
 
-		for (MateEntity mate : mateEntities) {
-			Optional<UserEntity> user = userRepository.findByUserIdAndNicknameContainingIgnoreCase(mate.getToUserId(),
-				query.getNickname());
+		for (Map<String, Object> gatheringMate : gatheringMateQuery) {
+			UserEntity userEntity = (UserEntity)gatheringMate.get("userEntity");
+			Boolean isMate = (Boolean)gatheringMate.get("isGatheringMate");
 
-			if (user.isPresent()) {
-				Optional<GatheringMateEntity> filterUser = gatheringMateEntities.stream()
-					.filter(gm -> gm.getGatheringMateId().getUserId().equals(user.get().getUserId()))
-					.findAny();
-
-				if (filterUser.isEmpty()) {
-					results.add(FindGatheringMatesResult.findByGatheringMates(user.get()));
-				}
+			if (Objects.equals(myUserId, userEntity.getUserId())) {
+				continue;
+			}
+			if (isMate) {
+				alreadyMate.add(FindGatheringMatesResult.findByGatheringMates(userEntity));
+			} else {
+				notMate.add(FindGatheringMatesResult.findByGatheringMates(userEntity));
 			}
 		}
-		// 이름 순으로 정렬
-		results.sort(Comparator.comparing(FindGatheringMatesResult::getNickname));
-		return results;
+		return FindIsGatheringMateResult.findByGatheringMate(alreadyMate, notMate);
 	}
 
 	@Override

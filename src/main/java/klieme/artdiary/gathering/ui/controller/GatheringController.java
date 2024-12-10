@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import klieme.artdiary.gathering.service.GatheringOperationUseCase;
 import klieme.artdiary.gathering.service.GatheringReadUseCase;
 import klieme.artdiary.gathering.ui.request_body.AddExhDateRequest;
@@ -26,6 +25,7 @@ import klieme.artdiary.gathering.ui.request_body.AddGatheringRequest;
 import klieme.artdiary.gathering.ui.view.GatheringDetailInfoView;
 import klieme.artdiary.gathering.ui.view.GatheringDiaryView;
 import klieme.artdiary.gathering.ui.view.GatheringExhView;
+import klieme.artdiary.gathering.ui.view.GatheringMateSearchView;
 import klieme.artdiary.gathering.ui.view.GatheringMateView;
 import klieme.artdiary.gathering.ui.view.GatheringView;
 import lombok.extern.slf4j.Slf4j;
@@ -174,9 +174,9 @@ public class GatheringController {
 	 * /gatherings/:gatherId/search?nickname=[]
 	 */
 	@GetMapping("/{gatherId}/search")
-	public ResponseEntity<List<GatheringMateView>> searchUserForGathering(
+	public ResponseEntity<GatheringMateSearchView> searchUserForGathering(
 		@PathVariable(name = "gatherId") Long gatherId,
-		@NotBlank @RequestParam(name = "nickname") String nickname
+		@RequestParam(name = "nickname", required = false) String nickname
 	) {
 		log.info("[모임 메이트 추가할 때 닉네임 검색]");
 		var query = GatheringReadUseCase.GatheringNicknameFindQuery.builder()
@@ -184,14 +184,9 @@ public class GatheringController {
 			.nickname(nickname)
 			.build();
 		// 비즈니스 로직 호출
-		List<GatheringReadUseCase.FindGatheringMatesResult> results = gatheringReadUseCase.searchNicknameNotInGathering(
+		GatheringReadUseCase.FindIsGatheringMateResult result = gatheringReadUseCase.searchNicknameNotInGathering(
 			query);
-		// 비즈니스 로직 결과값을 view 형식에 맞춰 list로 반환
-		List<GatheringMateView> viewList = new ArrayList<>();
 
-		for (GatheringReadUseCase.FindGatheringMatesResult result : results) {
-			viewList.add(GatheringMateView.builder().result(result).build());
-		}
-		return ResponseEntity.ok(viewList);
+		return ResponseEntity.ok(GatheringMateSearchView.builder().result(result).build());
 	}
 }

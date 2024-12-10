@@ -25,7 +25,7 @@ public interface GatheringReadUseCase {
 
 	FindGatheringDetailInfoResult getGatheringDetailInfo(GatheringDetailInfoFindQuery query);
 
-	List<FindGatheringMatesResult> searchNicknameNotInGathering(GatheringNicknameFindQuery query);
+	FindIsGatheringMateResult searchNicknameNotInGathering(GatheringNicknameFindQuery query);
 
 	@EqualsAndHashCode
 	@Getter
@@ -125,6 +125,22 @@ public interface GatheringReadUseCase {
 				.visitDate(changeDateFormat(exhVisit.getVisitDate()))
 				.exhName(exh.getExhName())
 				.exhVisitId(diary.getExhVisitId())
+				.build();
+		}
+	}
+
+	@Getter
+	@ToString
+	@Builder
+	class FindIsGatheringMateResult {
+		private final List<FindGatheringMatesResult> alreadyMate;
+		private final List<FindGatheringMatesResult> notMate;
+
+		public static FindIsGatheringMateResult findByGatheringMate(List<FindGatheringMatesResult> alreadyMate,
+			List<FindGatheringMatesResult> notMate) {
+			return FindIsGatheringMateResult.builder()
+				.alreadyMate(alreadyMate)
+				.notMate(notMate)
 				.build();
 		}
 	}
