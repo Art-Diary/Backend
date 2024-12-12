@@ -5,6 +5,7 @@ import java.util.List;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.entity.QExhEntity;
 import klieme.artdiary.favoriteexh.data_access.entity.QFavoriteExhEntity;
 import klieme.artdiary.user.data_access.entity.QUserEntity;
@@ -26,6 +27,21 @@ public class FavoriteExhRepoCustomImpl implements FavoriteExhRepoCustom {
 			.leftJoin(user).on(favoriteExh.favoriteExhId.userId.eq(user.userId))
 			.leftJoin(exh).on(favoriteExh.favoriteExhId.exhId.eq(exh.exhId))
 			.fetchJoin()
+			.fetch();
+	}
+
+	@Override
+	public List<ExhEntity> getFavoriteExhByUserId(Long userId) {
+		QFavoriteExhEntity favoriteExh = QFavoriteExhEntity.favoriteExhEntity;
+		QExhEntity exh = QExhEntity.exhEntity;
+
+		return query
+			.select(exh)
+			.from(favoriteExh)
+			.leftJoin(exh).on(favoriteExh.favoriteExhId.exhId.eq(exh.exhId))
+			.fetchJoin()
+			.where(favoriteExh.favoriteExhId.userId.eq(userId))
+			.orderBy(favoriteExh.initDate.desc(), exh.exhName.asc())
 			.fetch();
 	}
 }
