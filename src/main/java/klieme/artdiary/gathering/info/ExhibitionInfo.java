@@ -11,4 +11,5 @@ public class ExhibitionInfo {
 	private final String poster;
 	private final Double rate;
 	private final Long exhExhId;
+	private final String visitDate;
 }

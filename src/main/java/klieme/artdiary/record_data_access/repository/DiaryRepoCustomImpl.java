@@ -72,14 +72,14 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 		builder.or(diary.writerId.eq(userId));
 
 		List<Tuple> tuples = query
-			.select(diary.rate.sum(), diary.count(), exh)
+			.select(diary.rate.sum(), diary.count(), exh, exhVisit.visitDate.max())
 			.from(exhVisit)
 			.leftJoin(diary).on(exhVisit.exhVisitId.eq(diary.exhVisitId))
 			.leftJoin(exh).on(exhVisit.exhId.eq(exh.exhId))
 			.fetchJoin()
 			.where(exhVisit.gatherId.eq(gatherId), builder)
 			.groupBy(exhVisit.exhId)
-			.orderBy(exh.exhId.asc())
+			.orderBy(exhVisit.visitDate.max().desc())
 			.fetch();
 
 		List<Map<String, Object>> result = new ArrayList<>();
@@ -89,6 +89,7 @@ public class DiaryRepoCustomImpl implements DiaryRepoCustom {
 			row.put("sumOfRate", tuple.get(0, Long.class));
 			row.put("countOfDiary", tuple.get(1, Long.class));
 			row.put("exhibition", tuple.get(2, ExhEntity.class));
+			row.put("visitDate", tuple.get(3, LocalDate.class));
 			result.add(row);
 		}
 		return result;
