@@ -34,15 +34,15 @@ public class RegExhEntity {
 	private Long exhId;
 	@Column(name = "reg_exh_name", nullable = false)
 	private String regExhName;
-	@Column(name = "reg_gallery")
+	@Column(name = "reg_gallery", nullable = false)
 	private String regGallery;
-	@Column(name = "reg_exh_period_start")
+	@Column(name = "reg_exh_period_start", nullable = false)
 	private LocalDate regExhPeriodStart;
-	@Column(name = "reg_exh_period_end")
+	@Column(name = "reg_exh_period_end", nullable = false)
 	private LocalDate regExhPeriodEnd;
 	@Column(name = "reg_painter")
 	private String regPainter;
-	@Column(name = "reg_fee")
+	@Column(name = "reg_fee", nullable = false)
 	private Integer regFee;
 	@Column(name = "reg_intro")
 	private String regIntro;
@@ -81,51 +81,34 @@ public class RegExhEntity {
 		this.regState = regState;
 	}
 
-	public void updateRegExh(RegExhEntity entity) {
-
+	public void updateRegExhByUser(RegExhEntity entity) {
 		if (entity.getRegExhName() != null) {
 			this.regExhName = entity.getRegExhName();
 		}
-
 		if (entity.getRegGallery() != null) {
 			this.regGallery = entity.getRegGallery();
 		}
-
 		if (entity.getRegExhPeriodStart() != null) {
 			this.regExhPeriodStart = entity.getRegExhPeriodStart();
 		}
 		if (entity.getRegExhPeriodEnd() != null) {
 			this.regExhPeriodEnd = entity.getRegExhPeriodEnd();
 		}
-		if (entity.getRegPainter() != null) {
-			this.regPainter = entity.getRegPainter();
-		}
 		if (entity.getRegFee() != null) {
 			this.regFee = entity.getRegFee();
 		}
-		if (entity.getRegIntro() != null) {
-			this.regIntro = entity.getRegIntro();
-		}
-		if (entity.getRegUrl() != null) {
-			this.regUrl = entity.getRegUrl();
-		}
-		if (entity.getRegPoster() != null) {
-			this.regPoster = entity.getRegPoster();
-		}
-		if (entity.getRegArt() != null) {
-			this.regArt = entity.getRegArt();
-		}
+		this.regUrl = entity.getRegUrl();
+		this.regPoster = entity.getRegPoster();
 		if (entity.getRegDate() != null) {
 			this.regDate = entity.getRegDate();
 		}
-
 	}
 
 	public void updateUserIdNull() {
 		this.userId = null;
 	}
 
-	public void updateByAdmin(RegExhEntity entity) {
+	public void updateRegExhByAdmin(RegExhEntity entity) {
 		if (entity.getExhId() != null) {
 			this.exhId = entity.getExhId();
 		}
@@ -141,29 +124,25 @@ public class RegExhEntity {
 		if (entity.getRegExhPeriodEnd() != null) {
 			this.regExhPeriodEnd = entity.getRegExhPeriodEnd();
 		}
-		if (entity.getRegPainter() != null) {
-			this.regPainter = entity.getRegPainter();
-		}
+		this.regPainter = entity.getRegPainter();
 		if (entity.getRegFee() != null) {
 			this.regFee = entity.getRegFee();
 		}
-		if (entity.getRegIntro() != null) {
-			this.regIntro = entity.getRegIntro();
-		}
-		if (entity.getRegUrl() != null) {
-			this.regUrl = entity.getRegUrl();
-		}
+		this.regIntro = entity.getRegIntro();
+		this.regUrl = entity.getRegUrl();
 		if (entity.getRegPoster() != null) {
 			this.regPoster = entity.getRegPoster();
 		}
 		if (entity.getRegArt() != null) {
 			this.regArt = entity.getRegArt();
 		}
-		if (entity.getRegComment() != null) {
-			this.regComment = entity.getRegComment();
-		}
+		this.regComment = entity.getRegComment();
 		if (entity.getRegState() != null) {
 			this.regState = entity.getRegState();
 		}
+	}
+
+	public void updateRegExhPoster(String poster) {
+		this.regPoster = poster;
 	}
 }

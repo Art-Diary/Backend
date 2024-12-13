@@ -6,6 +6,7 @@ import static klieme.artdiary.common.SecurityUtil.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,7 +171,8 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 		String uploadImageUrl = null;
 
-		if (command.getPoster() != null) {
+		if (command.getPoster() != null && !Objects.equals(command.getPoster().getOriginalFilename(),
+			exhEntity.getPoster())) {
 			uploadImageUrl = s3ImageTransfer.uploadImageToStorage(
 				S3ImageTransfer.UploadQuery.builder()
 					.type(ImageType.REG_EXH)

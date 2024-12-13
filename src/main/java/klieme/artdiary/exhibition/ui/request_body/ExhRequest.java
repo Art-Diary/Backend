@@ -39,7 +39,9 @@ public class ExhRequest {
 
 	private String url;
 
+	@NotNull
 	private MultipartFile poster;
 
+	@NotNull
 	private String art;
 }

@@ -69,10 +69,7 @@ public class UserEntity {
 		if (user.getNickname() != null) {
 			this.nickname = user.getNickname();
 		}
-		if (user.getProfile() != null) {
-			System.out.println(user.getProfile());
-			this.profile = user.getProfile();
-		}
+		this.profile = user.getProfile();
 		if (user.getFavoriteArt() != null) {
 			this.favoriteArt = user.getFavoriteArt();
 		}

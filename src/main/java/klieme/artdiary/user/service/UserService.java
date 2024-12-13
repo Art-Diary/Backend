@@ -163,13 +163,17 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 				throw new ArtDiaryException(MessageType.CONFLICT);
 			}
 		}
-		// 사용자 정보 업데이트
-		String uploadImageUrl = s3ImageTransfer.uploadImageToStorage(
-			S3ImageTransfer.UploadQuery.builder()
-				.type(ImageType.PROFILE)
-				.image(command.getProfile())
-				.prevImagePath(savedEntity.getProfile())
-				.build());
+		// 사용자 사진 업데이트
+		String uploadImageUrl = savedEntity.getProfile();
+		if (command.getProfile() == null || !Objects.equals(command.getProfile().getOriginalFilename(),
+			savedEntity.getProfile())) {
+			uploadImageUrl = s3ImageTransfer.uploadImageToStorage(
+				S3ImageTransfer.UploadQuery.builder()
+					.type(ImageType.PROFILE)
+					.image(command.getProfile())
+					.prevImagePath(savedEntity.getProfile())
+					.build());
+		}
 		// 사용자 정보 업데이트
 		savedEntity.updateUser(UserEntity.builder()
 			.nickname(command.getNickname())
