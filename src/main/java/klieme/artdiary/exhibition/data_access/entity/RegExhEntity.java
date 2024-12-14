@@ -57,12 +57,12 @@ public class RegExhEntity {
 	@Column(name = "reg_comment")
 	private String regComment;
 	@Column(name = "reg_state", nullable = false)
-	private Boolean regState;
+	private String regState;
 
 	@Builder
 	public RegExhEntity(Long regExhId, Long userId, Long exhId, String regExhName, String regGallery,
 		LocalDate regExhPeriodStart, LocalDate regExhPeriodEnd, String regPainter, Integer regFee, String regIntro,
-		String regUrl, String regPoster, String regArt, LocalDateTime regDate, String regComment, Boolean regState) {
+		String regUrl, String regPoster, String regArt, LocalDateTime regDate, String regComment, String regState) {
 		this.regExhId = regExhId;
 		this.userId = userId;
 		this.exhId = exhId;

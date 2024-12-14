@@ -45,4 +45,7 @@ public class RegExhByAdminRequest {
 	String regArt;
 
 	String regComment;
+
+	@NotBlank
+	String regState;
 }

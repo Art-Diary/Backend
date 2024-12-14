@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import klieme.artdiary.exhibition.enums.RegExhState;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -52,5 +53,6 @@ public interface RegExhOperationUseCase {
 		private final MultipartFile regPoster;
 		private final String regArt;
 		private final String regComment;
+		private final RegExhState regState;
 	}
 }

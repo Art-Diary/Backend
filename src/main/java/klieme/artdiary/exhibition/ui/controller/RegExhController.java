@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
+import klieme.artdiary.exhibition.enums.RegExhState;
 import klieme.artdiary.exhibition.service.RegExhOperationUseCase;
 import klieme.artdiary.exhibition.service.RegExhReadUseCase;
 import klieme.artdiary.exhibition.ui.request_body.RegExhByAdminRequest;
@@ -46,9 +47,6 @@ public class RegExhController {
 		@Valid @ModelAttribute RegExhByUserRequest request) {
 		log.info("[등록할 전시회 추가(사용자)]");
 
-		if (request.getRegPoster() == null) {
-			throw new ArtDiaryException(MessageType.BAD_REQUEST);
-		}
 		// request body 데이터 받아오기
 		var command = RegExhOperationUseCase.RegExhCreateUpdateByUserCommand.builder()
 			.regExhName(request.getRegExhName())
@@ -137,6 +135,10 @@ public class RegExhController {
 	) {
 		log.info("[전시회 등록 요청 확인 코멘트 추가 및 전시회 정보 수정 (관리자)]");
 
+		if (RegExhState.valueOfLabel(request.getRegState()) == null) {
+			throw new ArtDiaryException(MessageType.BAD_REQUEST);
+		}
+
 		var command = RegExhOperationUseCase.RegExhUpdateByAdminCommand.builder()
 			.regExhId(regExhId)
 			.regExhName(request.getRegExhName())
@@ -150,6 +152,7 @@ public class RegExhController {
 			.regPoster(request.getRegPoster())
 			.regArt(request.getRegArt())
 			.regComment(request.getRegComment())
+			.regState(RegExhState.valueOfLabel(request.getRegState()))
 			.build();
 		// 비즈니스 로직 호출
 		RegExhReadUseCase.FindRegExhResult regExhResult = regExhOperationUseCase.confirmExhRequestByAdmin(command);

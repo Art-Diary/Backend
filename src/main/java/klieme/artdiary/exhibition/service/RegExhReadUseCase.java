@@ -31,7 +31,7 @@ public interface RegExhReadUseCase {
 		private final String regArt;
 		private final String regDate;
 		private final String regComment;
-		private final Boolean regState;
+		private final String regState;
 
 		public static FindRegExhResult findByRegExh(RegExhEntity regExh) {
 			return FindRegExhResult.builder()
@@ -63,7 +63,7 @@ public interface RegExhReadUseCase {
 		private final String regExhName;
 		private final String regNickName;
 		private final String regDate;
-		private final Boolean regState;
+		private final String regState;
 
 		public static FindRegExhListResult findByRegExhList(RegExhEntity regExh, Long no, String nickname) {
 			return FindRegExhListResult.builder()

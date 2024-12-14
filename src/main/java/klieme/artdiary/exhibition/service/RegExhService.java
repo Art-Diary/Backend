@@ -20,6 +20,7 @@ import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.entity.RegExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibition.data_access.repository.RegExhRepository;
+import klieme.artdiary.exhibition.enums.RegExhState;
 import klieme.artdiary.user.data_access.entity.UserEntity;
 import klieme.artdiary.user.enums.RoleType;
 
@@ -50,7 +51,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regFee(command.getRegFee())
 			.regUrl(command.getRegUrl())
 			.regDate(command.getRegDate())
-			.regState(false).build();
+			.regState(RegExhState.WAIT.label()).build();
 
 		regExhRepository.save(regExhEntity);
 		String poster = savePoster(command.getRegPoster(), regExhEntity);
@@ -127,8 +128,8 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		if (!Objects.equals(regExhEntity.getUserId(), getUserId())) {
 			throw new ArtDiaryException(MessageType.NOT_FOUND);
 		}
-		//regState==true일 경우
-		if (regExhEntity.getRegState()) {
+		//regState==true일 경우 => 완료나 실패일 경우 이미 결정난 전시회이다.
+		if (!Objects.equals(regExhEntity.getRegState(), RegExhState.WAIT.label())) {
 			throw new ArtDiaryException(MessageType.FORBIDDEN);
 		}
 		// update reg poster
@@ -162,8 +163,8 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		if (!Objects.equals(regExhEntity.getUserId(), getUserId())) {
 			throw new ArtDiaryException(MessageType.NOT_FOUND);
 		}
-		// regState 확인하여 등록이 완료된 전시회인지 확인
-		if (regExhEntity.getRegState()) {
+		// regState 확인하여 등록이 완료된 전시회인지 확인 => 완료나 실패일 경우 이미 결정난 전시회이다.
+		if (!Objects.equals(regExhEntity.getRegState(), RegExhState.WAIT.label())) {
 			throw new ArtDiaryException(MessageType.FORBIDDEN);
 		}
 		regExhRepository.deleteById(regExhId);
@@ -189,28 +190,30 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			regExhEntity.getRegPoster())) {
 			poster = savePoster(command.getRegPoster(), regExhEntity);
 		}
-		// 관리자가 승인한 전시회를 전시회 테이블에 추가
-		ExhEntity updateExhEntity = ExhEntity.builder()
-			.exhName(command.getRegExhName())
-			.gallery(command.getRegGallery())
-			.exhPeriodStart(command.getRegExhPeriodStart())
-			.exhPeriodEnd(command.getRegExhPeriodEnd())
-			.painter(command.getRegPainter())
-			.fee(command.getRegFee())
-			.intro(command.getRegIntro())
-			.url(command.getRegUrl())
-			.art(command.getRegArt())
-			.poster(poster)
-			.build();
-		if (exhEntity == null) {
-			exhEntity = updateExhEntity;
-		} else {
-			exhEntity.updateExhEntity(updateExhEntity);
+		if (Objects.equals(command.getRegState(), RegExhState.COMPLETE)) {
+			// 관리자가 승인한 전시회를 전시회 테이블에 추가
+			ExhEntity updateExhEntity = ExhEntity.builder()
+				.exhName(command.getRegExhName())
+				.gallery(command.getRegGallery())
+				.exhPeriodStart(command.getRegExhPeriodStart())
+				.exhPeriodEnd(command.getRegExhPeriodEnd())
+				.painter(command.getRegPainter())
+				.fee(command.getRegFee())
+				.intro(command.getRegIntro())
+				.url(command.getRegUrl())
+				.art(command.getRegArt())
+				.poster(poster)
+				.build();
+			if (exhEntity == null) {
+				exhEntity = updateExhEntity;
+			} else {
+				exhEntity.updateExhEntity(updateExhEntity);
+			}
+			exhRepository.save(exhEntity);
 		}
-		exhRepository.save(exhEntity);
 		// 사용자가 요청한 전시회를 관리자가 승인
 		regExhEntity.updateRegExhByAdmin(RegExhEntity.builder()
-			.exhId(exhEntity.getExhId())
+			.exhId(Objects.equals(command.getRegState(), RegExhState.FAIL) ? null : exhEntity.getExhId())
 			.regExhName(command.getRegExhName())
 			.regGallery(command.getRegGallery())
 			.regExhPeriodStart(command.getRegExhPeriodStart())
@@ -221,7 +224,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regUrl(command.getRegUrl())
 			.regArt(command.getRegArt())
 			.regComment(command.getRegComment())
-			.regState(true)
+			.regState(command.getRegState().label())
 			.regPoster(poster)
 			.build());
 		regExhRepository.save(regExhEntity);
