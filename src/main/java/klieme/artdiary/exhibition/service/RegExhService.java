@@ -68,7 +68,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			/* 사용자
 			 * 해당 사용자가 등록 요청한 전시회 리스트
 			 * */
-			List<RegExhEntity> regExhEntityList = regExhRepository.findByUserId(user.getUserId());
+			List<RegExhEntity> regExhEntityList = regExhRepository.getRegExhListByUser(user.getUserId());
 			Long idx = 1L;
 
 			for (RegExhEntity regExhEntity : regExhEntityList) {
