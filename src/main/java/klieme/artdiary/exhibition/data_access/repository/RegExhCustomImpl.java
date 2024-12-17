@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
@@ -30,7 +31,13 @@ public class RegExhCustomImpl implements RegExhCustom {
 			.from(regExh)
 			.leftJoin(user).on(regExh.userId.eq(user.userId))
 			.fetchJoin()
-			.orderBy(regExh.regState.asc(), regExh.regExhId.asc())
+			.orderBy(new CaseBuilder()
+					.when(regExh.regState.eq("대기")).then(1)
+					.when(regExh.regState.eq("완료")).then(2)
+					.when(regExh.regState.eq("실패")).then(3)
+					.otherwise(4)
+					.asc()
+				, regExh.regDate.desc())
 			.fetch();
 
 		List<Map<String, Object>> results = new ArrayList<>();
@@ -42,6 +49,24 @@ public class RegExhCustomImpl implements RegExhCustom {
 			results.add(row);
 		}
 		return results;
+	}
+
+	@Override
+	public List<RegExhEntity> getRegExhListByUser(Long userId) {
+		QRegExhEntity regExh = QRegExhEntity.regExhEntity;
+
+		return query
+			.select(regExh)
+			.from(regExh)
+			.where(regExh.userId.eq(userId))
+			.orderBy(new CaseBuilder()
+					.when(regExh.regState.eq("대기")).then(1)
+					.when(regExh.regState.eq("완료")).then(2)
+					.when(regExh.regState.eq("실패")).then(3)
+					.otherwise(4)
+					.asc() // 우선순위를 오름차순으로 정렬
+				, regExh.regDate.desc())
+			.fetch();
 	}
 
 	@Override
