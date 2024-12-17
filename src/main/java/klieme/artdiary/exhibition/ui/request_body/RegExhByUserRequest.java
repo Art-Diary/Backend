@@ -30,19 +30,12 @@ public class RegExhByUserRequest {
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	LocalDate regExhPeriodEnd;
 
-	@NotBlank
-	String regPainter;
-
 	@NotNull
 	Integer regFee;
-
-	String regIntro;
 
 	String regUrl;
 
 	MultipartFile regPoster;
-
-	String regArt;
 
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

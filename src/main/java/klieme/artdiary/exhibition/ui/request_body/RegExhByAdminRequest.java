@@ -29,7 +29,6 @@ public class RegExhByAdminRequest {
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	LocalDate regExhPeriodEnd;
 
-	@NotBlank
 	String regPainter;
 
 	@NotNull
@@ -39,8 +38,10 @@ public class RegExhByAdminRequest {
 
 	String regUrl;
 
+	@NotNull
 	MultipartFile regPoster;
 
+	@NotNull
 	String regArt;
 
 	String regComment;

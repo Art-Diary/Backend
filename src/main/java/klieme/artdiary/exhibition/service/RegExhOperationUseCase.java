@@ -29,12 +29,9 @@ public interface RegExhOperationUseCase {
 		private final String regGallery;
 		private final LocalDate regExhPeriodStart;
 		private final LocalDate regExhPeriodEnd;
-		private final String regPainter;
 		private final Integer regFee;
-		private final String regIntro;
 		private final String regUrl;
 		private final MultipartFile regPoster;
-		private final String regArt;
 		private final LocalDateTime regDate;
 	}
 

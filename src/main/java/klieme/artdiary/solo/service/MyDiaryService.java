@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -138,7 +139,11 @@ public class MyDiaryService implements MyDiaryOperationUseCase, MyDiaryReadUseCa
 			.saying(command.getSaying() == null ? "" : command.getSaying())
 			.exhVisitId(command.getExhVisitId())
 			.build());
-		saveThumbnail(command.getThumbnail(), diaryEntity);
+
+		if (command.getThumbnail() == null || !Objects.equals(command.getThumbnail().getOriginalFilename(),
+			diaryEntity.getThumbnail())) {
+			saveThumbnail(command.getThumbnail(), diaryEntity);
+		}
 		diaryRepository.save(diaryEntity);
 		return getMyDiaryList(userEntity, exhEntity, null);
 	}

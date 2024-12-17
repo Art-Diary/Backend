@@ -47,17 +47,14 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regGallery(command.getRegGallery())
 			.regExhPeriodStart(command.getRegExhPeriodStart())
 			.regExhPeriodEnd(command.getRegExhPeriodEnd())
-			.regPainter(command.getRegPainter())
 			.regFee(command.getRegFee())
-			.regIntro(command.getRegIntro())
 			.regUrl(command.getRegUrl())
-			.regPoster("nop")
-			.regArt(command.getRegArt())
 			.regDate(command.getRegDate())
 			.regState(false).build();
 
 		regExhRepository.save(regExhEntity);
-		savePoster(command.getRegPoster(), regExhEntity);
+		String poster = savePoster(command.getRegPoster(), regExhEntity);
+		regExhEntity.updateRegExhPoster(poster);
 		return FindRegExhResult.findByRegExh(regExhEntity);
 	}
 
@@ -134,24 +131,23 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		if (regExhEntity.getRegState()) {
 			throw new ArtDiaryException(MessageType.FORBIDDEN);
 		}
-
-		regExhEntity.updateRegExh(RegExhEntity.builder()
+		// update reg poster
+		String poster = regExhEntity.getRegPoster();
+		if (command.getRegPoster() == null || !Objects.equals(command.getRegPoster().getOriginalFilename(),
+			regExhEntity.getRegPoster())) {
+			poster = savePoster(command.getRegPoster(), regExhEntity);
+		}
+		regExhEntity.updateRegExhByUser(RegExhEntity.builder()
 			.regExhName(command.getRegExhName())
 			.regGallery(command.getRegGallery())
 			.regExhPeriodStart(command.getRegExhPeriodStart())
 			.regExhPeriodEnd(command.getRegExhPeriodEnd())
-			.regPainter(command.getRegPainter())
 			.regFee(command.getRegFee())
-			.regIntro(command.getRegIntro())
 			.regUrl(command.getRegUrl())
-			.regArt(command.getRegArt())
 			.regDate(command.getRegDate())
+			.regPoster(poster)
 			.build());
-
 		regExhRepository.save(regExhEntity);
-		if (command.getRegPoster() != null) {
-			savePoster(command.getRegPoster(), regExhEntity);
-		}
 		return FindRegExhResult.findByRegExh(regExhEntity);
 	}
 
@@ -187,6 +183,12 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		RegExhEntity regExhEntity = (RegExhEntity)regExhInfo.get("regExhEntity");
 		ExhEntity exhEntity = (ExhEntity)regExhInfo.get("exhEntity");
 
+		// update reg exh poster 포스터는 필수
+		String poster = regExhEntity.getRegPoster();
+		if (command.getRegPoster() != null && !Objects.equals(command.getRegPoster().getOriginalFilename(),
+			regExhEntity.getRegPoster())) {
+			poster = savePoster(command.getRegPoster(), regExhEntity);
+		}
 		// 관리자가 승인한 전시회를 전시회 테이블에 추가
 		ExhEntity updateExhEntity = ExhEntity.builder()
 			.exhName(command.getRegExhName())
@@ -198,6 +200,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.intro(command.getRegIntro())
 			.url(command.getRegUrl())
 			.art(command.getRegArt())
+			.poster(poster)
 			.build();
 		if (exhEntity == null) {
 			exhEntity = updateExhEntity;
@@ -206,7 +209,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		}
 		exhRepository.save(exhEntity);
 		// 사용자가 요청한 전시회를 관리자가 승인
-		regExhEntity.updateByAdmin(RegExhEntity.builder()
+		regExhEntity.updateRegExhByAdmin(RegExhEntity.builder()
 			.exhId(exhEntity.getExhId())
 			.regExhName(command.getRegExhName())
 			.regGallery(command.getRegGallery())
@@ -219,14 +222,9 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regArt(command.getRegArt())
 			.regComment(command.getRegComment())
 			.regState(true)
+			.regPoster(poster)
 			.build());
 		regExhRepository.save(regExhEntity);
-		// update reg exh poster
-		if (command.getRegPoster() != null) {
-			savePoster(command.getRegPoster(), regExhEntity);
-		}
-		// update exh poster
-		exhEntity.updateExhEntity(ExhEntity.builder().poster(regExhEntity.getRegPoster()).build());
 		return FindRegExhResult.findByRegExh(regExhEntity);
 	}
 
@@ -238,16 +236,14 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 		return getCurrentUserEntity();
 	}
 
-	private void savePoster(MultipartFile inputPoster, RegExhEntity saveEntity) {
+	private String savePoster(MultipartFile inputPoster, RegExhEntity saveEntity) {
 		// 사진 업로드
-		String uploadImageUrl = s3ImageTransfer.uploadImageToStorage(
+		return s3ImageTransfer.uploadImageToStorage(
 			S3ImageTransfer.UploadQuery.builder()
 				.type(ImageType.REG_EXH)
 				.image(inputPoster)
 				.regExhId(saveEntity.getRegExhId())
 				.build());
-
-		saveEntity.updateRegExh(RegExhEntity.builder().regPoster(uploadImageUrl).build());
 	}
 
 	private void checkUserIsAdmin() {

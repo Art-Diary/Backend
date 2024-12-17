@@ -55,12 +55,9 @@ public class RegExhController {
 			.regGallery(request.getRegGallery())
 			.regExhPeriodStart(request.getRegExhPeriodStart())
 			.regExhPeriodEnd(request.getRegExhPeriodEnd())
-			.regPainter(request.getRegPainter())
 			.regFee(request.getRegFee())
-			.regIntro(request.getRegIntro())
 			.regUrl(request.getRegUrl())
 			.regPoster(request.getRegPoster())
-			.regArt(request.getRegArt())
 			.regDate(request.getRegDate())
 			.build();
 		// 비즈니스 로직 호출
@@ -114,12 +111,9 @@ public class RegExhController {
 			.regGallery(request.getRegGallery())
 			.regExhPeriodStart(request.getRegExhPeriodStart())
 			.regExhPeriodEnd(request.getRegExhPeriodEnd())
-			.regPainter(request.getRegPainter())
 			.regFee(request.getRegFee())
-			.regIntro(request.getRegIntro())
 			.regUrl(request.getRegUrl())
 			.regPoster(request.getRegPoster())
-			.regArt(request.getRegArt())
 			.regDate(request.getRegDate())
 			.build();
 		// 비즈니스 로직 호출

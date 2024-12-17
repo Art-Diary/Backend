@@ -42,6 +42,7 @@ public class ExhEntity {
 	private String url;
 	@Column(nullable = false)
 	private String poster;
+	@Column(nullable = false)
 	private String art;
 
 	@Builder
@@ -76,6 +77,7 @@ public class ExhEntity {
 		this.url = exhEntity.getUrl();
 		if (exhEntity.getPoster() != null)
 			this.poster = exhEntity.getPoster();
-		this.art = exhEntity.getArt();
+		if (exhEntity.getArt() != null)
+			this.art = exhEntity.getArt();
 	}
 }
