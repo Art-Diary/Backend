@@ -143,30 +143,59 @@ public class ExhVisitRepoCustomImpl implements ExhVisitRepoCustom {
 	}
 
 	@Override
-	public List<Map<String, Object>> getVisitExhForFcm() {
+	public List<Map<String, Object>> getVisitSoloDateForFcm() {
 		QUserEntity user = QUserEntity.userEntity;
 		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
-		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
-		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
 		QExhEntity exh = QExhEntity.exhEntity;
 
 		List<Tuple> tuples = query
-			.select(exhVisit, user, exh)
+			.select(user, exh)
 			.from(exhVisit)
-			.leftJoin(gathering).on(exhVisit.gatherId.eq(gathering.gatherId))
-			.leftJoin(gatheringMate).on(gathering.gatherId.eq(gatheringMate.gatheringMateId.gatherId))
-			.leftJoin(user).on(exhVisit.userId.eq(user.userId).or(gatheringMate.gatheringMateId.userId.eq(user.userId)))
+			.leftJoin(user).on(exhVisit.userId.eq(user.userId))
 			.leftJoin(exh).on(exhVisit.exhId.eq(exh.exhId))
 			.fetchJoin()
+			.where(exh.exhId.isNotNull(), user.visitSoloAlarm.eq(true), user.alarmToken.isNotNull(),
+				exhVisit.visitDate.eq(LocalDate.now()))
 			.fetch();
 
 		List<Map<String, Object>> result = new ArrayList<>();
 
 		for (Tuple tuple : tuples) {
 			Map<String, Object> row = new HashMap<>();
-			row.put("exhVisit", tuple.get(0, ExhVisitEntity.class));
-			row.put("user", tuple.get(1, UserEntity.class));
-			row.put("exhibition", tuple.get(2, ExhEntity.class));
+			row.put("user", tuple.get(0, UserEntity.class));
+			row.put("exhibition", tuple.get(1, ExhEntity.class));
+			result.add(row);
+		}
+		return result;
+	}
+
+	@Override
+	public List<Map<String, Object>> getVisitGatheringDateForFcm() {
+		QUserEntity user = QUserEntity.userEntity;
+		QExhVisitEntity exhVisit = QExhVisitEntity.exhVisitEntity;
+		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
+		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
+		QExhEntity exh = QExhEntity.exhEntity;
+
+		List<Tuple> tuples = query
+			.select(user, exh, gathering)
+			.from(exhVisit)
+			.leftJoin(gathering).on(exhVisit.gatherId.eq(gathering.gatherId))
+			.leftJoin(gatheringMate).on(exhVisit.gatherId.eq(gatheringMate.gatheringMateId.gatherId))
+			.leftJoin(user).on(gatheringMate.gatheringMateId.userId.eq(user.userId))
+			.leftJoin(exh).on(exhVisit.exhId.eq(exh.exhId))
+			.fetchJoin()
+			.where(exh.exhId.isNotNull(), user.visitGatheringAlarm.eq(true), user.alarmToken.isNotNull(),
+				exhVisit.visitDate.eq(LocalDate.now()))
+			.fetch();
+
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("user", tuple.get(0, UserEntity.class));
+			row.put("exhibition", tuple.get(1, ExhEntity.class));
+			row.put("gathering", tuple.get(2, GatheringEntity.class));
 			result.add(row);
 		}
 		return result;

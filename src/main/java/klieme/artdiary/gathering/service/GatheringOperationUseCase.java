@@ -1,5 +1,6 @@
 package klieme.artdiary.gathering.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -14,7 +15,8 @@ public interface GatheringOperationUseCase {
 
 	List<GatheringReadUseCase.FindGatheringExhResult> addExhAboutGathering(ExhGatheringCreateCommand command);
 
-	List<GatheringReadUseCase.FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command);
+	List<GatheringReadUseCase.FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command) throws
+		IOException;
 
 	void deleteMyGathering(Long gatherId);
 

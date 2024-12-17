@@ -41,9 +41,11 @@ public interface UserReadUseCase {
 		private final String email;
 		private final String profile;
 		private final String favoriteArt;
-		private final Boolean alarm1;
-		private final Boolean alarm2;
-		private final Boolean alarm3;
+		private final Boolean favoriteExhAlarm;
+		private final Boolean visitSoloAlarm;
+		private final Boolean visitGatheringAlarm;
+		private final Boolean newGatheringAlarm;
+		private final Boolean newDateGatheringAlarm;
 		private final Boolean initInfo;
 		private final String providerType;
 		private final String accessToken;
@@ -57,9 +59,11 @@ public interface UserReadUseCase {
 				.profile(user.getProfile())
 				.favoriteArt(user.getFavoriteArt() == null || Objects.equals(user.getFavoriteArt(), ".") ? "그외" :
 					user.getFavoriteArt())
-				.alarm1(user.getAlarm1())
-				.alarm2(user.getAlarm2())
-				.alarm3(user.getAlarm3())
+				.favoriteExhAlarm(user.getFavoriteExhAlarm())
+				.visitSoloAlarm(user.getVisitSoloAlarm())
+				.visitGatheringAlarm(user.getVisitGatheringAlarm())
+				.newGatheringAlarm(user.getNewGatheringAlarm())
+				.newDateGatheringAlarm(user.getNewDateGatheringAlarm())
 				.providerType(user.getProviderType())
 				.roleType(user.getRoleType())
 				.build();
@@ -75,9 +79,11 @@ public interface UserReadUseCase {
 				.favoriteArt(
 					initInfo ? (user.getFavoriteArt() == null || Objects.equals(user.getFavoriteArt(), ".") ? "그외" :
 						user.getFavoriteArt()) : null)
-				.alarm1(initInfo ? user.getAlarm1() : null)
-				.alarm2(initInfo ? user.getAlarm2() : null)
-				.alarm3(initInfo ? user.getAlarm3() : null)
+				.favoriteExhAlarm(initInfo ? user.getFavoriteExhAlarm() : null)
+				.visitSoloAlarm(initInfo ? user.getVisitSoloAlarm() : null)
+				.visitGatheringAlarm(initInfo ? user.getVisitGatheringAlarm() : null)
+				.newGatheringAlarm(initInfo ? user.getNewGatheringAlarm() : null)
+				.newDateGatheringAlarm(initInfo ? user.getNewDateGatheringAlarm() : null)
 				.providerType(user.getProviderType())
 				.accessToken(accessToken)
 				.roleType(user.getRoleType())
@@ -89,28 +95,12 @@ public interface UserReadUseCase {
 	@ToString
 	@Builder
 	class FindAlarmResult {
-		private final Boolean alarm1;
-		private final Boolean alarm2;
-		private final Boolean alarm3;
+		private final Boolean alarm;
 
 		@Builder
-		public static FindAlarmResult findAlarm1(UserEntity user) {
+		public static FindAlarmResult findAlarm(Boolean alarm) {
 			return FindAlarmResult.builder()
-				.alarm1(user.getAlarm1())
-				.build();
-		}
-
-		@Builder
-		public static FindAlarmResult findAlarm2(UserEntity user) {
-			return FindAlarmResult.builder()
-				.alarm2(user.getAlarm2())
-				.build();
-		}
-
-		@Builder
-		public static FindAlarmResult findAlarm3(UserEntity user) {
-			return FindAlarmResult.builder()
-				.alarm3(user.getAlarm3())
+				.alarm(alarm)
 				.build();
 		}
 	}

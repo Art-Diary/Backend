@@ -143,51 +143,6 @@ public class UserController {
 		return ResponseEntity.ok(UserView.builder().result(result).build());
 	}
 
-	/**
-	 * 알림1 설정 수정
-	 * "/users/alarm1"
-	 */
-	@PatchMapping("/alarm1")
-	public ResponseEntity<UserAlarmView> updateAlarm1(@Valid @RequestBody UserAlarmRequest request) {
-		log.info("[알림1 설정]");
-
-		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
-			.alarm1(request.getAlarm())
-			.build();
-		UserReadUseCase.FindAlarmResult result = userOperationUseCase.updateAlarm(command);
-		return ResponseEntity.ok(UserAlarmView.builder().result(result).build());
-	}
-
-	/**
-	 * 알림1 설정 수정
-	 * "/users/alarm2"
-	 */
-	@PatchMapping("/alarm2")
-	public ResponseEntity<UserAlarmView> updateAlarm2(@Valid @RequestBody UserAlarmRequest request) {
-		log.info("[알림2 설정]");
-
-		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
-			.alarm2(request.getAlarm())
-			.build();
-		UserReadUseCase.FindAlarmResult result = userOperationUseCase.updateAlarm(command);
-		return ResponseEntity.ok(UserAlarmView.builder().result(result).build());
-	}
-
-	/**
-	 * 알림1 설정 수정
-	 * "/users/alarm3"
-	 */
-	@PatchMapping("/alarm3")
-	public ResponseEntity<UserAlarmView> updateAlarm3(@Valid @RequestBody UserAlarmRequest request) {
-		log.info("[알림3 설정]");
-
-		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
-			.alarm3(request.getAlarm())
-			.build();
-		UserReadUseCase.FindAlarmResult result = userOperationUseCase.updateAlarm(command);
-		return ResponseEntity.ok(UserAlarmView.builder().result(result).build());
-	}
-
 	@PostMapping("/leave")
 	public void deleteUser(@Valid @RequestBody DeleteReasonRequest request) {
 		log.info("[사용자 삭제]");
@@ -219,5 +174,80 @@ public class UserController {
 
 		UserReadUseCase.FindAccessTokenResult result = userReadUseCase.reissueAccessToken(command);
 		return ResponseEntity.ok(AccessTokenView.builder().result(result).build());
+	}
+
+	/**
+	 * 좋아요한 전시회 시작일/마감일 알림 설정 수정
+	 * "/users/favorite-exh-alarm"
+	 */
+	@PatchMapping("/favorite-exh-alarm")
+	public ResponseEntity<UserAlarmView> updateFavoriteExhAlarm(@Valid @RequestBody UserAlarmRequest request) {
+		log.info("[좋아요한 전시회 시작일/마감일 알림 설정]");
+
+		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
+			.favoriteExhAlarm(request.getAlarm())
+			.build();
+		UserReadUseCase.FindAlarmResult result = userOperationUseCase.updateAlarm(command);
+		return ResponseEntity.ok(UserAlarmView.builder().result(result).build());
+	}
+
+	/**
+	 * 혼자 가는 전시회 날짜 알림 설정 수정
+	 * "/users/visit-solo-alarm"
+	 */
+	@PatchMapping("/visit-solo-alarm")
+	public ResponseEntity<UserAlarmView> updateVisitSoloAlarm(@Valid @RequestBody UserAlarmRequest request) {
+		log.info("[혼자 가는 전시회 날짜 알림 설정]");
+
+		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
+			.visitSoloAlarm(request.getAlarm())
+			.build();
+		UserReadUseCase.FindAlarmResult result = userOperationUseCase.updateAlarm(command);
+		return ResponseEntity.ok(UserAlarmView.builder().result(result).build());
+	}
+
+	/**
+	 * 모임에서 가는 전시회 날짜 알림 설정 수정
+	 * "/users/visit-gathering-alarm"
+	 */
+	@PatchMapping("/visit-gathering-alarm")
+	public ResponseEntity<UserAlarmView> updateVisitGatheringAlarm(@Valid @RequestBody UserAlarmRequest request) {
+		log.info("[모임에서 가는 전시회 날짜 알림 설정]");
+
+		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
+			.visitGatheringAlarm(request.getAlarm())
+			.build();
+		UserReadUseCase.FindAlarmResult result = userOperationUseCase.updateAlarm(command);
+		return ResponseEntity.ok(UserAlarmView.builder().result(result).build());
+	}
+
+	/**
+	 * 새로운 모임 알림 설정 수정
+	 * "/users/new-gathering-alarm"
+	 */
+	@PatchMapping("/new-gathering-alarm")
+	public ResponseEntity<UserAlarmView> updateNewGatheringAlarm(@Valid @RequestBody UserAlarmRequest request) {
+		log.info("[새로운 모임 알림 설정]");
+
+		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
+			.newGatheringAlarm(request.getAlarm())
+			.build();
+		UserReadUseCase.FindAlarmResult result = userOperationUseCase.updateAlarm(command);
+		return ResponseEntity.ok(UserAlarmView.builder().result(result).build());
+	}
+
+	/**
+	 * 새로운 모임 알림 설정 수정
+	 * "/users/new-date-gathering-alarm"
+	 */
+	@PatchMapping("/new-date-gathering-alarm")
+	public ResponseEntity<UserAlarmView> updateNewDateGatheringAlarm(@Valid @RequestBody UserAlarmRequest request) {
+		log.info("[새로운 모임 알림 설정]");
+
+		var command = UserOperationUseCase.UserAlarmUpdateCommand.builder()
+			.newDateGatheringAlarm(request.getAlarm())
+			.build();
+		UserReadUseCase.FindAlarmResult result = userOperationUseCase.updateAlarm(command);
+		return ResponseEntity.ok(UserAlarmView.builder().result(result).build());
 	}
 }

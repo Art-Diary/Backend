@@ -11,14 +11,10 @@ import lombok.ToString;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserAlarmView {
-	private final Boolean alarm1;
-	private final Boolean alarm2;
-	private final Boolean alarm3;
+	private final Boolean alarm;
 
 	@Builder
 	public UserAlarmView(UserReadUseCase.FindAlarmResult result) {
-		this.alarm1 = result.getAlarm1();
-		this.alarm2 = result.getAlarm2();
-		this.alarm3 = result.getAlarm3();
+		this.alarm = result.getAlarm();
 	}
 }

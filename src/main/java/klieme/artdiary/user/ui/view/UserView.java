@@ -16,9 +16,11 @@ public class UserView {
 	private final String email;
 	private final String profile; //⇒ profile: byte로 변환된 이미지가 string 형식으로 전달됨.
 	private final String favoriteArt;
-	private final Boolean alarm1;
-	private final Boolean alarm2;
-	private final Boolean alarm3;
+	private final Boolean favoriteExhAlarm;
+	private final Boolean visitSoloAlarm;
+	private final Boolean visitGatheringAlarm;
+	private final Boolean newGatheringAlarm;
+	private final Boolean newDateGatheringAlarm;
 	private final Boolean initInfo;
 	private final String providerType;
 	private final String accessToken;
@@ -31,9 +33,11 @@ public class UserView {
 		this.profile = result.getProfile();
 		this.favoriteArt = result.getFavoriteArt();
 		this.nickname = result.getNickname();
-		this.alarm1 = result.getAlarm1();
-		this.alarm2 = result.getAlarm2();
-		this.alarm3 = result.getAlarm3();
+		this.favoriteExhAlarm = result.getFavoriteExhAlarm();
+		this.visitSoloAlarm = result.getVisitSoloAlarm();
+		this.visitGatheringAlarm = result.getVisitGatheringAlarm();
+		this.newGatheringAlarm = result.getNewGatheringAlarm();
+		this.newDateGatheringAlarm = result.getNewDateGatheringAlarm();
 		this.initInfo = result.getInitInfo();
 		this.providerType = result.getProviderType();
 		this.accessToken = result.getAccessToken();

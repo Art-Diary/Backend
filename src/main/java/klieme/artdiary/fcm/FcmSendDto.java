@@ -16,12 +16,14 @@ public class FcmSendDto {
 	private String title;
 	private String body;
 	private Long exhId;
+	private Long gatherId;
 
 	@Builder(toBuilder = true)
-	public FcmSendDto(String token, String title, String body, Long exhId) {
+	public FcmSendDto(String token, String title, String body, Long exhId, Long gatherId) {
 		this.token = token;
 		this.title = title;
 		this.body = body;
 		this.exhId = exhId;
+		this.gatherId = gatherId;
 	}
 }
