@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -130,6 +131,29 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 				.or(exh.painter.containsIgnoreCase(searchName)));
 		}
 
+		OrderSpecifier<Integer> priorityOrder = new CaseBuilder()
+			.when(exh.exhName.containsIgnoreCase(searchName)).then(1) // 1순위: exhName
+			.when(exh.gallery.containsIgnoreCase(searchName)).then(2) // 2순위: gallery
+			.when(exh.painter.containsIgnoreCase(searchName)).then(3) // 3순위: painter
+			.otherwise(4) // 나머지
+			.asc();
+
+		// 필드별 정렬 조건
+		OrderSpecifier<String> exhNameOrder = new CaseBuilder()
+			.when(exh.exhName.containsIgnoreCase(searchName)).then(exh.exhName)
+			.otherwise((String)null) // 다른 조건일 때는 무시
+			.asc();
+
+		OrderSpecifier<String> galleryOrder = new CaseBuilder()
+			.when(exh.gallery.containsIgnoreCase(searchName)).then(exh.gallery)
+			.otherwise((String)null)
+			.asc();
+
+		OrderSpecifier<String> painterOrder = new CaseBuilder()
+			.when(exh.painter.containsIgnoreCase(searchName)).then(exh.painter)
+			.otherwise((String)null)
+			.asc();
+
 		List<Tuple> tuples = query.select(exh,
 				new CaseBuilder()
 					.when(
@@ -143,12 +167,7 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 			.distinct()
 			.from(exh)
 			.where(builder)
-			.orderBy(new CaseBuilder()
-				.when(exh.exhName.containsIgnoreCase(searchName)).then(1) // 1순위: exhName 포함 (이름순)
-				.when(exh.gallery.containsIgnoreCase(searchName)).then(2) // 2순위: gallery 포함 (갤러리순)
-				.when(exh.painter.containsIgnoreCase(searchName)).then(3) // 3순위: painter 포함 (작가순)
-				.otherwise(4)  // 나머지는 마지막 우선순위로 정렬
-				.asc(), exh.exhName.asc())
+			.orderBy(priorityOrder, exhNameOrder, galleryOrder, painterOrder)
 			.fetch();
 
 		List<Map<String, Object>> result = new ArrayList<>();
