@@ -16,7 +16,7 @@ public class RegExhListView {
 	private final String regExhName;
 	private final String regNickName;
 	private final String regDate;
-	private final Boolean regState;
+	private final String regState;
 
 	@Builder
 	public RegExhListView(RegExhReadUseCase.FindRegExhListResult result) {

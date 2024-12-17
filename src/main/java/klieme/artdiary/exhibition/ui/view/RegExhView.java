@@ -24,7 +24,7 @@ public class RegExhView {
 	private final String regArt;
 	private final String regDate;
 	private final String regComment;
-	private final Boolean regState;
+	private final String regState;
 
 	@Builder
 	public RegExhView(RegExhReadUseCase.FindRegExhResult result) {
