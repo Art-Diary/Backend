@@ -1,7 +1,9 @@
 package klieme.artdiary.gathering.service;
 
+import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -136,6 +138,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			Double sumOfRate = (Double)gatherDiarySumRateAndCount.get("sumOfRate");
 			Long countOfDiary = (Long)gatherDiarySumRateAndCount.get("countOfDiary");
 			ExhEntity exh = (ExhEntity)gatherDiarySumRateAndCount.get("exhibition");
+			LocalDate visitDate = (LocalDate)gatherDiarySumRateAndCount.get("visitDate");
 			// averageRate & poster
 			double averageRate = 0.0;
 
@@ -272,6 +275,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			Double sumOfRate = (Double)gatherDiarySumRateAndCount.get("sumOfRate");
 			Long countOfDiary = (Long)gatherDiarySumRateAndCount.get("countOfDiary");
 			ExhEntity exh = (ExhEntity)gatherDiarySumRateAndCount.get("exhibition");
+			LocalDate visitDate = (LocalDate)gatherDiarySumRateAndCount.get("visitDate");
 			// averageRate & poster
 			double averageRate = 0.0;
 
@@ -283,6 +287,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 				.exhName(exh.getExhName())
 				.poster(exh.getPoster())
 				.rate(averageRate)
+				.visitDate(changeDateFormat(visitDate))
 				.build());
 		}
 		return FindGatheringDetailInfoResult.findByGatheringDetailInfo(mateInfoList, exhibitionInfoList);

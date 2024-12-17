@@ -36,7 +36,7 @@ public class GatheringMateRepoCustomImpl implements GatheringMateRepoCustom {
 			.leftJoin(gathering).on(gatheringMate.gatheringMateId.gatherId.eq(gathering.gatherId))
 			.fetchJoin()
 			.where(gatheringMate.gatheringMateId.userId.eq(userId))
-			.groupBy(exhVisit.gatherId)
+			.groupBy(gatheringMate.gatheringMateId.gatherId)
 			.orderBy(exhVisit.visitDate.max().desc())
 			.fetch();
 	}
