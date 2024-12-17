@@ -31,9 +31,6 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 		QFavoriteExhEntity favoriteExh = QFavoriteExhEntity.favoriteExhEntity;
 		BooleanBuilder builder = new BooleanBuilder();
 
-		// if (searchName != null) {
-		// 	builder.and(exh.exhName.containsIgnoreCase(searchName).or(exh.gallery.containsIgnoreCase(searchName)));
-		// }
 		if (fieldList != null) {
 			BooleanBuilder fieldBuilder = new BooleanBuilder();
 
@@ -58,12 +55,13 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 		if ((stateList != null && !stateList.isEmpty()) || date != null) {
 			LocalDate now = date != null ? date : LocalDate.now();
 
-			if (date != null) {
+			if (date != null) {//날짜가 있을 때
 				builder.and(exh.exhPeriodStart.loe(now)); // start <= now
 				builder.and(exh.exhPeriodEnd.goe(now)); // end >= now
 			} else {
 				BooleanBuilder stateListBuilder = new BooleanBuilder();
 
+				//날짜가 없고 state가 있을 때
 				for (ExhState state : stateList) {
 					if (state == ExhState.PROCEED) {
 						BooleanBuilder stateBuilder = new BooleanBuilder();
@@ -78,17 +76,10 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 				}
 				builder.and(stateListBuilder);
 			}
-		} else {
-			BooleanBuilder stateBuilder = new BooleanBuilder();
-			LocalDate now = LocalDate.now();
 
-			stateBuilder.and(exh.exhPeriodStart.loe(now)); // start <= now
-			stateBuilder.and(exh.exhPeriodEnd.goe(now)); // end >= now
-			builder.and(stateBuilder);
 		}
 
-		/*if (fieldList == null && price == null && (stateList == null) //&&|| stateList.isEmpty()
-			&& date == null) {//아무 조건도 없을 때
+		if (fieldList.isEmpty() && price == null && stateList.isEmpty() && date == null) {//아무 조건도 없을 때
 
 			BooleanBuilder stateBuilder = new BooleanBuilder();
 			LocalDate now = LocalDate.now();
@@ -97,7 +88,7 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 			stateBuilder.and(exh.exhPeriodEnd.goe(now)); // end >= now
 			builder.and(stateBuilder);
 
-		}*/
+		}
 		List<Tuple> tuples = query.select(exh,
 				new CaseBuilder()
 					.when(
@@ -113,14 +104,7 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 			.fetchJoin()
 			.where(builder)
 			.groupBy(exh.exhId)
-			/*	.orderBy(new CaseBuilder()
-					.when(exh.count().desc()).then(1) // 1순위: exhName 포함 (이름순)
-					.when(exh.gallery.containsIgnoreCase(searchName)).then(2) // 2순위: gallery 포함 (갤러리순)
-					.when(exh.painter.containsIgnoreCase(searchName)).then(3) // 3순위: painter 포함 (작가순)
-					.otherwise(4)  // 나머지는 마지막 우선순위로 정렬
-					.asc())*/
 			.orderBy(favoriteExh.favoriteExhId.exhId.count().desc(), exh.exhName.asc()) // exh.exhPeriodStart.desc(),
-			//	.orderBy(exh.count().desc(), exh.exhPeriodStart.desc())// 원본
 			.fetch();
 		List<Map<String, Object>> result = new ArrayList<>();
 
