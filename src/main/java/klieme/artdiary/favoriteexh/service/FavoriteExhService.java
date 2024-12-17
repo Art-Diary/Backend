@@ -2,6 +2,7 @@ package klieme.artdiary.favoriteexh.service;
 
 import static klieme.artdiary.common.SecurityUtil.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +51,7 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 				.userId(getUserId())
 				.exhId(exhEntity.getExhId())
 				.build())
+			.initDate(LocalDateTime.now())
 			.build();
 		favoriteExhRepository.save(favoriteExh);
 		return FindFavoriteExhResult.findByFavoriteExh(favoriteExh);
@@ -60,11 +62,9 @@ public class FavoriteExhService implements FavoriteExhOperationUseCase, Favorite
 
 		List<FindFavoriteExhResult> favorites = new ArrayList<>();
 		//favoriteExh에서 userId에 해당하는 exhId 알아내기
-		List<FavoriteExhEntity> fEntities = favoriteExhRepository.findByFavoriteExhIdUserId(getUserId());
-		for (FavoriteExhEntity fEntity : fEntities) { //알아낸 exhId에 대한 필요한 정보들 가져오기.
-			ExhEntity exh = exhRepository.findByExhId(fEntity.getFavoriteExhId().getExhId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		List<ExhEntity> exhEntityList = favoriteExhRepository.getFavoriteExhByUserId(getUserId());
 
+		for (ExhEntity exh : exhEntityList) {
 			favorites.add(FavoriteExhReadUseCase.FindFavoriteExhResult.findByFavoriteExhDetail(exh));
 		}
 		return favorites;
