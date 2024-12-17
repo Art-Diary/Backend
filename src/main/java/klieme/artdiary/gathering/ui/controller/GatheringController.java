@@ -1,5 +1,6 @@
 package klieme.artdiary.gathering.ui.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,7 +129,7 @@ public class GatheringController {
 	public ResponseEntity<List<GatheringMateView>> addGatheringMate(
 		@PathVariable(name = "gatherId") Long gatherId,
 		@Valid @RequestBody AddGatheringMateRequest request
-	) {
+	) throws IOException {
 		log.info("[모임 메이트 추가]");
 		var command = GatheringOperationUseCase.GatheringMateCreateCommand.builder()
 			.gatherId(gatherId)

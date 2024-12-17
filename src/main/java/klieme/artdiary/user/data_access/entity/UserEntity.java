@@ -33,12 +33,16 @@ public class UserEntity {
 	private String profile;
 	@Column(name = "favorite_art")
 	private String favoriteArt;
-	@Column(nullable = false)
-	private Boolean alarm1;
-	@Column(nullable = false)
-	private Boolean alarm2;
-	@Column(nullable = false)
-	private Boolean alarm3;
+	@Column(name = "favorite_exh_alarm", nullable = false)
+	private Boolean favoriteExhAlarm;
+	@Column(name = "visit_solo_alarm", nullable = false)
+	private Boolean visitSoloAlarm;
+	@Column(name = "visit_gathering_alarm", nullable = false)
+	private Boolean visitGatheringAlarm;
+	@Column(name = "new_gathering_alarm", nullable = false)
+	private Boolean newGatheringAlarm;
+	@Column(name = "new_date_gathering_alarm", nullable = false)
+	private Boolean newDateGatheringAlarm;
 	@Column(name = "refresh_token")
 	private String refreshToken;
 	@Column(name = "alarm_token")
@@ -49,16 +53,19 @@ public class UserEntity {
 	private String roleType;
 
 	@Builder
-	public UserEntity(Long userId, String email, String nickname, String profile, String favoriteArt, Boolean alarm1,
-		Boolean alarm2, Boolean alarm3, String refreshToken, String alarmToken, String providerType, String roleType) {
+	public UserEntity(Long userId, String email, String nickname, String profile, String favoriteArt,
+		Boolean favoriteExhAlarm, Boolean visitSoloAlarm, Boolean visitGatheringAlarm, Boolean newGatheringAlarm,
+		Boolean newDateGatheringAlarm, String refreshToken, String alarmToken, String providerType, String roleType) {
 		this.userId = userId;
 		this.email = email;
 		this.nickname = nickname;
 		this.profile = profile;
 		this.favoriteArt = favoriteArt;
-		this.alarm1 = alarm1;
-		this.alarm2 = alarm2;
-		this.alarm3 = alarm3;
+		this.favoriteExhAlarm = favoriteExhAlarm;
+		this.visitSoloAlarm = visitSoloAlarm;
+		this.visitGatheringAlarm = visitGatheringAlarm;
+		this.newGatheringAlarm = newGatheringAlarm;
+		this.newDateGatheringAlarm = newDateGatheringAlarm;
 		this.refreshToken = refreshToken;
 		this.alarmToken = alarmToken;
 		this.providerType = providerType;
@@ -73,14 +80,20 @@ public class UserEntity {
 		if (user.getFavoriteArt() != null) {
 			this.favoriteArt = user.getFavoriteArt();
 		}
-		if (user.getAlarm1() != null) {
-			this.alarm1 = user.getAlarm1();
+		if (user.getFavoriteExhAlarm() != null) {
+			this.favoriteExhAlarm = user.getFavoriteExhAlarm();
 		}
-		if (user.getAlarm2() != null) {
-			this.alarm2 = user.getAlarm2();
+		if (user.getVisitSoloAlarm() != null) {
+			this.visitSoloAlarm = user.getVisitSoloAlarm();
 		}
-		if (user.getAlarm3() != null) {
-			this.alarm3 = user.getAlarm3();
+		if (user.getVisitGatheringAlarm() != null) {
+			this.visitGatheringAlarm = user.getVisitGatheringAlarm();
+		}
+		if (user.getNewGatheringAlarm() != null) {
+			this.newGatheringAlarm = user.getNewGatheringAlarm();
+		}
+		if (user.getNewDateGatheringAlarm() != null) {
+			this.newDateGatheringAlarm = user.getNewDateGatheringAlarm();
 		}
 		if (user.getAlarmToken() != null) {
 			this.alarmToken = user.getAlarmToken();

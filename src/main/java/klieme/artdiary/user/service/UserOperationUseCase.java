@@ -47,9 +47,11 @@ public interface UserOperationUseCase {
 	@ToString
 	@Builder
 	class UserAlarmUpdateCommand {
-		private final Boolean alarm1;
-		private final Boolean alarm2;
-		private final Boolean alarm3;
+		private final Boolean favoriteExhAlarm;
+		private final Boolean visitSoloAlarm;
+		private final Boolean visitGatheringAlarm;
+		private final Boolean newGatheringAlarm;
+		private final Boolean newDateGatheringAlarm;
 	}
 
 	@EqualsAndHashCode

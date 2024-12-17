@@ -189,37 +189,44 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 	public FindAlarmResult updateAlarm(UserAlarmUpdateCommand command) {
 		UserEntity user = userRepository.findByUserId(getUserId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-		if (command.getAlarm1() != null) {
-			if (user.getAlarm1().equals(command.getAlarm1())) {
+		Boolean alarm = false;
+
+		if (command.getFavoriteExhAlarm() != null) {
+			if (user.getFavoriteExhAlarm().equals(command.getFavoriteExhAlarm())) {
 				throw new ArtDiaryException(MessageType.CONFLICT);
-			} else {
-				user.updateUser(UserEntity.builder()
-					.alarm1(command.getAlarm1())
-					.build());
 			}
-			return FindAlarmResult.findAlarm1(user);
+			user.updateUser(UserEntity.builder().favoriteExhAlarm(command.getFavoriteExhAlarm()).build());
+			alarm = command.getFavoriteExhAlarm();
 		}
-		if (command.getAlarm2() != null) {
-			if (user.getAlarm2().equals(command.getAlarm2())) {
+		if (command.getVisitSoloAlarm() != null) {
+			if (user.getVisitSoloAlarm().equals(command.getVisitSoloAlarm())) {
 				throw new ArtDiaryException(MessageType.CONFLICT);
-			} else {
-				user.updateUser(UserEntity.builder()
-					.alarm2(command.getAlarm2())
-					.build());
 			}
-			return FindAlarmResult.findAlarm2(user);
+			user.updateUser(UserEntity.builder().visitSoloAlarm(command.getVisitSoloAlarm()).build());
+			alarm = command.getVisitSoloAlarm();
 		}
-		if (command.getAlarm3() != null) {
-			if (user.getAlarm3().equals(command.getAlarm3())) {
+		if (command.getVisitGatheringAlarm() != null) {
+			if (user.getVisitGatheringAlarm().equals(command.getVisitGatheringAlarm())) {
 				throw new ArtDiaryException(MessageType.CONFLICT);
-			} else {
-				user.updateUser(UserEntity.builder()
-					.alarm3(command.getAlarm3())
-					.build());
 			}
-			return FindAlarmResult.findAlarm3(user);
+			user.updateUser(UserEntity.builder().visitGatheringAlarm(command.getVisitGatheringAlarm()).build());
+			alarm = command.getVisitGatheringAlarm();
 		}
-		return null;
+		if (command.getNewGatheringAlarm() != null) {
+			if (user.getNewGatheringAlarm().equals(command.getNewGatheringAlarm())) {
+				throw new ArtDiaryException(MessageType.CONFLICT);
+			}
+			user.updateUser(UserEntity.builder().newGatheringAlarm(command.getNewGatheringAlarm()).build());
+			alarm = command.getNewGatheringAlarm();
+		}
+		if (command.getNewDateGatheringAlarm() != null) {
+			if (user.getNewDateGatheringAlarm().equals(command.getNewDateGatheringAlarm())) {
+				throw new ArtDiaryException(MessageType.CONFLICT);
+			}
+			user.updateUser(UserEntity.builder().newDateGatheringAlarm(command.getNewDateGatheringAlarm()).build());
+			alarm = command.getNewDateGatheringAlarm();
+		}
+		return FindAlarmResult.findAlarm(alarm);
 	}
 
 	@Override
@@ -290,9 +297,11 @@ public class UserService implements UserOperationUseCase, UserReadUseCase {
 			.nickname(command.getProviderType() + "_" + command.getProviderId())
 			.profile(null)
 			.favoriteArt(null)
-			.alarm1(true)
-			.alarm2(true)
-			.alarm3(true)
+			.favoriteExhAlarm(true)
+			.visitSoloAlarm(true)
+			.visitGatheringAlarm(true)
+			.newGatheringAlarm(true)
+			.newDateGatheringAlarm(true)
 			.alarmToken(command.getAlarmToken())
 			.providerType(command.getProviderType())
 			.roleType(RoleType.USER.label())

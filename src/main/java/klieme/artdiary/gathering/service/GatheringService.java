@@ -3,6 +3,7 @@ package klieme.artdiary.gathering.service;
 import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
+import klieme.artdiary.common.push_alarm.PushAlarm;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
@@ -42,17 +44,19 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	private final UserRepository userRepository;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
+	private final PushAlarm pushAlarm;
 
 	@Autowired
 	public GatheringService(GatheringRepository gatheringRepository, GatheringMateRepository gatheringMateRepository,
 		ExhRepository exhRepository, UserRepository userRepository, ExhVisitRepository exhVisitRepository,
-		DiaryRepository diaryRepository) {
+		DiaryRepository diaryRepository, PushAlarm pushAlarm) {
 		this.gatheringRepository = gatheringRepository;
 		this.gatheringMateRepository = gatheringMateRepository;
 		this.exhRepository = exhRepository;
 		this.userRepository = userRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
+		this.pushAlarm = pushAlarm;
 	}
 
 	@Transactional
@@ -189,39 +193,32 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	}
 
 	@Override
-	public List<FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command) {
+	public List<FindGatheringMatesResult> addGatheringMate(GatheringMateCreateCommand command) throws IOException {
 		// 유저가 존재하는지 확인
 		UserEntity requestGatheringMate = getUser(command.getUserId());
 		// gatherId 확인
 		GatheringEntity savedGathering = gatheringRepository.findByGatherId(command.getGatherId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		// 내가 모임에 속해 있는지 확인
+		gatheringMateRepository.findByGatheringMateId(
+				GatheringMateId.builder().gatherId(command.getGatherId()).userId(getUserId()).build())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
 		// 모임에 속해 있는 메이트 리스트 조회
 		List<GatheringMateEntity> gatheringMateEntities = gatheringMateRepository.findByGatheringMateIdGatherId(
-			savedGathering.getGatherId());
-		boolean checkImInGathering = false;
-		boolean checkRequestUserInGathering = false;
-		for (GatheringMateEntity gatheringMate : gatheringMateEntities) {
-			if (gatheringMate.getGatheringMateId().getUserId().equals(getUserId())) {
-				checkImInGathering = true;
-			}
-			if (gatheringMate.getGatheringMateId().getUserId().equals(requestGatheringMate.getUserId())) {
-				checkRequestUserInGathering = true;
-			}
-		}
+			command.getGatherId());
 
-		// 내가 모임에 속해 있는지 확인 || 요청한 유저가 이미 모임에 있는지 확인
-		if (!checkImInGathering) {
-			throw new ArtDiaryException(MessageType.NOT_FOUND);
-		}
-		if (checkRequestUserInGathering) {
-			throw new ArtDiaryException(MessageType.CONFLICT);
+		for (GatheringMateEntity gatheringMate : gatheringMateEntities) {
+			// 요청한 유저가 이미 모임에 있는지 확인
+			if (gatheringMate.getGatheringMateId().getUserId().equals(requestGatheringMate.getUserId())) {
+				throw new ArtDiaryException(MessageType.CONFLICT);
+			}
 		}
 
 		// 모임에 추가
 		GatheringMateEntity gatheringMate = GatheringMateEntity.builder()
 			.gatheringMateId(GatheringMateId.builder()
 				.userId(requestGatheringMate.getUserId())
-				.gatherId(savedGathering.getGatherId())
+				.gatherId(command.getGatherId())
 				.build())
 			.build();
 		try {
@@ -239,6 +236,9 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			UserEntity mate = getUser(gatheringMateEntity.getGatheringMateId().getUserId());
 			results.add(FindGatheringMatesResult.findByGatheringMates(mate));
 		}
+
+		// 초대 받은 사용자에게 푸시 알림 보내기
+		sendPushAlarmToInvitedUser(requestGatheringMate, savedGathering);
 		return results;
 	}
 
@@ -346,5 +346,14 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 
 	private UserEntity getUser(Long userId) {
 		return userRepository.findByUserId(userId).orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+	}
+
+	private void sendPushAlarmToInvitedUser(UserEntity invitedUser, GatheringEntity gathering) throws IOException {
+		// pushAlarm.sendMessageTo(FcmSendDto.builder().token(invitedUser.getAlarmToken())
+		// 	.title("새로운 모임에서 초대!")
+		// 	.body("초대받음")
+		// 	.gatherId(gathering.getGatherId())
+		// 	// .gatherId() 사용 추가하기
+		// 	.build());
 	}
 }
