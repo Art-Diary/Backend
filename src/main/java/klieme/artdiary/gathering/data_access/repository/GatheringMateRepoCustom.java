@@ -9,4 +9,6 @@ public interface GatheringMateRepoCustom {
 	List<GatheringEntity> getGatheringListByRecentVisitDate(Long userId);
 
 	List<Map<String, Object>> getGatheringMateListForSearch(Long gatherId, Long userId, String nickname);
+
+	List<Map<String, Object>> getGatheringMateList(Long gatherId);
 }

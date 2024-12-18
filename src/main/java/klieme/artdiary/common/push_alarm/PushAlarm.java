@@ -3,6 +3,7 @@ package klieme.artdiary.common.push_alarm;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -73,18 +74,27 @@ public class PushAlarm {
 	 * @return String
 	 */
 	private String makeMessage(FcmSendDto fcmSendDto) throws JsonProcessingException {
+		String title = fcmSendDto.getTitle();
+		
+		// type
+		title += "/" + fcmSendDto.getType();
+		// id
+		if (Objects.equals(fcmSendDto.getType(), "exhibition")) {
+			title += "-" + fcmSendDto.getExhId().toString();
+		} else if (Objects.equals(fcmSendDto.getType(), "gathering")) {
+			title += "-" + fcmSendDto.getGatherId().toString();
+		}
 
-		ObjectMapper om = new ObjectMapper();
 		FcmMessageDto fcmMessageDto = FcmMessageDto.builder()
 			.message(FcmMessageDto.Message.builder()
 				.token(fcmSendDto.getToken())
 				.data(FcmMessageDto.Notification.builder()
-					.title(fcmSendDto.getTitle() + "/" + (fcmSendDto.getExhId() != null ?
-						fcmSendDto.getExhId().toString() : fcmSendDto.getGatherId().toString()))
+					.title(title)
 					.body(fcmSendDto.getBody())
 					.image(null)
 					.build()
 				).build()).validateOnly(false).build();
+		ObjectMapper om = new ObjectMapper();
 
 		return om.writeValueAsString(fcmMessageDto);
 	}

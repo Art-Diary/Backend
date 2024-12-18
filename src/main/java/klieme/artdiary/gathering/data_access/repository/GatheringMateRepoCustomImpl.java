@@ -76,4 +76,31 @@ public class GatheringMateRepoCustomImpl implements GatheringMateRepoCustom {
 		}
 		return results;
 	}
+
+	@Override
+	public List<Map<String, Object>> getGatheringMateList(Long gatherId) {
+		QGatheringMateEntity gatheringMate = QGatheringMateEntity.gatheringMateEntity;
+		QGatheringEntity gathering = QGatheringEntity.gatheringEntity;
+		QUserEntity user = QUserEntity.userEntity;
+
+		// 사용자가 모임에서 최근에 전시회를 방문한 날짜 순으로 정렬
+		List<Tuple> tuples = query
+			.select(user, gathering)
+			.from(gatheringMate)
+			.leftJoin(gathering).on(gatheringMate.gatheringMateId.gatherId.eq(gathering.gatherId))
+			.leftJoin(user).on(gatheringMate.gatheringMateId.userId.eq(user.userId))
+			.fetchJoin()
+			.where(gatheringMate.gatheringMateId.gatherId.eq(gatherId))
+			.fetch();
+
+		List<Map<String, Object>> results = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("user", tuple.get(0, UserEntity.class));
+			row.put("gathering", tuple.get(1, GatheringEntity.class));
+			results.add(row);
+		}
+		return results;
+	}
 }
