@@ -75,6 +75,7 @@ public class SendAlarmService {
 					.token(userEntity.getAlarmToken())
 					.title(title)
 					.body(body)
+					.type("exhibition")
 					.exhId(exhEntity.getExhId())
 					.build());
 			}
@@ -93,6 +94,7 @@ public class SendAlarmService {
 				.token(user.getAlarmToken())
 				.title("오늘은 혼자 전시회 가는 날")
 				.body("\"" + exh.getExhName() + "\" 전시회 정보를 보려면 눌러주세요!")
+				.type("exhibition")
 				.exhId(exh.getExhId())
 				.build());
 		}
@@ -111,6 +113,7 @@ public class SendAlarmService {
 				.token(user.getAlarmToken())
 				.title("오늘은 \"" + gathering.getGatherName() + "\"이랑 전시회 가는 날")
 				.body("\"" + exh.getExhName() + "\" 전시회 정보를 보려면 눌러주세요!")
+				.type("exhibition")
 				.exhId(exh.getExhId())
 				.build());
 		}

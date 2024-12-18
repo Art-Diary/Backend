@@ -80,7 +80,7 @@ public class GatheringController {
 	public ResponseEntity<List<GatheringExhView>> addExhAboutGathering(
 		@PathVariable(name = "gatherId") Long gatherId,
 		@Valid @RequestBody AddExhDateRequest request
-	) {
+	) throws IOException {
 		log.info("[모임의 일정에 전시회 관람 날짜 추가]");
 		// request body 데이터 받아오기
 		var command = GatheringOperationUseCase.ExhGatheringCreateCommand.builder()

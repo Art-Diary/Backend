@@ -22,6 +22,7 @@ import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.common.push_alarm.PushAlarm;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
+import klieme.artdiary.fcm.FcmSendDto;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringMateEntity;
 import klieme.artdiary.gathering.data_access.entity.GatheringMateId;
@@ -96,7 +97,7 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 
 	@Transactional
 	@Override
-	public List<FindGatheringExhResult> addExhAboutGathering(ExhGatheringCreateCommand command) {
+	public List<FindGatheringExhResult> addExhAboutGathering(ExhGatheringCreateCommand command) throws IOException {
 		// 유저가 속한 모임의 gatherId인지 확인
 		gatheringMateRepository.findByGatheringMateId(GatheringMateId.builder()
 			.gatherId(command.getGatherId())
@@ -151,6 +152,9 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 			}
 			result.add(FindGatheringExhResult.findByGatheringExh(exh, averageRate));
 		}
+
+		// 모임 멤버들에게 푸시 알림 보내기
+		sendPushAlarmToGatheringMember(command.getGatherId(), command.getVisitDate());
 		return result;
 	}
 
@@ -253,13 +257,11 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 		List<MateInfo> mateInfoList = new ArrayList<>();
 		List<ExhibitionInfo> exhibitionInfoList = new ArrayList<>();
 		// 1. gathering에 포함되어 있는 유저 리스트
-		// gatheringMate에서 gatherId로 조회
-		List<GatheringMateEntity> gatheringMateList = gatheringMateRepository.findByGatheringMateIdGatherId(
-			query.getGatherId());
-		// user에서 조회
-		for (GatheringMateEntity gatheringMate : gatheringMateList) {
-			UserEntity user = userRepository.findByUserId(gatheringMate.getGatheringMateId().getUserId())
-				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		List<Map<String, Object>> gatheringMateList = gatheringMateRepository.getGatheringMateList(query.getGatherId());
+
+		for (Map<String, Object> info : gatheringMateList) {
+			UserEntity user = (UserEntity)info.get("user");
+
 			mateInfoList.add(MateInfo.builder()
 				.userId(user.getUserId())
 				.nickname(user.getNickname())
@@ -349,11 +351,37 @@ public class GatheringService implements GatheringOperationUseCase, GatheringRea
 	}
 
 	private void sendPushAlarmToInvitedUser(UserEntity invitedUser, GatheringEntity gathering) throws IOException {
-		// pushAlarm.sendMessageTo(FcmSendDto.builder().token(invitedUser.getAlarmToken())
-		// 	.title("새로운 모임에서 초대!")
-		// 	.body("초대받음")
-		// 	.gatherId(gathering.getGatherId())
-		// 	// .gatherId() 사용 추가하기
-		// 	.build());
+		// 초대받는 사람의 알림이 켜져있어야 하고, 알림 토큰이 있어야 한다.
+		if (invitedUser.getNewGatheringAlarm() && invitedUser.getAlarmToken() != null) {
+			pushAlarm.sendMessageTo(FcmSendDto.builder().token(invitedUser.getAlarmToken())
+				.title("새로운 모임 초대 알림")
+				.body("\"" + gathering.getGatherName() + "\"에서 초대했어요. 모임 정보를 보려면 눌러주세요!")
+				.type("gathering")
+				.gatherId(gathering.getGatherId())
+				.build());
+		}
+	}
+
+	private void sendPushAlarmToGatheringMember(Long gatherId, LocalDate visitDate) throws
+		IOException {
+		// 모임의 멤버들의 NewGatheringAlarm 푸시 알림이 켜져있어야 하고, 알림 토큰이 있어야 한다.
+		List<Map<String, Object>> gatheringMateList = gatheringMateRepository.getGatheringMateList(gatherId);
+		String date = changeDateFormat(visitDate);
+
+		for (Map<String, Object> info : gatheringMateList) {
+			UserEntity user = (UserEntity)info.get("user");
+			GatheringEntity gathering = (GatheringEntity)info.get("gathering");
+
+			if (Objects.equals(user.getUserId(), getUserId())) {
+				continue;
+			}
+			if (user.getNewDateGatheringAlarm() && user.getAlarmToken() != null) {
+				pushAlarm.sendMessageTo(FcmSendDto.builder().token(user.getAlarmToken())
+					.title("\"" + gathering.getGatherName() + "\"" + "와 함께 보러 갈 새로운 일정 알림")
+					.body(date + "에 전시회 관람 날짜가 추가됐어요. 일정을 확인하려면 눌러주세요.")
+					.type("calendar")
+					.build());
+			}
+		}
 	}
 }

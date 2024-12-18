@@ -15,7 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 public class SchedulerConfig {
 	private final SendAlarmService sendAlarmService;
 
-	@Scheduled(cron = "0 0/5 * * * ?")
+	// @Scheduled(cron = "0 0/1 * * * ?")
+	@Scheduled(cron = "0 0 9 * * ?")
 	public void run() throws IOException {
 		sendAlarmService.sendMessageAboutExh();
 	}
