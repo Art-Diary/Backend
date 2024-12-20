@@ -28,6 +28,8 @@ public class QnaEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "qna_id", nullable = false)
 	private Long qnaId;
+	@Column(name = "user_id", nullable = false)
+	private Long userId;
 	@Column(nullable = false)
 	private String title;
 	@Column(nullable = false)
@@ -37,18 +39,32 @@ public class QnaEntity {
 	private String answer;
 	@Column(name = "write_date", nullable = false)
 	private LocalDate writeDate;
-	@Column(name = "answer_date", nullable = false)
+	@Column(name = "answer_date")
 	private LocalDate answerDate;
 
 	@Builder
-	public QnaEntity(Long qnaId, String title, String body, Boolean state, String answer, LocalDate writeDate,
+	public QnaEntity(Long qnaId, Long userId, String title, String body, Boolean state, String answer,
+		LocalDate writeDate,
 		LocalDate answerDate) {
 		this.qnaId = qnaId;
+		this.userId = userId;
 		this.title = title;
 		this.body = body;
 		this.state = state;
 		this.answer = answer;
 		this.writeDate = writeDate;
 		this.answerDate = answerDate;
+	}
+
+	public void updateAnswer(QnaEntity qna) {
+		if (qna.getAnswer() != null) {
+			this.answer = qna.getAnswer();
+		}
+		if (qna.getAnswerDate() != null) {
+			this.answerDate = qna.getAnswerDate();
+		}
+		if (qna.getState() != null) {
+			this.state = qna.getState();
+		}
 	}
 }

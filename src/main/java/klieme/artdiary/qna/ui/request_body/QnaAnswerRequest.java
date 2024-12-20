@@ -11,12 +11,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class QnaRequest {
+public class QnaAnswerRequest {
 	@NotBlank
-	private String title;
-	@NotBlank
-	private String body;
+	private String answer;
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate writeDate;
+	private LocalDate answerDate;
 }
