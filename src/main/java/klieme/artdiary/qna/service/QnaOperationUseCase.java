@@ -11,6 +11,8 @@ import lombok.ToString;
 public interface QnaOperationUseCase {
 	List<QnaReadUseCase.FindQnaResult> createQuestion(QnaCreateCommand command);
 
+	QnaReadUseCase.FindQnaResult updateQnaContent(QnaUpdateCommand command, Long qnaId);
+
 	void deleteQuestion(Long qnaId);
 
 	QnaReadUseCase.FindQnaResult answerQnaByAdmin(QnaAnswerUpdateCommand command);
@@ -20,6 +22,17 @@ public interface QnaOperationUseCase {
 	@Getter
 	@ToString
 	class QnaCreateCommand {
+		private final String title;
+		private final String body;
+		private final LocalDate writeDate;
+	}
+
+	@EqualsAndHashCode
+	@Builder
+	@Getter
+	@ToString
+	class QnaUpdateCommand {
+		private final Long qnaId;
 		private final String title;
 		private final String body;
 		private final LocalDate writeDate;

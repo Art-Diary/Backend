@@ -96,6 +96,30 @@ public class QnaService implements QnaReadUseCase, QnaOperationUseCase {
 
 	@Transactional
 	@Override
+	public QnaReadUseCase.FindQnaResult updateQnaContent(QnaUpdateCommand command, Long qnaId) {
+		QnaEntity qnaEntity = qnaRepository.findByQnaIdAndUserId(qnaId, getUserId())
+			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+
+		// 답변이 달린 경우는 수정 불가능
+		if (qnaEntity.getState()) {
+			throw new ArtDiaryException(MessageType.FORBIDDEN);
+		}
+
+		QnaEntity updateQna = QnaEntity.builder()
+			.qnaId(qnaEntity.getQnaId())
+			.userId(qnaEntity.getUserId())
+			.title(command.getTitle())
+			.body(command.getBody())
+			.state(false)
+			.writeDate(command.getWriteDate())
+			.build();
+		qnaRepository.save(updateQna);
+
+		return FindQnaResult.findByQna(updateQna);
+	}
+
+	@Transactional
+	@Override
 	public void deleteQuestion(Long qnaId) {
 		QnaEntity qnaEntity = qnaRepository.findByQnaIdAndUserId(qnaId, getUserId())
 			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
