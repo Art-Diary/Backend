@@ -12,6 +12,8 @@ import lombok.ToString;
 public interface QnaReadUseCase {
 	List<FindQnaResult> getQnaList(Boolean isAdmin);
 
+	FindQnaResult getQnaDetail(Boolean isAdmin, Long qnaId);
+
 	@Getter
 	@ToString
 	@Builder
