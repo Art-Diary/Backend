@@ -89,6 +89,27 @@ public class QnaController {
 	}
 
 	/**
+	 * qna 수정
+	 */
+	@PatchMapping("/{qnaId}")
+	public ResponseEntity<QnaView> updateQna(@Valid @RequestBody QnaRequest request,
+		@PathVariable(name = "qnaId") Long qnaId) {
+
+		log.info("[Q&A 내용 수정]");
+
+		var command = QnaOperationUseCase.QnaUpdateCommand.builder()
+			.qnaId(qnaId)
+			.title(request.getTitle())
+			.body(request.getBody())
+			.writeDate(request.getWriteDate())
+			.build();
+
+		QnaReadUseCase.FindQnaResult result = qnaOperationUseCase.updateQnaContent(command, qnaId);
+
+		return ResponseEntity.ok(QnaView.builder().result(result).build());
+	}
+
+	/**
 	 * qna 삭제
 	 */
 	@DeleteMapping("/{qnaId}")
