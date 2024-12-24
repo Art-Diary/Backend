@@ -73,6 +73,27 @@ public class QnaService implements QnaReadUseCase, QnaOperationUseCase {
 		return results;
 	}
 
+	@Override
+	public FindQnaResult getQnaDetail(Boolean isAdmin, Long qnaId) {
+
+		UserEntity user = getUser();
+		QnaEntity qnaEntity;
+		if (isAdmin) {
+			// 관리자의 경우 (모두 보여주기)
+			if (!Objects.equals(user.getRoleType(), RoleType.ADMIN.label())) {
+				throw new ArtDiaryException(MessageType.FORBIDDEN);
+			}
+			qnaEntity = qnaRepository.findByQnaId(qnaId)
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		} else {
+			// 사용자의 경우 (사용자 자신의 것만 보여주기)
+			qnaEntity = qnaRepository.findByQnaIdAndUserId(qnaId, user.getUserId())
+				.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
+		}
+
+		return FindQnaResult.findByQna(qnaEntity);
+	}
+
 	@Transactional
 	@Override
 	public void deleteQuestion(Long qnaId) {

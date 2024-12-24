@@ -77,6 +77,18 @@ public class QnaController {
 	}
 
 	/**
+	 * qna 개별 조회
+	 * */
+	@GetMapping("/{qnaId}")
+	public ResponseEntity<QnaView> getQnaDetail(@RequestParam(name = "isAdmin") Boolean isAdmin,
+		@PathVariable(name = "qnaId") Long qnaId) {
+		log.info("[Q&A 개별 조회]");
+
+		QnaReadUseCase.FindQnaResult result = qnaReadUseCase.getQnaDetail(isAdmin, qnaId);
+		return ResponseEntity.ok(QnaView.builder().result(result).build());
+	}
+
+	/**
 	 * qna 삭제
 	 */
 	@DeleteMapping("/{qnaId}")
