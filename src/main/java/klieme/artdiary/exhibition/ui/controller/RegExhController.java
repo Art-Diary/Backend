@@ -61,8 +61,7 @@ public class RegExhController {
 		// 비즈니스 로직 호출
 		RegExhReadUseCase.FindRegExhResult regExhResult = regExhOperationUseCase.createRegExhByUser(command);
 
-		return ResponseEntity.ok(RegExhView.builder().result(regExhResult).build());
-
+		return ResponseEntity.created(null).body(RegExhView.builder().result(regExhResult).build());
 	}
 
 	@GetMapping("")
