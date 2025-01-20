@@ -33,6 +33,7 @@ public class ExhDataService implements ExhDataUseCase {
 		// 포스터 다운로드
 		exhRepository.save(ExhEntity.builder()
 			.exhName(params.getExhName())
+			.source(params.getSource())
 			.gallery(params.getGallery())
 			.exhPeriodStart(params.getExhPeriodStart())
 			.exhPeriodEnd(params.getExhPeriodEnd())

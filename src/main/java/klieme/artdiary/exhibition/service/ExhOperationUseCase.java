@@ -32,6 +32,7 @@ public interface ExhOperationUseCase {
 		private final String url;
 		private final MultipartFile poster;
 		private final String art;
+		private final String source;
 	}
 
 	@EqualsAndHashCode

@@ -44,10 +44,12 @@ public class ExhEntity {
 	private String poster;
 	@Column(nullable = false)
 	private String art;
+	@Column(nullable = false)
+	private String source;
 
 	@Builder
 	public ExhEntity(Long exhId, String exhName, String gallery, LocalDate exhPeriodStart, LocalDate exhPeriodEnd,
-		String painter, Integer fee, String intro, String url, String poster, String art) {
+		String painter, Integer fee, String intro, String url, String poster, String art, String source) {
 		this.exhId = exhId;
 		this.exhName = exhName;
 		this.gallery = gallery;
@@ -59,6 +61,7 @@ public class ExhEntity {
 		this.url = url;
 		this.poster = poster;
 		this.art = art;
+		this.source = source;
 	}
 
 	public void updateExhEntity(ExhEntity exhEntity) {
@@ -79,5 +82,7 @@ public class ExhEntity {
 			this.poster = exhEntity.getPoster();
 		if (exhEntity.getArt() != null)
 			this.art = exhEntity.getArt();
+		if (exhEntity.getSource() != null)
+			this.source = exhEntity.getSource();
 	}
 }
