@@ -14,6 +14,7 @@ public class ExhDataRequest {
 	private LocalDate exhPeriodEnd;
 	private String painter;
 	private Integer fee;
+	private String source;
 	private String art;
 	private String url;
 	private String poster;

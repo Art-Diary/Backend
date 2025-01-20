@@ -25,6 +25,7 @@ public class RegExhView {
 	private final String regDate;
 	private final String regComment;
 	private final String regState;
+	private final String regSource;
 
 	@Builder
 	public RegExhView(RegExhReadUseCase.FindRegExhResult result) {
@@ -42,5 +43,6 @@ public class RegExhView {
 		this.regDate = result.getRegDate();
 		this.regComment = result.getRegComment();
 		this.regState = result.getRegState();
+		this.regSource = result.getRegSource();
 	}
 }

@@ -42,6 +42,9 @@ public class ExhRequest {
 	@NotNull
 	private MultipartFile poster;
 
-	@NotNull
+	@NotBlank
 	private String art;
+
+	@NotBlank
+	private String source;
 }

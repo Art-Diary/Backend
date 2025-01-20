@@ -203,6 +203,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 				.url(command.getRegUrl())
 				.art(command.getRegArt())
 				.poster(poster)
+				.source(command.getRegSource())
 				.build();
 			if (exhEntity == null) {
 				exhEntity = updateExhEntity;
@@ -226,6 +227,7 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			.regComment(command.getRegComment())
 			.regState(command.getRegState().label())
 			.regPoster(poster)
+			.regSource(command.getRegSource())
 			.build());
 		regExhRepository.save(regExhEntity);
 		return FindRegExhResult.findByRegExh(regExhEntity);

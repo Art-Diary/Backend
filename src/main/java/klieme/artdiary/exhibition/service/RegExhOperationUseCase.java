@@ -54,5 +54,6 @@ public interface RegExhOperationUseCase {
 		private final String regArt;
 		private final String regComment;
 		private final RegExhState regState;
+		private final String regSource;
 	}
 }

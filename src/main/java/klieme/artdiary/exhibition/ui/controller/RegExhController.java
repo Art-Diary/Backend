@@ -152,6 +152,7 @@ public class RegExhController {
 			.regArt(request.getRegArt())
 			.regComment(request.getRegComment())
 			.regState(RegExhState.valueOfLabel(request.getRegState()))
+			.regSource(request.getRegSource())
 			.build();
 		// 비즈니스 로직 호출
 		RegExhReadUseCase.FindRegExhResult regExhResult = regExhOperationUseCase.confirmExhRequestByAdmin(command);

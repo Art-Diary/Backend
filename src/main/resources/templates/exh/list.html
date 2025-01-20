@@ -54,6 +54,10 @@
                                         <td colspan="3"><input type="text" id="gallery" name="gallery" placeholder="갤러리를 입력해 주세요." /></td>
                                     </tr>
                                     <tr>
+                                        <th>exh source<span class="es">필수 입력</span></th>
+                                        <td colspan="3"><input type="text" id="source" name="source" placeholder="출처를 입력해 주세요." /></td>
+                                    </tr>
+                                    <tr>
                                         <th scope="row">exh period start <span class="es">필수 입력</span></th>
                                         <td><input type="text" id="exhPeriodStart" name="exhPeriodStart" placeholder="시작 날짜를 입력해 주세요. 예시) 2024-01-01" /></td>
 
@@ -99,6 +103,7 @@
                                 <col style="width: 40px;" />
                                 <col style="width: 150px;" />
                                 <col style="width: 150px;" />
+                                <col style="width: 150px;" />
                                 <col style="width: 90px;" />
                                 <col style="width: 90px;" />
                                 <col style="width: 100px;" />
@@ -114,6 +119,7 @@
                                 <th scope="col">exh id</th>
                                 <th scope="col">exh name</th>
                                 <th scope="col">exh gallery</th>
+                                <th scope="col">source</th>
                                 <th scope="col">exh period start</th>
                                 <th scope="col">exh period end</th>
                                 <th scope="col">painter</th>
@@ -130,6 +136,7 @@
                                 <td th:text="${row.exhId}"></td>
                                 <td th:text="${row.exhName}"></td>
                                 <td th:text="${row.gallery}"></td>
+                                <td th:text="${row.source}"></td>
                                 <td th:text="${row.exhPeriodStart}"></td>
                                 <td th:text="${row.exhPeriodEnd}"></td>
                                 <td th:text="${row.painter}"></td>
@@ -162,8 +169,8 @@
                             // 게시글 저장(수정)
                             function savePost() {
                                 const form = document.getElementById('saveForm');
-                                const fields = [form.exhName, form.gallery, form.exhPeriodStart, form.exhPeriodEnd, form.painter, form.fee, form.art, form.url, form.poster, form.intro];
-                                const fieldNames = ['제목', '갤러리', '시작 날짜', '종료 날짜', '작가', '가격', '분야', '홈페이지 url', '포스터', '소개글'];
+                                const fields = [form.exhName, form.gallery, form.source, form.exhPeriodStart, form.exhPeriodEnd, form.painter, form.fee, form.art, form.url, form.poster, form.intro];
+                                const fieldNames = ['제목', '갤러리', '출처', '시작 날짜', '종료 날짜', '작가', '가격', '분야', '홈페이지 url', '포스터', '소개글'];
 
                                 for (let i = 0, len = fields.length; i < len; i++) {
                                     if (fieldNames[i] === '작가' || fieldNames[i] === '소개글' || fieldNames[i] === '홈페이지 url' || fieldNames[i] === '분야') {

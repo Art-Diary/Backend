@@ -58,11 +58,14 @@ public class RegExhEntity {
 	private String regComment;
 	@Column(name = "reg_state", nullable = false)
 	private String regState;
+	@Column(name = "reg_source", nullable = false)
+	private String regSource;
 
 	@Builder
 	public RegExhEntity(Long regExhId, Long userId, Long exhId, String regExhName, String regGallery,
 		LocalDate regExhPeriodStart, LocalDate regExhPeriodEnd, String regPainter, Integer regFee, String regIntro,
-		String regUrl, String regPoster, String regArt, LocalDateTime regDate, String regComment, String regState) {
+		String regUrl, String regPoster, String regArt, LocalDateTime regDate, String regComment, String regState,
+		String regSource) {
 		this.regExhId = regExhId;
 		this.userId = userId;
 		this.exhId = exhId;
@@ -79,6 +82,7 @@ public class RegExhEntity {
 		this.regDate = regDate;
 		this.regComment = regComment;
 		this.regState = regState;
+		this.regSource = regSource;
 	}
 
 	public void updateRegExhByUser(RegExhEntity entity) {
@@ -139,6 +143,9 @@ public class RegExhEntity {
 		this.regComment = entity.getRegComment();
 		if (entity.getRegState() != null) {
 			this.regState = entity.getRegState();
+		}
+		if (entity.getRegSource() != null) {
+			this.regSource = entity.getRegSource();
 		}
 	}
 

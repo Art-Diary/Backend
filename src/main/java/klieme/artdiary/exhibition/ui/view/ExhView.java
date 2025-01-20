@@ -23,6 +23,7 @@ public class ExhView {
 	private final String intro;
 	private final String url;
 	private final String art;
+	private final String source;
 
 	@Builder
 	public ExhView(ExhReadUseCase.FindExhResult result) {
@@ -38,5 +39,6 @@ public class ExhView {
 		this.intro = result.getIntro();
 		this.url = result.getUrl();
 		this.art = result.getArt();
+		this.source = result.getSource();
 	}
 }

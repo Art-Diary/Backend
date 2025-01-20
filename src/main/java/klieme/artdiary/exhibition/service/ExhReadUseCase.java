@@ -87,6 +87,7 @@ public interface ExhReadUseCase {
 		private final String intro;
 		private final String url;
 		private final String art;
+		private final String source;
 
 		public static FindExhResult findByExh(ExhEntity exh, Boolean favoriteExh) {
 			return FindExhResult.builder()
@@ -102,6 +103,7 @@ public interface ExhReadUseCase {
 				.intro(exh.getIntro())
 				.url(exh.getUrl())
 				.art(exh.getArt())
+				.source(exh.getSource())
 				.build();
 		}
 

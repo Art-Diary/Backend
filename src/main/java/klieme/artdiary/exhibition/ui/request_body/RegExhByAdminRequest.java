@@ -38,7 +38,6 @@ public class RegExhByAdminRequest {
 
 	String regUrl;
 
-	@NotNull
 	MultipartFile regPoster;
 
 	@NotNull
@@ -48,4 +47,6 @@ public class RegExhByAdminRequest {
 
 	@NotBlank
 	String regState;
+
+	String regSource;
 }

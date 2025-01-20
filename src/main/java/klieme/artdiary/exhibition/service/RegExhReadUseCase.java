@@ -32,6 +32,7 @@ public interface RegExhReadUseCase {
 		private final String regDate;
 		private final String regComment;
 		private final String regState;
+		private final String regSource;
 
 		public static FindRegExhResult findByRegExh(RegExhEntity regExh) {
 			return FindRegExhResult.builder()
@@ -49,6 +50,7 @@ public interface RegExhReadUseCase {
 				.regDate(changeDateTimeFormat(regExh.getRegDate()))
 				.regComment(regExh.getRegComment())
 				.regState(regExh.getRegState())
+				.regSource(regExh.getRegSource())
 				.build();
 		}
 
