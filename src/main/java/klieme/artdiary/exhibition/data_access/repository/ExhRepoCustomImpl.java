@@ -10,10 +10,13 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
+import klieme.artdiary.exhibition.data_access.entity.QCategoryEntity;
+import klieme.artdiary.exhibition.data_access.entity.QExhCategoryLinkEntity;
 import klieme.artdiary.exhibition.data_access.entity.QExhEntity;
 import klieme.artdiary.exhibition.enums.ExhField;
 import klieme.artdiary.exhibition.enums.ExhPrice;
@@ -30,6 +33,8 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 		List<ExhState> stateList, LocalDate date, Long userId) {
 		QExhEntity exh = QExhEntity.exhEntity;
 		QFavoriteExhEntity favoriteExh = QFavoriteExhEntity.favoriteExhEntity;
+		QCategoryEntity category = QCategoryEntity.categoryEntity;
+		QExhCategoryLinkEntity exhCategoryLinkEntity = QExhCategoryLinkEntity.exhCategoryLinkEntity;
 		BooleanBuilder builder = new BooleanBuilder();
 
 		if (fieldList != null) {
@@ -37,9 +42,9 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 
 			for (ExhField field : fieldList) {
 				if (field == ExhField.OTHER) { // 그 외일 경우 처리
-					fieldBuilder.or(exh.art.isNull());
+					fieldBuilder.or(category.name.isNull());
 				} else {
-					fieldBuilder.or(exh.art.eq(field.label()));
+					fieldBuilder.or(category.name.eq(field.label()));
 				}
 			}
 			builder.and(fieldBuilder);
@@ -80,7 +85,8 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 
 		}
 
-		if (fieldList.isEmpty() && price == null && stateList.isEmpty() && date == null) {//아무 조건도 없을 때
+		if ((fieldList == null || fieldList.isEmpty()) && price == null && (stateList == null || stateList.isEmpty())
+			&& date == null) { //아무 조건도 없을 때
 
 			BooleanBuilder stateBuilder = new BooleanBuilder();
 			LocalDate now = LocalDate.now();
@@ -100,12 +106,15 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 							.exists()
 					).then(1)
 					.otherwise(0))
+			.distinct()
 			.from(exh)
 			.leftJoin(favoriteExh).on(exh.exhId.eq(favoriteExh.favoriteExhId.exhId))
+			.leftJoin(exhCategoryLinkEntity).on(exh.exhId.eq(exhCategoryLinkEntity.exhCategoryLinkId.exhId))
+			.leftJoin(category).on(exhCategoryLinkEntity.exhCategoryLinkId.categoryId.eq(category.categoryId))
 			.fetchJoin()
 			.where(builder)
 			.groupBy(exh.exhId)
-			.orderBy(favoriteExh.favoriteExhId.exhId.count().desc(), exh.exhName.asc()) // exh.exhPeriodStart.desc(),
+			.orderBy(favoriteExh.favoriteExhId.exhId.count().desc(), exh.exhName.asc())
 			.fetch();
 		List<Map<String, Object>> result = new ArrayList<>();
 
@@ -180,5 +189,31 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 		}
 		return result;
 
+	}
+
+	@Override
+	public List<Map<String, Object>> getExhListForExhData() {
+		QExhEntity exh = QExhEntity.exhEntity;
+		QCategoryEntity category = QCategoryEntity.categoryEntity;
+		QExhCategoryLinkEntity exhCategoryLinkEntity = QExhCategoryLinkEntity.exhCategoryLinkEntity;
+
+		List<Tuple> tuples = query.select(exh, Expressions.stringTemplate("GROUP_CONCAT({0})", category.name))
+			.distinct()
+			.from(exh)
+			.leftJoin(exhCategoryLinkEntity).on(exh.exhId.eq(exhCategoryLinkEntity.exhCategoryLinkId.exhId))
+			.leftJoin(category).on(exhCategoryLinkEntity.exhCategoryLinkId.categoryId.eq(category.categoryId))
+			.fetchJoin()
+			.groupBy(exh.exhId)
+			.orderBy(exh.exhId.desc())
+			.fetch();
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Tuple tuple : tuples) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("exhibition", tuple.get(0, ExhEntity.class));
+			row.put("category", tuple.get(1, String.class));
+			result.add(row);
+		}
+		return result;
 	}
 }

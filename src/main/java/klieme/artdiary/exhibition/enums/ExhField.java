@@ -6,11 +6,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum ExhField {
-	PHOTO("사진"),
 	PAINTING("회화"),
 	PIECE("조각"),
-	CRAFTS("공예"),
+	PHOTO("사진"),
+	PRINT("판화"),
+	Illustration("일러스트레이션"),
 	MEDIA_ART("미디어아트"),
+	CRAFTS("공예"),
+	INSTALLATION("설치미술"),
 	OTHER("그외");
 
 	private final String label;
