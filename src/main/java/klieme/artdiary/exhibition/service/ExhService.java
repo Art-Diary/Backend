@@ -4,10 +4,10 @@ import static klieme.artdiary.common.FormatDate.*;
 import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +17,14 @@ import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.common.image.ImageType;
 import klieme.artdiary.common.image.S3ImageTransfer;
+import klieme.artdiary.exhibition.data_access.entity.CategoryEntity;
+import klieme.artdiary.exhibition.data_access.entity.ExhCategoryLinkEntity;
+import klieme.artdiary.exhibition.data_access.entity.ExhCategoryLinkId;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
+import klieme.artdiary.exhibition.data_access.repository.CategoryRepository;
+import klieme.artdiary.exhibition.data_access.repository.ExhCategoryLinkRepository;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibition.info.StoredListOfDate;
-import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhEntity;
-import klieme.artdiary.favoriteexh.data_access.entity.FavoriteExhId;
-import klieme.artdiary.favoriteexh.data_access.repository.FavoriteExhRepository;
 import klieme.artdiary.gathering.data_access.entity.GatheringEntity;
 import klieme.artdiary.gathering.data_access.repository.GatheringRepository;
 import klieme.artdiary.record_data_access.entity.DiaryEntity;
@@ -35,21 +37,23 @@ import klieme.artdiary.user.data_access.entity.UserEntity;
 public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 
 	private final ExhRepository exhRepository;
-	private final FavoriteExhRepository favoriteExhRepository;
 	private final ExhVisitRepository exhVisitRepository;
 	private final DiaryRepository diaryRepository;
 	private final GatheringRepository gatheringRepository;
+	private final CategoryRepository categoryRepository;
+	private final ExhCategoryLinkRepository exhCategoryLinkRepository;
 	private final S3ImageTransfer s3ImageTransfer;
 
 	@Autowired
-	public ExhService(ExhRepository exhRepository, FavoriteExhRepository favoriteExhRepository,
-		ExhVisitRepository exhVisitRepository, DiaryRepository diaryRepository, GatheringRepository gatheringRepository,
-		S3ImageTransfer s3ImageTransfer) {
+	public ExhService(ExhRepository exhRepository, ExhVisitRepository exhVisitRepository,
+		DiaryRepository diaryRepository, GatheringRepository gatheringRepository, CategoryRepository categoryRepository,
+		ExhCategoryLinkRepository exhCategoryLinkRepository, S3ImageTransfer s3ImageTransfer) {
 		this.exhRepository = exhRepository;
-		this.favoriteExhRepository = favoriteExhRepository;
 		this.exhVisitRepository = exhVisitRepository;
 		this.diaryRepository = diaryRepository;
 		this.gatheringRepository = gatheringRepository;
+		this.categoryRepository = categoryRepository;
+		this.exhCategoryLinkRepository = exhCategoryLinkRepository;
 		this.s3ImageTransfer = s3ImageTransfer;
 	}
 
@@ -132,17 +136,13 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 	}
 
 	@Override
-	public ExhReadUseCase.FindExhResult getExhDetailInfo(Long exhId) { //나중에 getfindexhresult함수 사용으로 바꿔보기
+	public ExhReadUseCase.FindExhResult getExhDetailInfo(Long exhId) {
+		Map<String, Object> exhDetailInfo = exhRepository.getExhDetailInfo(getUserId(), exhId);
+		ExhEntity exh = (ExhEntity)exhDetailInfo.get("exhibition");
+		String category = (String)exhDetailInfo.get("category");
+		Boolean isFavoriteExh = (Boolean)exhDetailInfo.get("haveFavoriteByUser");
 
-		ExhEntity entity = exhRepository.findByExhId(exhId)
-			.orElseThrow(() -> new ArtDiaryException(MessageType.NOT_FOUND));
-
-		Optional<FavoriteExhEntity> favoriteExh = favoriteExhRepository.findByFavoriteExhId(FavoriteExhId.builder()
-			.userId(getUserId())
-			.exhId(exhId)
-			.build());
-		boolean isFavoriteExh = favoriteExh.isPresent();
-		return FindExhResult.findByExh(entity, isFavoriteExh);
+		return FindExhResult.findByExh(exh, isFavoriteExh, category);
 	}
 
 	//[here/hw]
@@ -180,6 +180,46 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 					.exhId(command.getExhId())
 					.build());
 		}
+		// 카테고리
+		List<CategoryEntity> categoryList = categoryRepository.findAll();
+		List<ExhCategoryLinkEntity> oldList = exhCategoryLinkRepository.findByExhCategoryLinkIdExhId(
+			command.getExhId());
+		List<String> fieldList = new ArrayList<>(Arrays.asList(command.getArt().split(","))); // 수정된 카테고리
+
+		// 삭제도 필요
+		for (ExhCategoryLinkEntity old : oldList) {
+			Long categoryId = old.getExhCategoryLinkId().getCategoryId();
+			// 여전히 있는지 확인
+			CategoryEntity category = categoryList.stream()
+				.filter(c -> categoryId.equals(c.getCategoryId()))
+				.findAny()
+				.orElse(null);
+			if (category == null) {
+				continue;
+			}
+			// -> 없으면 삭제
+			if (!fieldList.contains(category.getName())) {
+				exhCategoryLinkRepository.delete(old);
+			}
+			// -> 있으면 그냥 넘기기
+		}
+		// 추가
+		for (String field : fieldList) {
+			CategoryEntity category = categoryList.stream()
+				.filter(c -> field.equals(c.getName()))
+				.findAny()
+				.orElse(null);
+
+			if (category == null) {
+				continue;
+			}
+			exhCategoryLinkRepository.save(ExhCategoryLinkEntity.builder()
+				.exhCategoryLinkId(ExhCategoryLinkId.builder()
+					.exhId(command.getExhId())
+					.categoryId(category.getCategoryId())
+					.build())
+				.build());
+		}
 		ExhEntity updatedExh = ExhEntity.builder()
 			.exhName(command.getExhName())
 			.gallery(command.getGallery())
@@ -190,90 +230,15 @@ public class ExhService implements ExhOperationUseCase, ExhReadUseCase {
 			.intro(command.getIntro())
 			.url(command.getUrl())
 			.poster(uploadImageUrl)
-			.art(command.getArt())
+			.source(command.getSource())
 			.build();
 
 		exhEntity.updateExhEntity(updatedExh);
 		exhRepository.save(exhEntity);
-		return FindExhResult.findByExh(exhEntity, null);
+		return FindExhResult.findByExh(exhEntity, null, command.getArt());
 	}
 
 	private Long getUserId() {
 		return getCurrentUserEntity().getUserId();
 	}
-
-	// private Boolean checkField(ExhField field, ExhEntity exh) {
-	// 	if (field == null) {
-	// 		return true;
-	// 	}
-	// 	if (field == ExhField.OTHER) {
-	// 		if (exh.getArt() == null) { // other && art == null
-	// 			return true;
-	// 		} else { // other && art != null
-	// 			return !exh.getArt().contains(ExhField.PHOTO.label())
-	// 				&& !exh.getArt().contains(ExhField.PAINTING.label())
-	// 				&& !exh.getArt().contains(ExhField.PIECE.label())
-	// 				&& !exh.getArt().contains(ExhField.CRAFTS.label())
-	// 				&& !exh.getArt().contains(ExhField.MEDIA_ART.label());
-	// 		}
-	// 	} else {
-	// 		if (exh.getArt() == null) { // !other && art == null
-	// 			return false;
-	// 		} else { // !other && art != null
-	// 			return exh.getArt().contains(field.label());
-	// 		}
-	// 	}
-	// }
-	//
-	// private Boolean checkPrice(ExhPrice price, ExhEntity exh) {
-	// 	if (price == null) {
-	// 		return true;
-	// 	}
-	// 	switch (price) {
-	// 		case ExhPrice.FREE:
-	// 			if (exh.getFee() == 0) {
-	// 				return true;
-	// 			}
-	// 			break;
-	// 		case ExhPrice.PAY:
-	// 			if (exh.getFee() != 0) {
-	// 				return true;
-	// 			}
-	// 			break;
-	// 		default:
-	// 			if (exh.getFee() <= 20000) {
-	// 				return true;
-	// 			}
-	// 	}
-	// 	return false;
-	// }
-	//
-	// private Boolean checkState(ExhState state, ExhEntity exh) {
-	// 	if (state == null) {
-	// 		return true;
-	// 	}
-	// 	LocalDate now = LocalDate.now();
-	// 	switch (state) {
-	// 		case ExhState.BEFORE_START:
-	// 			if (exh.getExhPeriodStart().isAfter(now)) {
-	// 				return true;
-	// 			}
-	// 			break;
-	// 		case ExhState.END:
-	// 			if (exh.getExhPeriodEnd().isBefore(now)) {
-	// 				return true;
-	// 			}
-	// 			break;
-	// 		default:
-	// 			if (isProceedExh(exh, now)) {
-	// 				return true;
-	// 			}
-	// 	}
-	// 	return false;
-	// }
-	//
-	// private Boolean isProceedExh(ExhEntity exh, LocalDate targetDate) {
-	// 	return exh.getExhPeriodStart().isEqual(targetDate) || exh.getExhPeriodEnd().isEqual(targetDate)
-	// 		|| (exh.getExhPeriodStart().isBefore(targetDate) && exh.getExhPeriodEnd().isAfter(targetDate));
-	// }
 }
