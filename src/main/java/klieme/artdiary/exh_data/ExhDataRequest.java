@@ -1,6 +1,7 @@
 package klieme.artdiary.exh_data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,7 @@ public class ExhDataRequest {
 	private String painter;
 	private Integer fee;
 	private String source;
-	private String art;
+	private List<String> fieldList;
 	private String url;
 	private String poster;
 	private String intro;

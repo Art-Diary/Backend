@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.exhibition.enums.ExhField;
@@ -162,14 +163,9 @@ public class ExhController {
 
 	@GetMapping("/search")
 	public ResponseEntity<List<ExhView>> getExhListBySearchName(
-		@Valid @RequestParam(name = "searchName", required = false) String searchName) {
+		@NotBlank @RequestParam(name = "searchName") String searchName) {
 
 		log.info("[전시회 이름 검색 결과 조회]");
-
-		//string 자료형을 갖는 변수일 경우 빈 문자열인지 확인
-		if ((searchName != null && searchName.isBlank())) {
-			throw new ArtDiaryException(MessageType.BAD_REQUEST);
-		}
 
 		// 비즈니스 로직 호출
 		List<ExhReadUseCase.FindExhResult> exhResults = exhReadUseCase.getExhListBySearchName(
@@ -201,6 +197,7 @@ public class ExhController {
 			.url(exhRequest.getUrl())
 			.poster(exhRequest.getPoster())
 			.art(exhRequest.getArt())
+			.source(exhRequest.getSource())
 			.build();
 		// 비즈니스 로직 호출
 		ExhReadUseCase.FindExhResult result = exhOperationUseCase.updateExhDetailInfo(command);

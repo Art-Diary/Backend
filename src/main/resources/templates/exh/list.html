@@ -74,7 +74,17 @@
                                     </tr>
                                     <tr>
                                         <th>exh art</th>
-                                        <td colspan="3"><input type="text" id="art" name="art" placeholder="분야를 입력해 주세요." /></td>
+                                        <td colspan="3">
+                                            <input type="checkbox" name="art" value="회화"> 회화&nbsp;&nbsp;&nbsp;
+                                            <input type="checkbox" name="art" value="조각"> 조각&nbsp;&nbsp;&nbsp;
+                                            <input type="checkbox" name="art" value="사진"> 사진&nbsp;&nbsp;&nbsp;
+                                            <input type="checkbox" name="art" value="판화"> 판화&nbsp;&nbsp;&nbsp;
+                                            <input type="checkbox" name="art" value="일러스트레이션"> 일러스트레이션&nbsp;&nbsp;&nbsp;
+                                            <input type="checkbox" name="art" value="미디어아트"> 미디어아트&nbsp;&nbsp;&nbsp;
+                                            <input type="checkbox" name="art" value="공예"> 공예&nbsp;&nbsp;&nbsp;
+                                            <input type="checkbox" name="art" value="설치미술"> 설치미술&nbsp;&nbsp;&nbsp;
+                                            <input type="checkbox" name="art" value="그외"> 그외
+<!--                                            <input type="text" id="art" name="art" placeholder="분야를 입력해 주세요." /></td>-->
                                     </tr>
                                     <tr>
                                         <th>exh url</th>
@@ -169,15 +179,30 @@
                             // 게시글 저장(수정)
                             function savePost() {
                                 const form = document.getElementById('saveForm');
-                                const fields = [form.exhName, form.gallery, form.source, form.exhPeriodStart, form.exhPeriodEnd, form.painter, form.fee, form.art, form.url, form.poster, form.intro];
-                                const fieldNames = ['제목', '갤러리', '출처', '시작 날짜', '종료 날짜', '작가', '가격', '분야', '홈페이지 url', '포스터', '소개글'];
+                                const fields = [form.exhName, form.gallery, form.source, form.exhPeriodStart, form.exhPeriodEnd, form.painter, form.fee, form.url, form.poster, form.intro];
+                                const fieldNames = ['제목', '갤러리', '출처', '시작 날짜', '종료 날짜', '작가', '가격', '홈페이지 url', '포스터', '소개글'];
 
                                 for (let i = 0, len = fields.length; i < len; i++) {
-                                    if (fieldNames[i] === '작가' || fieldNames[i] === '소개글' || fieldNames[i] === '홈페이지 url' || fieldNames[i] === '분야') {
+                                    if (fieldNames[i] === '작가' || fieldNames[i] === '소개글' || fieldNames[i] === '홈페이지 url') {
                                         continue;
                                     }
                                     isValid(fields[i], fieldNames[i]);
                                 }
+
+                                // 체크된 체크박스 값 가져오기
+                                const artCheckboxes = document.querySelectorAll('input[name="art"]:checked');
+                                if (artCheckboxes.length === 0) {
+                                    alert('분야를 최소 하나 이상 선택하세요.');
+                                    return;
+                                }
+
+                                // 선택된 값들을 배열로 변환 후 form에 추가
+                                const selectedArt = Array.from(artCheckboxes).map(cb => cb.value);
+                                const artInput = document.createElement('input');
+                                artInput.type = 'hidden';
+                                artInput.name = 'fieldList';  // 서버에서 이 이름으로 받을 수 있음
+                                artInput.value = selectedArt.join(','); // 예: "회화, 조각"
+                                form.appendChild(artInput);
 
                                 document.getElementById('saveBtn').disabled = true;
                                 form.action = '/exh/data';

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -25,7 +24,7 @@ public class ExhDataController {
 
 	@GetMapping("")
 	public String getExhDataList(Model model) {
-		List<ExhEntity> list = exhDataUseCase.getExhList();
+		List<ExhDataResponse> list = exhDataUseCase.getExhList();
 
 		model.addAttribute("exhs", list);
 		System.out.println(list.size());
