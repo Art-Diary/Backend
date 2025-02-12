@@ -216,4 +216,41 @@ public class ExhRepoCustomImpl implements ExhRepoCustom {
 		}
 		return result;
 	}
+
+	@Override
+	public Map<String, Object> getExhDetailInfo(Long userId, Long exhId) {
+		QExhEntity exh = QExhEntity.exhEntity;
+		QFavoriteExhEntity favoriteExh = QFavoriteExhEntity.favoriteExhEntity;
+		QCategoryEntity category = QCategoryEntity.categoryEntity;
+		QExhCategoryLinkEntity exhCategoryLinkEntity = QExhCategoryLinkEntity.exhCategoryLinkEntity;
+
+		Tuple tuple = query.select(exh, Expressions.stringTemplate("GROUP_CONCAT({0})", category.name),
+				new CaseBuilder()
+					.when(
+						JPAExpressions.selectOne()
+							.from(favoriteExh)
+							.where(favoriteExh.favoriteExhId.exhId.eq(exh.exhId)
+								.and(favoriteExh.favoriteExhId.userId.eq(userId)))
+							.exists()
+					).then(1)
+					.otherwise(0))
+			.distinct()
+			.from(exh)
+			.leftJoin(favoriteExh).on(exh.exhId.eq(favoriteExh.favoriteExhId.exhId))
+			.leftJoin(exhCategoryLinkEntity).on(exh.exhId.eq(exhCategoryLinkEntity.exhCategoryLinkId.exhId))
+			.leftJoin(category).on(exhCategoryLinkEntity.exhCategoryLinkId.categoryId.eq(category.categoryId))
+			.fetchJoin()
+			.where(exh.exhId.eq(exhId))
+			.groupBy(exh.exhId)
+			.orderBy(exh.exhId.desc())
+			.fetchOne();
+		if (tuple != null) {
+			Map<String, Object> result = new HashMap<>();
+
+			result.put("exhibition", tuple.get(0, ExhEntity.class));
+			result.put("category", tuple.get(1, String.class));
+			return result;
+		}
+		return null;
+	}
 }

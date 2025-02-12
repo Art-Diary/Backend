@@ -83,7 +83,6 @@ public class ExhDataService implements ExhDataUseCase {
 		List<CategoryEntity> categoryList = categoryRepository.findAll();
 
 		for (String field : params.getFieldList()) {
-			System.out.println(field);
 			CategoryEntity category = categoryList.stream()
 				.filter(c -> field.equals(c.getName()))
 				.findAny()

@@ -15,4 +15,6 @@ public interface ExhRepoCustom {
 	List<Map<String, Object>> searchExhListBySearchName(String searchName, Long userId);
 
 	List<Map<String, Object>> getExhListForExhData();
+
+	Map<String, Object> getExhDetailInfo(Long userId, Long exhId);
 }
