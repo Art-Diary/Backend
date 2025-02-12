@@ -3,6 +3,7 @@ package klieme.artdiary.exhibition.service;
 import static klieme.artdiary.common.SecurityUtil.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,8 +17,13 @@ import klieme.artdiary.common.api.ArtDiaryException;
 import klieme.artdiary.common.api.MessageType;
 import klieme.artdiary.common.image.ImageType;
 import klieme.artdiary.common.image.S3ImageTransfer;
+import klieme.artdiary.exhibition.data_access.entity.CategoryEntity;
+import klieme.artdiary.exhibition.data_access.entity.ExhCategoryLinkEntity;
+import klieme.artdiary.exhibition.data_access.entity.ExhCategoryLinkId;
 import klieme.artdiary.exhibition.data_access.entity.ExhEntity;
 import klieme.artdiary.exhibition.data_access.entity.RegExhEntity;
+import klieme.artdiary.exhibition.data_access.repository.CategoryRepository;
+import klieme.artdiary.exhibition.data_access.repository.ExhCategoryLinkRepository;
 import klieme.artdiary.exhibition.data_access.repository.ExhRepository;
 import klieme.artdiary.exhibition.data_access.repository.RegExhRepository;
 import klieme.artdiary.exhibition.enums.RegExhState;
@@ -28,13 +34,18 @@ import klieme.artdiary.user.enums.RoleType;
 public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase {
 	private final RegExhRepository regExhRepository;
 	private final ExhRepository exhRepository;
+	private final CategoryRepository categoryRepository;
+	private final ExhCategoryLinkRepository exhCategoryLinkRepository;
 	private final S3ImageTransfer s3ImageTransfer;
 
 	@Autowired
 	public RegExhService(RegExhRepository regExhRepository, ExhRepository exhRepository,
+		CategoryRepository categoryRepository, ExhCategoryLinkRepository exhCategoryLinkRepository,
 		S3ImageTransfer s3ImageTransfer) {
 		this.regExhRepository = regExhRepository;
 		this.exhRepository = exhRepository;
+		this.categoryRepository = categoryRepository;
+		this.exhCategoryLinkRepository = exhCategoryLinkRepository;
 		this.s3ImageTransfer = s3ImageTransfer;
 	}
 
@@ -91,6 +102,10 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 			for (Map<String, Object> queryResult : queryResultList) {
 				RegExhEntity regExhEntity = (RegExhEntity)queryResult.get("regExhEntity");
 				UserEntity userEntity = (UserEntity)queryResult.get("userEntity");
+
+				if (userEntity == null) {
+					continue;
+				}
 				results.add(FindRegExhListResult.findByRegExhList(regExhEntity, idx, userEntity.getNickname()));
 				idx++;
 			}
@@ -201,7 +216,6 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 				.fee(command.getRegFee())
 				.intro(command.getRegIntro())
 				.url(command.getRegUrl())
-				.art(command.getRegArt())
 				.poster(poster)
 				.source(command.getRegSource())
 				.build();
@@ -211,6 +225,26 @@ public class RegExhService implements RegExhOperationUseCase, RegExhReadUseCase 
 				exhEntity.updateExhEntity(updateExhEntity);
 			}
 			exhRepository.save(exhEntity);
+			// 전시회 카테고리 추가
+			List<CategoryEntity> categoryList = categoryRepository.findAll();
+			List<String> fieldList = new ArrayList<>(Arrays.asList(command.getRegArt().split(","))); // 카테고리
+
+			for (String field : fieldList) {
+				CategoryEntity category = categoryList.stream()
+					.filter(c -> field.equals(c.getName()))
+					.findAny()
+					.orElse(null);
+
+				if (category == null) {
+					continue;
+				}
+				exhCategoryLinkRepository.save(ExhCategoryLinkEntity.builder()
+					.exhCategoryLinkId(ExhCategoryLinkId.builder()
+						.exhId(exhEntity.getExhId())
+						.categoryId(category.getCategoryId())
+						.build())
+					.build());
+			}
 		}
 		// 사용자가 요청한 전시회를 관리자가 승인
 		regExhEntity.updateRegExhByAdmin(RegExhEntity.builder()
